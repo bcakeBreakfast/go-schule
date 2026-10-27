@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-title" content="Go-Schule">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700&text=%E7%A2%81&display=swap">
 <style>
 /* Layout: eine schmale Spalte wie ein Übungsheft, unten eine App-Tab-Leiste. Alle Maße auf dem 8px-Raster (--s1 … --s8). */
 :root{
@@ -28,8 +28,9 @@
   --board:#DCB878; --grid:#4E3A1C; --coord:#6B5532;
   --good:#2E7650; --good-soft:#DCEBE1; --warn:#B4472B; --warn-soft:#F3E0D9;
   --stone-b1:#50535B; --stone-b2:#111216; --stone-w1:#FFFFFF; --stone-w2:#D6D7D0; --stone-edge:#8C8670;
-  --f-display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
-  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,sans-serif;
+  --f-mark:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-display:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-body:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -56,10 +57,10 @@ button{font:inherit;color:inherit}
 
 /* Kopf */
 header.top{display:flex;align-items:center;gap:var(--s2);min-height:var(--s6)}
-.mark{width:var(--s6);height:var(--s6);border-radius:var(--r1);background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-size:24px;line-height:24px;font-weight:700;flex:none}
-h1{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0}
+.mark{width:var(--s6);height:var(--s6);border-radius:var(--r1);background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-mark);font-size:24px;line-height:24px;font-weight:700;flex:none}
+h1{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0;letter-spacing:-.01em}
 .sub{margin:0;color:var(--muted);font-size:14px;line-height:16px}
-h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0;text-wrap:balance;letter-spacing:-.01em}
 .eyebrow{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .view{display:flex;flex-direction:column;gap:var(--s3)}
 .stack{display:flex;flex-direction:column;gap:var(--s1)}
