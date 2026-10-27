@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
+<script>window.GO_PWA=true</script>
+<title>Go-Schule</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#ECEFEC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131619" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Go-Schule">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: eine schmale Spalte wie ein Übungsheft, unten eine App-Tab-Leiste. Alle Maße auf dem 8px-Raster (--s1 … --s8). */
+:root{
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:40px; --s6:48px; --s7:56px; --s8:64px;
+  --r1:8px; --r2:16px; --scrim:rgba(12,14,16,.45);
+  --bg:#ECEFEC; --surface:#F7F8F6; --raised:#FFFFFF; --ink:#1D2227; --muted:#5B656D; --rule:#D2D8D4;
+  --accent:#2D4B7F; --accent-ink:#FFFFFF; --accent-soft:#DCE3EF;
+  --board:#DCB878; --grid:#4E3A1C; --coord:#6B5532;
+  --good:#2E7650; --good-soft:#DCEBE1; --warn:#B4472B; --warn-soft:#F3E0D9;
+  --stone-b1:#50535B; --stone-b2:#111216; --stone-w1:#FFFFFF; --stone-w2:#D6D7D0; --stone-edge:#8C8670;
+  --f-display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131619; --surface:#1B1F24; --raised:#22272D; --ink:#E4E7E9; --muted:#97A1A9; --rule:#2B3138;
+    --accent:#93AEE0; --accent-ink:#0F1622; --accent-soft:#233149;
+    --board:#B9965C; --grid:#33250F; --coord:#3E2E14;
+    --good:#6FC495; --good-soft:#1C3127; --warn:#F08A6A; --warn-soft:#3A221B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131619; --surface:#1B1F24; --raised:#22272D; --ink:#E4E7E9; --muted:#97A1A9; --rule:#2B3138;
+  --accent:#93AEE0; --accent-ink:#0F1622; --accent-soft:#233149;
+  --board:#B9965C; --grid:#33250F; --coord:#3E2E14;
+  --good:#6FC495; --good-soft:#1C3127; --warn:#F08A6A; --warn-soft:#3A221B;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:24px;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:576px;margin:0 auto;padding-left:max(var(--s2),env(safe-area-inset-left,0px));padding-right:max(var(--s2),env(safe-area-inset-right,0px));padding-block:var(--s3) calc(var(--s8) + var(--s4));display:flex;flex-direction:column;gap:var(--s3)}
+
+/* Kopf */
+header.top{display:flex;align-items:center;gap:var(--s2);min-height:var(--s6)}
+.mark{width:var(--s6);height:var(--s6);border-radius:var(--r1);background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-size:24px;line-height:24px;font-weight:700;flex:none}
+h1{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0}
+.sub{margin:0;color:var(--muted);font-size:14px;line-height:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0;text-wrap:balance}
+.eyebrow{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.view{display:flex;flex-direction:column;gap:var(--s3)}
+.stack{display:flex;flex-direction:column;gap:var(--s1)}
+
+/* Tab-Leiste unten */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(var(--s2),env(safe-area-inset-left,0px));padding-right:max(var(--s2),env(safe-area-inset-right,0px))}
+.tabbar-in{max-width:544px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;height:var(--s8)}
+.tabbar button{appearance:none;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;line-height:16px;font-weight:500;cursor:pointer}
+.tabbar button[aria-selected="true"]{color:var(--accent)}
+.tabbar svg{width:24px;height:24px}
+
+/* Icons */
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* Buttons */
+.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:var(--s1);height:var(--s6);padding:0 var(--s3);border:1px solid var(--rule);background:var(--raised);color:var(--ink);border-radius:var(--r1);font-weight:500;font-size:16px;line-height:24px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.4;cursor:default}
+.textbtn{appearance:none;background:none;border:0;color:var(--muted);font-size:14px;line-height:24px;cursor:pointer;padding:var(--s1) 0;display:inline-flex;align-items:center;gap:var(--s1);align-self:flex-start}
+.textbtn:hover{color:var(--ink)}
+
+/* Lektionsliste */
+.progress{display:flex;flex-direction:column;gap:var(--s1)}
+.progress-row{display:flex;justify-content:space-between;align-items:baseline}
+.progress-num{font-family:var(--f-display);font-size:32px;line-height:40px;font-variant-numeric:tabular-nums}
+.progress-num small{font-family:var(--f-body);font-size:14px;color:var(--muted);margin-left:var(--s1)}
+.bar{height:var(--s1);background:var(--rule);border-radius:var(--r1);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);border-radius:var(--r1);transition:width .4s}
+.lessons{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.lesson-row{appearance:none;width:100%;min-height:var(--s8);display:grid;grid-template-columns:var(--s5) 1fr auto;align-items:center;gap:var(--s2);padding:var(--s1) 0;background:none;border:0;border-bottom:1px solid var(--rule);text-align:left;cursor:pointer}
+.lesson-row:hover .t{color:var(--accent)}
+.num{font-family:var(--f-display);font-size:20px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.lt{display:flex;flex-direction:column;min-width:0}
+.lt .t{font-weight:700}
+.lt .d{color:var(--muted);font-size:14px;line-height:24px}
+.st{font-size:12px;line-height:16px;font-weight:500;white-space:nowrap}
+.st.done{width:var(--s3);height:var(--s3);border-radius:50%;background:var(--good-soft);color:var(--good);display:grid;place-items:center}
+.st.next{color:var(--accent);background:var(--accent-soft);padding:var(--s1) var(--s2);border-radius:var(--r2)}
+.cta{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s3);border-radius:var(--r2);background:var(--surface);border:1px solid var(--rule)}
+.cta p{margin:0;color:var(--muted)}
+.cta strong{color:var(--ink);display:block}
+
+/* Lektion */
+.prose{display:flex;flex-direction:column;gap:var(--s2);max-width:62ch}
+.prose p{margin:0}
+.prose ol{margin:0;padding-left:var(--s3);display:flex;flex-direction:column;gap:var(--s1)}
+.task{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r2);padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
+.task-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+.task p{margin:0;font-weight:500}
+.steps{display:flex;gap:var(--s1)}
+.steps i{width:var(--s1);height:var(--s1);border-radius:50%;background:var(--rule)}
+.steps i.on{background:var(--accent)}
+.feedback{margin:0;padding:var(--s2);border-radius:var(--r1);display:flex;gap:var(--s1);align-items:flex-start}
+.feedback[hidden]{display:none}
+.feedback[data-state="ok"]{background:var(--good-soft);color:var(--good)}
+.feedback[data-state="bad"]{background:var(--warn-soft);color:var(--warn)}
+.actions{display:flex;flex-direction:column;gap:var(--s1)}
+
+/* Brett */
+.board{width:100%;max-width:528px;margin:0 auto;touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
+.board svg{display:block;width:100%;height:auto;border-radius:var(--r1);box-shadow:0 1px 0 var(--rule),0 8px 24px -16px var(--stone-b2)}
+.co{font-family:var(--f-body);font-size:11px;fill:var(--coord);font-weight:500}
+.ln{font-family:var(--f-body);font-size:15px;font-weight:700}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3}}
+.drop{transform-box:fill-box;transform-origin:center;animation:drop .22s ease-out}
+@keyframes drop{from{transform:scale(1.18);opacity:.2}}
+@media (prefers-reduced-motion: reduce){.pulse,.drop{animation:none}.bar span{transition:none}}
+
+/* Spielen */
+.statusbar{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);min-height:var(--s5)}
+.turn{font-weight:700;display:flex;align-items:center;gap:var(--s1)}
+.dot{width:var(--s2);height:var(--s2);border-radius:50%;background:var(--stone-b2);display:inline-block;flex:none}
+.dot.w{background:var(--stone-w1);box-shadow:inset 0 0 0 1px var(--stone-edge)}
+.dot.sm{width:var(--s1);height:var(--s1)}
+.caps{display:flex;align-items:center;gap:var(--s2);font-size:14px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums}
+.caps span{display:inline-flex;align-items:center;gap:var(--s1)}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s1)}
+.ctl{appearance:none;height:var(--s8);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);background:var(--raised);border-radius:var(--r1);font-size:12px;line-height:16px;font-weight:500;cursor:pointer;color:var(--ink);padding:0}
+.ctl .ic{margin-bottom:var(--s1)}
+.ctl:hover{border-color:var(--muted)}
+.ctl:disabled{opacity:.4;cursor:default}
+.ctl.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.coach-card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r2);padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
+.coach-head{display:flex;align-items:center;gap:var(--s1)}
+.badge{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.badge.weiss{color:var(--muted)}
+.coach-now{margin:0}
+.coach-old{list-style:none;margin:var(--s1) 0 0;padding:var(--s1) 0 0;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:var(--s1)}
+.coach-old:empty{display:none}
+.coach-old li{font-size:14px;line-height:24px;color:var(--muted)}
+.coach-old b{font-weight:500;color:var(--ink);margin-right:var(--s1)}
+.scorebox{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s2);border-radius:var(--r2);background:var(--accent-soft)}
+.scorebox p{margin:0;font-size:14px;line-height:24px}
+.scorebox .nums{font-family:var(--f-display);font-size:24px;line-height:32px;font-variant-numeric:tabular-nums}
+.scorebox .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
+details.panel{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+details.panel summary{list-style:none;min-height:var(--s7);display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:500}
+details.panel summary::-webkit-details-marker{display:none}
+details.panel summary .sum{color:var(--muted);font-weight:400;font-size:14px;display:flex;align-items:center;gap:var(--s1)}
+details.panel[open] summary .ic{transform:rotate(180deg)}
+.settings{display:flex;flex-direction:column;gap:var(--s2);padding-bottom:var(--s3)}
+.field{display:flex;flex-direction:column;gap:var(--s1);min-width:0}
+.field .lab{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--rule);border-radius:var(--r1);overflow:hidden;background:var(--raised)}
+.seg button{appearance:none;border:0;background:transparent;height:var(--s5);font-weight:500;font-size:14px;color:var(--muted);cursor:pointer}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);cursor:pointer;min-height:var(--s5)}
+.switch input{appearance:none;width:var(--s6);height:var(--s3);border-radius:var(--r2);background:var(--rule);position:relative;cursor:pointer;flex:none;margin:0;transition:background .2s}
+.switch input::after{content:"";position:absolute;top:0;left:0;width:var(--s3);height:var(--s3);border-radius:50%;background:var(--raised);box-shadow:0 0 0 2px var(--rule);transition:transform .2s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(var(--s3));box-shadow:0 0 0 2px var(--accent)}
+.record{font-size:14px;line-height:24px;color:var(--muted);margin:0}
+.record:empty{display:none}
+
+/* Spielansicht: genau ein Bildschirm, das Brett nimmt den Rest der Höhe */
+html.fit,html.fit body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s8) + var(--s2));gap:var(--s2)}
+html.fit header.top{display:none}
+html.fit main{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+html.fit #view-play{flex:1 1 0;min-height:0;gap:var(--s2)}
+.board-wrap{flex:1 1 0;min-height:0;container-type:size;display:grid;place-items:center}
+.board-wrap .board{width:min(100cqw,100cqh);max-width:none;margin:0}
+@supports not (width:1cqw){.board-wrap .board{width:auto;height:100%;max-width:100%;aspect-ratio:1}}
+.status-right{display:flex;align-items:center;gap:var(--s2)}
+.iconbtn{appearance:none;width:var(--s5);height:var(--s5);display:grid;place-items:center;border:1px solid var(--rule);background:var(--raised);border-radius:var(--r1);cursor:pointer;color:var(--ink);padding:0}
+.iconbtn:hover{border-color:var(--muted)}
+button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;flex:none}
+.coach-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s1)}
+.coach-head .ic{width:16px;height:16px;color:var(--muted);transition:transform .2s}
+.coach-card.open .coach-head .ic{transform:rotate(180deg)}
+.coach-now{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}
+.coach-card.open .coach-now{display:block;-webkit-line-clamp:none}
+.coach-old{display:flex;flex-direction:column;gap:var(--s1);border-top:1px solid var(--rule);padding-top:var(--s1)}
+.coach-old:empty{display:none}
+.coach-old span{font-size:14px;line-height:24px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.coach-card.open .coach-old span{display:block;-webkit-line-clamp:none}
+.coach-old b{font-weight:500;color:var(--ink);margin-right:var(--s1)}
+.sheet-backdrop{position:fixed;inset:0;z-index:30;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:576px;background:var(--surface);border-radius:var(--r2) var(--r2) 0 0;padding:var(--s3) max(var(--s2),env(safe-area-inset-right,0px)) calc(var(--s3) + env(safe-area-inset-bottom,0px)) max(var(--s2),env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:var(--s2)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center}
+.sheet h3{margin:0;font-family:var(--f-display);font-size:20px;line-height:24px}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5C4.7 20 4 19.3 4 18.5z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5c.8 0 1.5-.7 1.5-1.5z"/></symbol>
+  <symbol id="i-stone" viewBox="0 0 24 24"><circle cx="9" cy="10" r="5"/><circle cx="15" cy="15" r="5"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -4)"/></symbol>
+  <symbol id="i-pass" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.1"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <span class="mark" aria-hidden="true">碁</span>
+    <div><h1>Go-Schule</h1><p class="sub">Regeln lernen, mit Trainer spielen</p></div>
+  </header>
+
+  <main>
+    <section id="view-learn" class="view">
+      <div class="progress">
+        <div class="progress-row"><span class="eyebrow">Fortschritt</span></div>
+        <div class="progress-num" id="prog-num"></div>
+        <div class="bar"><span id="prog-bar"></span></div>
+      </div>
+      <ol class="lessons" id="lesson-list"></ol>
+      <div class="cta">
+        <p><strong>Lieber gleich ausprobieren?</strong>Spiele auf 9×9 gegen den Computer. Der Trainer erklärt jeden Zug.</p>
+        <button class="btn primary block" id="cta-play">Partie starten</button>
+      </div>
+      <button class="textbtn" id="reset-progress">Fortschritt zurücksetzen</button>
+    </section>
+
+    <section id="view-lesson" class="view" hidden>
+      <button class="textbtn" id="ls-back"><svg class="ic"><use href="#i-back"/></svg>Alle Lektionen</button>
+      <div class="stack"><div class="eyebrow" id="ls-eyebrow"></div><h2 id="ls-title"></h2></div>
+      <div class="prose" id="ls-body"></div>
+      <div class="task" id="ls-task">
+        <div class="task-head"><span class="eyebrow" id="ls-task-label"></span><span class="steps" id="ls-steps"></span></div>
+        <p id="ls-task-text"></p>
+      </div>
+      <div class="board" id="ls-board"></div>
+      <p class="feedback" id="ls-feedback" aria-live="polite" hidden></p>
+      <div class="actions">
+        <button class="btn primary block" id="ls-next" hidden>Weiter</button>
+        <button class="btn block" id="ls-retry" hidden>Nochmal versuchen</button>
+      </div>
+    </section>
+
+    <section id="view-play" class="view" hidden>
+      <div class="statusbar">
+        <div class="turn" id="turn"></div>
+        <div class="status-right">
+          <div class="caps" id="caps"></div>
+          <button class="iconbtn" id="btn-settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
+        </div>
+      </div>
+      <div class="board-wrap"><div class="board" id="play-board"></div></div>
+      <div class="scorebox" id="scorebox" hidden>
+        <div class="nums" id="score-nums"></div>
+        <p id="score-note"></p>
+        <div class="row" id="score-actions">
+          <button class="btn" id="btn-resume">Weiterspielen</button>
+          <button class="btn primary" id="btn-confirm">Bestätigen</button>
+        </div>
+      </div>
+      <div class="controls" id="controls">
+        <button class="ctl" id="btn-hint"><svg class="ic"><use href="#i-bulb"/></svg>Tipp</button>
+        <button class="ctl" id="btn-undo"><svg class="ic"><use href="#i-undo"/></svg>Zurück</button>
+        <button class="ctl" id="btn-pass"><svg class="ic"><use href="#i-pass"/></svg>Passen</button>
+        <button class="ctl" id="btn-new"><svg class="ic"><use href="#i-plus"/></svg><span>Neu</span></button>
+      </div>
+      <button class="coach-card" id="coach-card" aria-expanded="false" aria-live="polite">
+        <span class="coach-head"><span class="badge" id="coach-who"></span><svg class="ic"><use href="#i-down"/></svg></span>
+        <span class="coach-now" id="coach-now"></span>
+        <span class="coach-old" id="coach-old"></span>
+      </button>
+    </section>
+  </main>
+</div>
+
+<div class="sheet-backdrop" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet-head"><h3 id="sheet-title">Einstellungen</h3><button class="iconbtn" id="sheet-close" aria-label="Schließen"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="settings">
+      <div class="field"><span class="lab">Brett</span>
+        <div class="seg" id="seg-size"><button data-v="9">9×9</button><button data-v="13">13×13</button></div></div>
+      <div class="field"><span class="lab">Gegner</span>
+        <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button></div></div>
+      <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
+    </div>
+    <p class="record" id="record"></p>
+  </div>
+</div>
+
+<nav class="tabbar" role="tablist">
+  <div class="tabbar-in">
+    <button id="tab-learn" role="tab" aria-selected="true"><svg class="ic"><use href="#i-book"/></svg>Lernen</button>
+    <button id="tab-play" role="tab" aria-selected="false"><svg class="ic"><use href="#i-stone"/></svg>Spielen</button>
+  </div>
+</nav>
+
+<script>
+/*ENGINE*/
+const KOMI=7.5;
+function nbrs(i,n){const x=i%n,y=(i/n)|0,r=[];if(x>0)r.push(i-1);if(x<n-1)r.push(i+1);if(y>0)r.push(i-n);if(y<n-1)r.push(i+n);return r}
+function groupAt(b,i,n){const c=b[i],stones=[i],libs=new Set(),seen=new Set([i]);
+  for(let k=0;k<stones.length;k++){for(const j of nbrs(stones[k],n)){if(b[j]===0)libs.add(j);else if(b[j]===c&&!seen.has(j)){seen.add(j);stones.push(j)}}}
+  return{stones,libs,color:c}}
+function tryPlay(b,i,c,n,ko){
+  if(b[i]!==0)return{err:'occupied'};
+  if(i===ko)return{err:'ko'};
+  const nb=b.slice();nb[i]=c;const captured=[];const o=3-c;
+  for(const j of nbrs(i,n)){if(nb[j]===o){const g=groupAt(nb,j,n);if(g.libs.size===0){for(const s of g.stones){nb[s]=0;captured.push(s)}}}}
+  const group=groupAt(nb,i,n);
+  if(group.libs.size===0)return{err:'suicide'};
+  const k=(captured.length===1&&group.stones.length===1&&group.libs.size===1)?captured[0]:-1;
+  return{board:nb,captured,ko:k,group}}
+function estimate(b,n){const inf=new Float32Array(n*n);
+  for(let i=0;i<n*n;i++){if(!b[i])continue;const sg=b[i]===1?1:-1,x=i%n,y=(i/n)|0;
+    for(let dy=-3;dy<=3;dy++){const yy=y+dy;if(yy<0||yy>=n)continue;
+      for(let dx=-3;dx<=3;dx++){const d=Math.abs(dx)+Math.abs(dy);if(d>3)continue;const xx=x+dx;if(xx<0||xx>=n)continue;inf[yy*n+xx]+=sg*(4-d)/4}}}
+  return inf}
+function terrCount(b,n){const inf=estimate(b,n);let bl=0,wh=0;const seen=new Uint8Array(n*n);
+  for(let i=0;i<n*n;i++){if(b[i]&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>seen[s]=1);let owner=b[i];
+      if(g.libs.size===1)owner=3-b[i];
+      else if(g.libs.size===2){const sg=b[i]===1?1:-1;let a=0;g.stones.forEach(s=>a+=inf[s]*sg);a/=g.stones.length;if(a<0.3)owner=0}
+      if(owner===1)bl+=g.stones.length;else if(owner===2)wh+=g.stones.length}}
+  for(let i=0;i<n*n;i++){if(!b[i]){if(inf[i]>0.6)bl++;else if(inf[i]<-0.6)wh++}}
+  return{t:[0,bl,wh],inf}}
+function atariGroups(b,n,c){const out=[],seen=new Uint8Array(n*n);
+  for(let i=0;i<n*n;i++){if(b[i]===c&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>seen[s]=1);if(g.libs.size===1)out.push(g)}}return out}
+function evalMove(b,n,i,c,ko,moveNo,base,ownAtari){
+  const r=tryPlay(b,i,c,n,ko);if(r.err)return null;
+  const o=3-c,why=[];let s=0;const add=(v,t)=>{s+=v;if(t)why.push({v,t})};
+  const x=i%n,y=(i/n)|0,nb=nbrs(i,n),k=r.captured.length;
+  if(!k&&nb.every(j=>b[j]===c))add(-40);
+  if(k)add(5+k*5,k===1?'schlägt einen Stein':`schlägt ${k} Steine`);
+  let rescued=0;for(const g of ownAtari){const s0=g.stones[0];if(r.board[s0]===c&&groupAt(r.board,s0,n).libs.size>=2)rescued+=g.stones.length}
+  if(rescued)add(6+rescued*5,'rettet eine Gruppe aus dem Atari');
+  const L=r.group.libs.size;
+  if(L===1&&!k)add(-6-r.group.stones.length*4);else if(L===1)add(-1);else if(L===2)add(-1);
+  const so=new Set();let opG=0,at=0;
+  for(const j of nb){if(r.board[j]===o&&!so.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(q=>so.add(q));opG++;if(g.libs.size===1)at+=g.stones.length}}
+  if(at)add(2+at*2,'setzt gegnerische Steine ins Atari');
+  if(opG>=2&&L>=2)add(1.5,'trennt gegnerische Steine');
+  const sc=new Set();let ownG=0;
+  for(const j of nb){if(b[j]===c&&!sc.has(j)){const g=groupAt(b,j,n);g.stones.forEach(q=>sc.add(q));ownG++}}
+  if(ownG>=2&&L>=2)add(1.5,'verbindet eigene Steine');
+  const after=terrCount(r.board,n).t,og=after[c]-base.t[c],rg=base.t[o]-after[o];
+  add(og*0.9+rg*0.9);
+  if(og>=3)why.push({v:og*0.9,t:'baut das eigene Gebiet aus'});
+  if(rg>=3)why.push({v:rg*0.9,t:'verkleinert das gegnerische Gebiet'});
+  const sg=c===1?1:-1;
+  if(!k&&L<=2&&base.inf[i]*sg<-1.2)add(-4);
+  const d=Math.min(x,y,n-1-x,n-1-y),early=moveNo<n*1.3;
+  if(d===0)add(early?-7:-1.5);else if(d===1)add(early?-3.5:-0.3);
+  if(early){const dx=Math.min(x,n-1-x),dy=Math.min(y,n-1-y);
+    if((dx===2||dx===3)&&(dy===2||dy===3)){let empty=true;
+      for(let yy=Math.max(0,y-2);yy<=Math.min(n-1,y+2);yy++)for(let xx=Math.max(0,x-2);xx<=Math.min(n-1,x+2);xx++)if(b[yy*n+xx])empty=false;
+      if(empty){add(4);why.push({v:9,t:'besetzt eine freie Ecke'})}}}
+  why.sort((a,b2)=>b2.v-a.v);
+  return{i,s,why,r}}
+function analyze(b,n,c,ko,moveNo){const base=terrCount(b,n),oa=atariGroups(b,n,c),out=[];
+  for(let i=0;i<n*n;i++){if(b[i])continue;const e=evalMove(b,n,i,c,ko,moveNo,base,oa);if(e)out.push(e)}
+  out.sort((a,b2)=>b2.s-a.s);return out}
+function scoreArea(b,n,dead){const nb=b.slice();for(const i of dead)nb[i]=0;const own=new Int8Array(n*n);const s=[0,0,0];
+  for(let i=0;i<n*n;i++)if(nb[i]){s[nb[i]]++;own[i]=nb[i]}
+  const seen=new Uint8Array(n*n);
+  for(let i=0;i<n*n;i++){if(nb[i]||seen[i])continue;const reg=[i];seen[i]=1;let border=0;
+    for(let k=0;k<reg.length;k++){for(const j of nbrs(reg[k],n)){if(nb[j])border|=nb[j];else if(!seen[j]){seen[j]=1;reg.push(j)}}}
+    if(border===1||border===2){s[border]+=reg.length;reg.forEach(q=>own[q]=border)}}
+  return{black:s[1],white:s[2]+KOMI,own}}
+/*END ENGINE*/
+
+const $=s=>document.querySelector(s);
+const LET='ABCDEFGHJKLMNOPQRST';
+const coord=(i,n)=>LET[i%n]+(n-Math.floor(i/n));
+const fmt=v=>String(v).replace('.',',');
+const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}};
+const ERR={occupied:'Dort liegt schon ein Stein.',suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.'};
+
+/* ---------- Speicher ---------- */
+const KEY='go-schule-v1';
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.settings)return s}catch(e){}
+  return{done:{},settings:{size:9,level:'leicht',libs:false},stats:{win:0,loss:0},tab:'learn',game:null}}
+let store=load();
+function save(){try{store.game=G;localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+
+/* ---------- Brett zeichnen ---------- */
+const CELL=40,M=40;
+function hoshi(n){if(n===9)return[[2,2],[6,2],[2,6],[6,6],[4,4]];if(n===13)return[[3,3],[9,3],[3,9],[9,9],[6,6]];if(n===7)return[[3,3]];return[]}
+function drawBoard(el,o){
+  const n=o.n,S=2*M+(n-1)*CELL,P=k=>M+k*CELL,R=CELL*0.47,id=el.id,b=o.board,dead=new Set(o.dead||[]);
+  const anim=o.last>=0&&(el._prevLast!==o.last||el._prevN!==n);el._prevLast=o.last;el._prevN=n;
+  let h=`<svg viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Go-Brett ${n} mal ${n}">`;
+  h+=`<defs><radialGradient id="${id}-b" cx="36%" cy="30%" r="70%"><stop offset="0" style="stop-color:var(--stone-b1)"/><stop offset="1" style="stop-color:var(--stone-b2)"/></radialGradient>`+
+     `<radialGradient id="${id}-w" cx="36%" cy="30%" r="74%"><stop offset="0" style="stop-color:var(--stone-w1)"/><stop offset="1" style="stop-color:var(--stone-w2)"/></radialGradient></defs>`;
+  h+=`<rect width="${S}" height="${S}" rx="8" style="fill:var(--board)"/>`;
+  for(let k=0;k<n;k++){const w=(k===0||k===n-1)?1.7:1;
+    h+=`<line x1="${P(0)}" y1="${P(k)}" x2="${P(n-1)}" y2="${P(k)}" style="stroke:var(--grid);stroke-width:${w}"/><line x1="${P(k)}" y1="${P(0)}" x2="${P(k)}" y2="${P(n-1)}" style="stroke:var(--grid);stroke-width:${w}"/>`}
+  for(const[x,y]of hoshi(n))h+=`<circle cx="${P(x)}" cy="${P(y)}" r="3.6" style="fill:var(--grid)"/>`;
+  for(let k=0;k<n;k++)h+=`<text x="${P(k)}" y="${M-24}" class="co" text-anchor="middle">${LET[k]}</text><text x="${M-24}" y="${P(k)+4}" class="co" text-anchor="middle">${n-k}</text>`;
+  let libs=null;
+  if(o.atari||o.libNums){libs=new Int16Array(n*n);const seen=new Uint8Array(n*n);
+    for(let i=0;i<n*n;i++)if(b[i]&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>{seen[s]=1;libs[s]=g.libs.size})}}
+  for(let i=0;i<n*n;i++){if(!b[i])continue;const cx=P(i%n),cy=P((i/n)|0),dd=dead.has(i)?' opacity="0.35"':'',cl=(anim&&i===o.last)?' class="drop"':'';
+    h+=`<g${cl}>`+(b[i]===1?`<circle cx="${cx}" cy="${cy}" r="${R}" style="fill:url(#${id}-b)"${dd}/>`:`<circle cx="${cx}" cy="${cy}" r="${R-0.5}" style="fill:url(#${id}-w);stroke:var(--stone-edge);stroke-width:1"${dd}/>`);
+    if(!dead.has(i)){
+      if(o.atari&&libs[i]===1)h+=`<circle cx="${cx}" cy="${cy}" r="${R+2.5}" style="fill:none;stroke:var(--warn);stroke-width:2.6"/>`;
+      if(o.libNums&&i!==o.last)h+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" class="ln" style="fill:var(${b[i]===1?'--stone-w1':'--stone-b2'})">${libs[i]}</text>`}
+    h+='</g>'}
+  if(o.last>=0&&b[o.last]){const cx=P(o.last%n),cy=P((o.last/n)|0);
+    h+=`<circle cx="${cx}" cy="${cy}" r="${CELL*0.17}" style="fill:none;stroke:var(${b[o.last]===1?'--stone-w1':'--stone-b2'});stroke-width:2.2"/>`}
+  if(o.own){for(let i=0;i<n*n;i++){if(o.own[i]&&(!b[i]||dead.has(i))){const cx=P(i%n),cy=P((i/n)|0),q=CELL*0.2;
+      h+=`<rect x="${cx-q}" y="${cy-q}" width="${q*2}" height="${q*2}" style="fill:var(${o.own[i]===1?'--stone-b2':'--stone-w1'});stroke:var(--stone-edge);stroke-width:.8"/>`}}}
+  if(o.libDots){const seen=new Set();for(let i=0;i<n*n;i++)if(b[i]===o.libDots){for(const j of groupAt(b,i,n).libs)seen.add(j)}
+    for(const j of seen)h+=`<circle cx="${P(j%n)}" cy="${P((j/n)|0)}" r="5.5" style="fill:var(--accent)"/>`}
+  for(const[x,y]of(o.marks||[])){const q=CELL*0.2;h+=`<rect x="${P(x)-q}" y="${P(y)-q}" width="${q*2}" height="${q*2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3"/>`}
+  if(o.hint>=0&&!b[o.hint])h+=`<circle cx="${P(o.hint%n)}" cy="${P((o.hint/n)|0)}" r="${R-2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5"/>`;
+  h+=`<circle class="ghost" cx="-100" cy="-100" r="${R}" opacity="0" style="fill:var(--stone-b2);pointer-events:none"/>`;
+  h+='</svg>';el.innerHTML=h;el._o=o;
+  if(!el._bound){el._bound=true;
+    const pick=e=>{const svg=el.querySelector('svg'),o=el._o;if(!svg||!o)return-1;const rc=svg.getBoundingClientRect(),n=o.n,S=2*M+(n-1)*CELL;
+      const x=Math.round(((e.clientX-rc.left)/rc.width*S-M)/CELL),y=Math.round(((e.clientY-rc.top)/rc.height*S-M)/CELL);
+      return(x<0||y<0||x>=n||y>=n)?-1:y*n+x};
+    el.addEventListener('click',e=>{const i=pick(e);if(i>=0&&el._o.onPlay)el._o.onPlay(i)});
+    el.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const g=el.querySelector('.ghost');if(!g)return;const o=el._o,i=pick(e);
+      if(i<0||o.board[i]||!o.ghost){g.setAttribute('opacity','0');return}
+      g.setAttribute('cx',M+(i%o.n)*CELL);g.setAttribute('cy',M+Math.floor(i/o.n)*CELL);g.setAttribute('opacity','0.4')});
+    el.addEventListener('pointerleave',()=>{const g=el.querySelector('.ghost');if(g)g.setAttribute('opacity','0')})}
+}
+
+/* ---------- Lektionen ---------- */
+const ok=msg=>({ok:true,msg}),bad=msg=>({ok:false,msg});
+const E7=['.......','.......','.......','.......','.......','.......','.......'];
+const swap=rows=>rows.map(r=>r.replace(/X/g,'#').replace(/O/g,'X').replace(/#/g,'O'));
+const LIFE=['.......','.......','.......','.......','OOOOO..','XXXXO..','...XO..'];
+const KO=['.......','.......','...XO..','..XO.O.','...XO..','.......','.......'];
+const CUT=['.......','.......','...O...','..X.X..','...O...','.......','.......'];
+const LESSONS=[
+ {id:'brett',title:'Das Brett',sum:'Schnittpunkte, Zugfolge, Ziel',
+  body:['Go spielt man auf den <b>Schnittpunkten</b> der Linien, nicht in den Feldern. Profis nutzen ein 19×19-Brett. Zum Lernen sind 9×9 oder kleiner ideal.',
+        'Schwarz beginnt, danach setzen beide abwechselnd je einen Stein. Gesetzte Steine werden nie verschoben.',
+        'Das Ziel: Am Ende hast du mehr Fläche des Bretts umschlossen als dein Gegner.'],
+  puzzles:[{task:'Setze einen Stein auf den markierten Punkt. Die Mitte des Bretts heißt Tengen.',rows:E7,marks:[[3,3]],
+    check:c=>c.x===3&&c.y===3?ok('Genau. Jeder Stein steht auf einem Schnittpunkt.'):bad('Gültiger Punkt, aber nicht der markierte. Versuch es nochmal.')}]},
+ {id:'freiheiten',title:'Freiheiten',sum:'Wie viel Luft ein Stein hat',
+  body:['Jeder Stein braucht Luft. Die leeren Punkte direkt neben ihm (oben, unten, links, rechts) heißen <b>Freiheiten</b>. Diagonale Punkte zählen nicht.',
+        'In der Mitte hat ein Stein 4 Freiheiten, am Rand 3, in der Ecke nur 2. Die blauen Punkte zeigen sie dir.'],
+  puzzles:[{task:'Nimm dem weißen Stein eine Freiheit, indem du direkt neben ihn setzt.',rows:['.......','.......','.......','...O...','.......','.......','.......'],libDots:2,
+    check:c=>c.libsAt(3,3)===3?ok('Richtig. Er hat jetzt nur noch 3 Freiheiten.'):bad('Diagonal oder weiter weg nimmt ihm keine Freiheit. Setze direkt auf einen blauen Punkt.')},
+   {task:'Dieser Stein steht in der Ecke und hat nur 2 Freiheiten. Nimm ihm eine davon.',rows:['.......','.......','.......','.......','.......','.......','O......'],libDots:2,
+    check:c=>c.libsAt(0,6)===1?ok('Genau. Jetzt hat er nur noch eine Freiheit. Man sagt: Er steht im Atari.'):bad('Setze direkt neben den Stein in der Ecke.')}]},
+ {id:'schlagen',title:'Schlagen',sum:'Die letzte Freiheit nehmen',
+  body:['Nimmst du einem Stein seine <b>letzte</b> Freiheit, ist er geschlagen. Er wird vom Brett genommen und zählt als Gefangener.',
+        'Hat ein Stein nur noch eine Freiheit, steht er im <b>Atari</b>. Das ist die wichtigste Warnung im ganzen Spiel. Im Spielmodus markiert ein roter Ring solche Steine.'],
+  puzzles:[{task:'Der weiße Stein steht im Atari. Schlage ihn.',rows:['.......','.......','...X...','..XO...','...X...','.......','.......'],
+    check:c=>c.captured?ok('Geschlagen! Der Stein ist weg und zählt für dich.'):bad('Der weiße Stein hat noch eine Freiheit. Finde den leeren Punkt direkt neben ihm.')},
+   {task:'Auch am Rand: Schlage den weißen Stein.',rows:['.......','.......','.......','.......','.......','..X....','..OX...'],
+    check:c=>c.captured?ok('Richtig. Am Rand reichen weniger Steine zum Schlagen.'):bad('Am Rand fehlt die untere Seite. Welche Freiheit bleibt ihm noch?')}]},
+ {id:'gruppen',title:'Gruppen',sum:'Verbundene Steine teilen Freiheiten',
+  body:['Steine gleicher Farbe, die waagerecht oder senkrecht nebeneinander liegen, bilden eine <b>Gruppe</b>. Sie teilen sich ihre Freiheiten und werden nur gemeinsam geschlagen.',
+        'Diagonal liegende Steine sind nicht verbunden. Größere Gruppen sind meist schwerer zu fangen, weil sie mehr Freiheiten haben.'],
+  puzzles:[{task:'Die zwei weißen Steine sind eine Gruppe mit nur einer Freiheit. Schlage beide.',rows:['.......','.......','...XX..','..XOOX.','...X...','.......','.......'],
+    check:c=>c.captured>=2?ok('Beide auf einmal geschlagen. So funktionieren Gruppen.'):bad('Suche die letzte gemeinsame Freiheit der beiden weißen Steine.')}]},
+ {id:'retten',title:'Atari: Retten',sum:'Verlängern oder zurückschlagen',
+  body:['Steht eine deiner Gruppen im Atari, musst du meist sofort reagieren. Es gibt zwei Wege:',
+        '<b>Verlängern:</b> Setze an deine Gruppe an, damit sie neue Freiheiten bekommt. <b>Zurückschlagen:</b> Schlage einen angreifenden Stein, der selbst im Atari steht.'],
+  puzzles:[{task:'Dein Stein steht im Atari. Rette ihn durch Verlängern.',rows:['.......','.......','...O...','..OXO..','.......','.......','.......'],
+    check:c=>c.colorAt(3,3)===1&&c.libsAt(3,3)>=2?ok('Gerettet. Deine Gruppe hat jetzt 3 Freiheiten.'):bad('Dein Stein steht immer noch im Atari. Wo bekommt er neue Freiheiten?')},
+   {task:'Wieder Atari. Diesmal hilft Verlängern nicht. Finde die Rettung.',rows:['.......','...O...','..O.O..','..OXO..','..XOX..','.......','.......'],
+    check:c=>c.captured&&c.libsAt(3,3)>=2?ok('Stark. Du schlägst den Angreifer und dein Stein bekommt neue Luft.'):bad('Schau dir den weißen Stein unter deinem an. Wie viele Freiheiten hat er?')}]},
+ {id:'verboten',title:'Verbotene Punkte',sum:'Selbstmord und die Ausnahme',
+  body:['Du darfst keinen Stein dorthin setzen, wo er (samt seiner Gruppe) sofort keine Freiheit hätte. Das wäre <b>Selbstmord</b>.',
+        '<b>Ausnahme:</b> Schlägt dein Zug dabei gegnerische Steine, ist er erlaubt. Durch das Schlagen entstehen neue Freiheiten.'],
+  puzzles:[{task:'Eine leere Ecke ist für dich verboten, die andere nicht. Finde den erlaubten Zug, der schlägt.',rows:['.O.....','O......','.......','.......','......X','.....XO','....XO.'],
+    check:c=>c.captured>=2?ok('Richtig. Ohne Schlagen wäre der Punkt verboten. Weil du schlägst, ist er erlaubt.'):bad('Das schlägt nichts. Suche den leeren Punkt, an dem Weiß selbst keine Luft mehr hat.')}]},
+ {id:'ko',title:'Ko',sum:'Kein sofortiges Zurückschlagen',
+  body:['Manchmal könnten beide endlos abwechselnd einen einzelnen Stein zurückschlagen. Die <b>Ko-Regel</b> verbietet das: Nach so einem Schlag darf der Gegner nicht sofort zurückschlagen.',
+        'Er muss zuerst woanders spielen, am besten eine Drohung, auf die du antworten musst. Erst danach darf er zurückschlagen.'],
+  puzzles:[{task:'Schlage den weißen Stein in der Mitte.',rows:KO,
+    check:c=>c.captured?ok('Geschlagen. Weiß dürfte jetzt nicht sofort zurückschlagen, obwohl es so aussieht. Das ist Ko.'):bad('Der weiße Stein in der Mitte hat nur eine Freiheit. Wo?')},
+   {task:'Weiß hat gerade mit dem markierten Stein deinen Stein geschlagen. Versuche zurückzuschlagen, dann spiele woanders.',rows:KO,ko:[4,3],last:[3,3],
+    check:c=>ok('Richtig. Nach einem Zug woanders darfst du den Ko wieder schlagen, falls Weiß ihn nicht vorher schließt.')}]},
+ {id:'augen',title:'Zwei Augen',sum:'Wann eine Gruppe lebt',
+  body:['Ein <b>Auge</b> ist ein leerer Punkt, der ganz von deiner Gruppe umschlossen ist. Der Gegner darf dort nicht setzen, außer er schlägt damit.',
+        'Hat eine Gruppe <b>zwei getrennte Augen</b>, kann sie nie geschlagen werden: Der Gegner müsste beide gleichzeitig füllen. Sie lebt für immer.',
+        'Bei drei leeren Punkten in einer Reihe entscheidet der mittlere. Wer ihn zuerst besetzt, entscheidet über Leben oder Tod.'],
+  puzzles:[{task:'Deine Gruppe unten links ist eingeschlossen. Sorge für zwei Augen.',rows:LIFE,
+    check:c=>c.x===1&&c.y===6?ok('Zwei getrennte Augen. Deine Gruppe lebt, Weiß kann sie nie schlagen.'):(c.y===6&&c.x<3?bad('Jetzt bleibt nur ein Auge übrig. Probier den mittleren Punkt.'):bad('Wenn du hier nicht reagierst, setzt Weiß in die Mitte und deine Gruppe hat nur noch ein Auge.'))},
+   {task:'Jetzt umgekehrt: Töte die weiße Gruppe.',rows:swap(LIFE),
+    check:c=>c.x===1&&c.y===6?ok('Getroffen. Weiß kann nur noch ein Auge bilden. Die Gruppe ist tot.'):bad('Weiß kann jetzt in die Mitte setzen und zwei Augen bilden. Nimm den Schlüsselpunkt.')}]},
+ {id:'zaehlen',title:'Spielende & Zählen',sum:'Passen, Gebiet, Komi',
+  body:['Das Spiel endet, wenn beide nacheinander <b>passen</b>, weil kein Zug mehr etwas bringt.',
+        'Gezählt wird so: deine Steine auf dem Brett plus alle leeren Punkte, die nur deine Steine umschließen. Gruppen, die nicht mehr leben können, werden vorher entfernt.',
+        'Weil Schwarz anfängt, bekommt Weiß einen Ausgleich, das <b>Komi</b>. In dieser App sind es 7,5 Punkte. Der halbe Punkt verhindert ein Unentschieden.'],
+  puzzles:[{task:'Die Grenze zwischen den Gebieten hat eine Lücke. Schließe sie, sonst dringt Weiß in dein Gebiet ein.',rows:['...XO..','...XO..','...XO..','....O..','...XO..','...XO..','...XO..'],
+    check:c=>c.x===3&&c.y===3?ok('Grenze dicht. Schwarz: 7 Steine + 21 leere Punkte = 28. Weiß: 7 Steine + 14 Punkte = 21.'):bad('Die Lücke liegt auf der Grenze zwischen Schwarz und Weiß.')}]},
+ {id:'ecken',title:'Ecke, Seite, Mitte',sum:'Die erste Strategie',
+  body:['In der Ecke helfen dir zwei Ränder beim Einschließen. Für dieselbe Fläche brauchst du dort viel weniger Steine als in der Mitte.',
+        'Darum gilt in der Eröffnung: <b>erst Ecken, dann Seiten, zuletzt die Mitte.</b>',
+        'Die 1. und 2. Linie vom Rand sind am Anfang zu niedrig. Die 3. Linie sichert Gebiet, die 4. Linie bringt mehr Einfluss.'],
+  puzzles:[{task:'Das 9×9-Brett ist leer. Wähle einen guten ersten Zug.',rows:Array(9).fill('.........'),
+    check:c=>{const dx=Math.min(c.x,8-c.x),dy=Math.min(c.y,8-c.y);
+      if((dx===2||dx===3)&&(dy===2||dy===3))return ok(`Guter Eröffnungszug auf der ${Math.min(dx,dy)+1}. Linie. Von hier lässt sich die Ecke gut einschließen.`);
+      if(dx<=1||dy<=1)return bad('Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet. Geh auf die 3. oder 4. Linie.');
+      if(dx===4&&dy===4)return bad('Die Mitte ist schwer zu sichern. Versuch es in einer Ecke.');
+      return bad('Die Seite ist okay, aber am Anfang ist die Ecke wertvoller.')}}]},
+ {id:'schneiden',title:'Verbinden & Schneiden',sum:'Schnittpunkte erkennen',
+  body:['Verbundene Steine sind stark. Getrennte Gruppen müssen jede für sich überleben. Achte auf <b>Schnittpunkte</b>: leere Punkte, an denen der Gegner deine Steine trennen kann.',
+        'Faustregel: Verbinde deine eigenen Steine, schneide die des Gegners.'],
+  puzzles:[{task:'Weiß droht, deine beiden Steine zu trennen. Verbinde sie.',rows:CUT,
+    check:c=>c.x===3&&c.y===3?ok('Verbunden. Gleichzeitig trennst du die weißen Steine.'):bad('Deine Steine sind noch getrennt. Wo liegt der Punkt zwischen ihnen?')},
+   {task:'Jetzt umgekehrt: Schneide die weißen Steine voneinander.',rows:swap(CUT),
+    check:c=>c.x===3&&c.y===3?ok('Geschnitten. Merke: Der wichtige Punkt des Gegners ist oft auch deiner.'):bad('Weiß kann sich noch verbinden. Nimm den Punkt zwischen den weißen Steinen.')}]},
+ {id:'plan',title:'Dein Denkplan',sum:'Checkliste für jeden Zug',
+  body:['Starke Spieler stellen sich vor jedem Zug dieselben Fragen. Geh sie in dieser Reihenfolge durch:'],
+  list:['Steht eine meiner Gruppen im Atari? Dann retten, oder bewusst aufgeben, wenn sie nicht mehr zu retten ist.',
+        'Kann ich etwas schlagen oder den Gegner ins Atari setzen?',
+        'Hat der letzte Zug des Gegners etwas bedroht? Wo will er hin?',
+        'Sind meine Gruppen verbunden? Gibt es gefährliche Schnittpunkte?',
+        'Wo ist der größte freie Bereich? Am Anfang: Ecken, dann Seiten.',
+        'Nie in das eigene Auge setzen.'],
+  after:'Im Spielmodus kommentiert der Trainer jeden deiner Züge. Mit „Tipp“ zeigt er dir einen starken Zug, mit „Zurück“ kannst du ihn ausprobieren.'}
+];
+function parse(rows){const n=rows.length,b=new Array(n*n).fill(0);rows.forEach((r,y)=>[...r].forEach((ch,x)=>{b[y*n+x]=ch==='X'?1:ch==='O'?2:0}));return{n,b}}
+
+let LS=null;
+function openLesson(li){LS={li,pi:0};loadPuzzle();show('lesson');window.scrollTo(0,0)}
+function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
+  if(p){const{n,b}=parse(p.rows);Object.assign(LS,{n,board:b,ko:p.ko?p.ko[1]*n+p.ko[0]:-1,last:p.last?p.last[1]*n+p.last[0]:-1,solved:false,failed:false,msg:'',state:''})}
+  renderLesson()}
+function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||LS.failed)return;
+  const r=tryPlay(LS.board,i,1,LS.n,LS.ko);
+  if(r.err){LS.msg=ERR[r.err];LS.state='bad';renderLesson();return}
+  buzz();const n=LS.n;LS.board=r.board;LS.last=i;
+  const ctx={x:i%n,y:(i/n)|0,captured:r.captured.length,
+    colorAt:(x,y)=>r.board[y*n+x],libsAt:(x,y)=>r.board[y*n+x]?groupAt(r.board,y*n+x,n).libs.size:0};
+  const res=p.check(ctx);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
+  if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){store.done[L.id]=true;save()}}else LS.failed=true;
+  renderLesson()}
+function renderLesson(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
+  $('#ls-eyebrow').textContent=`Lektion ${LS.li+1} von ${LESSONS.length}`;$('#ls-title').textContent=L.title;
+  let body=L.body.map(t=>`<p>${t}</p>`).join('');
+  if(L.list)body+='<ol>'+L.list.map(t=>`<li>${t}</li>`).join('')+'</ol>';
+  if(L.after)body+=`<p>${L.after}</p>`;
+  $('#ls-body').innerHTML=body;
+  const next=$('#ls-next'),retry=$('#ls-retry'),fb=$('#ls-feedback');
+  $('#ls-task').hidden=!p;$('#ls-board').hidden=!p;
+  if(!p){fb.hidden=true;retry.hidden=true;next.hidden=false;next.textContent='Abschließen und spielen';return}
+  const cnt=L.puzzles.length;
+  $('#ls-task-label').textContent=cnt>1?`Aufgabe ${LS.pi+1} von ${cnt}`:'Aufgabe';
+  $('#ls-steps').innerHTML=cnt>1?L.puzzles.map((_,k)=>`<i class="${k<LS.pi||(k===LS.pi&&LS.solved)?'on':''}"></i>`).join(''):'';
+  $('#ls-task-text').textContent=p.task;
+  drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
+  fb.hidden=!LS.msg;fb.dataset.state=LS.state;fb.innerHTML=LS.msg?icon(LS.state==='ok'?'check':'alert')+`<span>${LS.msg}</span>`:'';
+  retry.hidden=!LS.failed;next.hidden=!LS.solved;
+  next.textContent=LS.pi<cnt-1?'Nächste Aufgabe':(LS.li<LESSONS.length-1?'Nächste Lektion':'Jetzt spielen')}
+$('#ls-retry').onclick=loadPuzzle;
+$('#ls-next').onclick=()=>{const L=LESSONS[LS.li];
+  if(!L.puzzles){store.done[L.id]=true;save();show('play');return}
+  if(LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1)openLesson(LS.li+1);else show('play')};
+$('#ls-back').onclick=()=>show('learn');
+
+function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
+  $('#prog-num').innerHTML=`${done}<small>von ${LESSONS.length} Lektionen</small>`;
+  $('#prog-bar').style.width=(done/LESSONS.length*100)+'%';
+  const nextIdx=LESSONS.findIndex(l=>!store.done[l.id]);
+  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="erledigt"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:(i===nextIdx?'<span class="st next">Als Nächstes</span>':'<span></span>');
+    return`<li><button class="lesson-row" data-li="${i}"><span class="num">${i+1}</span><span class="lt"><span class="t">${l.title}</span><span class="d">${l.sum}</span></span>${st}</button></li>`}).join('');
+  document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>openLesson(+b.dataset.li))}
+let resetArmed=false;
+$('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent='Wirklich alles zurücksetzen? Nochmal tippen.';setTimeout(()=>{resetArmed=false;t.textContent='Fortschritt zurücksetzen'},3500);return}
+  store.done={};resetArmed=false;t.textContent='Fortschritt zurücksetzen';save();renderLearn()};
+$('#cta-play').onclick=()=>show('play');
+
+/* ---------- Spiel ---------- */
+function newGame(){const n=store.settings.size;
+  return{n,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:store.settings.level,
+    coach:[{who:'trainer',t:'Du spielst Schwarz und beginnst. Starte in einer Ecke, auf der 3. oder 4. Linie vom Rand.'}]}}
+let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*store.game.n)?store.game:newGame();
+let busy=false;
+function coachAdd(who,t){G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
+function pushHist(){G.history.push({b:G.board.join(''),turn:G.turn,caps:G.caps.slice(),ko:G.ko,last:G.last,passes:G.passes,moves:G.moves})}
+function restore(s){G.board=[...s.b].map(Number);G.turn=s.turn;G.caps=s.caps.slice();G.ko=s.ko;G.last=s.last;G.passes=s.passes;G.moves=s.moves}
+function applyMove(r,i,c){G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko;G.last=i;G.passes=0;G.moves++;G.turn=3-c}
+
+function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
+  if(k)parts.push(k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`);
+  if(r.group.libs.size===1)parts.push('Vorsicht: Dein Stein steht jetzt selbst im Atari.');
+  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===2&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push('Atari! Weiß muss reagieren.')}
+  const diff=best&&mine?best.s-mine.s:0;
+  if(best&&best.i!==i&&diff>5){const rs=best.why[0];parts.push(`Stärker wäre ${coord(best.i,n)} gewesen${rs?', denn der Zug '+rs.t:''}.`)}
+  else if(diff<=1.5){if(!k){const rs=mine&&mine.why[0];parts.push(rs?`Guter Zug. Er ${rs.t}.`:'Solider Zug.')}}
+  else if(best&&!parts.length)parts.push(`Spielbar. ${coord(best.i,n)} wäre etwas besser gewesen.`);
+  const x=i%n,y=(i/n)|0,d=Math.min(x,y,n-1-x,n-1-y);
+  if(G.moves<=n*1.3&&d<=1&&diff>3)parts.push('In der Eröffnung sind die 1. und 2. Linie zu niedrig.');
+  return`${coord(i,n)}: `+parts.join(' ')}
+function warnAtari(){const g=atariGroups(G.board,G.n,1);
+  if(g.length)coachAdd('trainer',g.length===1?`Achtung: Deine Gruppe bei ${coord(g[0].stones[0],G.n)} steht im Atari (roter Ring). Rette sie oder gib sie bewusst auf.`:`Achtung: ${g.length} deiner Gruppen stehen im Atari (rote Ringe).`)}
+
+function userMove(i){if(G.phase!=='play'||G.turn!==1||busy)return;
+  const r=tryPlay(G.board,i,1,G.n,G.ko);
+  if(r.err){coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
+  buzz();
+  const list=analyze(G.board,G.n,1,G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
+  pushHist();applyMove(r,i,1);G.hint=-1;
+  coachAdd('du',commentUser(i,r,mine,best));
+  save();renderPlay();aiMove()}
+function aiMove(){if(G.phase!=='play'||G.turn!==2)return;busy=true;renderPlay();
+  setTimeout(()=>{const list=analyze(G.board,G.n,2,G.ko,G.moves),thr=G.passes?2:0.8;let pick=null;
+    if(list.length&&list[0].s>=thr){const easy=G.level==='leicht';
+      const noisy=list.map(e=>({e,v:e.s+(Math.random()-0.5)*(easy?7:1.2)})).sort((a,b)=>b.v-a.v);
+      pick=noisy[0].e;if(easy&&Math.random()<0.2){const top=noisy.slice(0,6);pick=top[Math.floor(Math.random()*top.length)].e}
+      if(pick.s<thr)pick=list[0]}
+    pushHist();
+    if(!pick){G.passes++;G.turn=1;G.last=-1;G.ko=-1;coachAdd('weiss','Weiß passt. Wenn du auch passt, endet das Spiel und es wird gezählt.');if(G.passes>=2)enterScore()}
+    else{applyMove(pick.r,pick.i,2);const rs=pick.why[0];coachAdd('weiss',`Weiß spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
+    busy=false;save();renderPlay()},450)}
+function userPass(){if(G.phase!=='play'||G.turn!==1||busy)return;pushHist();G.passes++;G.turn=2;G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du','Du passt.');
+  if(G.passes>=2){enterScore();save();renderPlay()}else{save();renderPlay();aiMove()}}
+function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.n);
+  for(let i=0;i<G.n*G.n;i++)if(G.board[i]&&!seen[i]){const g=groupAt(G.board,i,G.n);g.stones.forEach(s=>seen[s]=1);if(g.libs.size<=1)G.dead.push(...g.stones)}
+  coachAdd('trainer','Beide haben gepasst. Tippe auf Gruppen, die nicht mehr leben können: Sie werden entfernt. Die kleinen Quadrate zeigen, wem welches Gebiet gehört.')}
+function toggleDead(i){if(!G.board[i])return;const g=groupAt(G.board,i,G.n).stones,ds=new Set(G.dead);
+  if(g.every(s=>ds.has(s)))g.forEach(s=>ds.delete(s));else g.forEach(s=>ds.add(s));G.dead=[...ds];buzz();save();renderPlay()}
+function hint(){if(G.phase!=='play'||G.turn!==1||busy)return;const list=analyze(G.board,G.n,1,G.ko,G.moves);
+  if(!list.length||list[0].s<0.8)coachAdd('trainer','Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.');
+  else{const b=list[0],rs=b.why[0];G.hint=b.i;coachAdd('trainer',`Tipp: ${coord(b.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`)}
+  save();renderPlay()}
+function undo(){if(busy||G.phase==='over'||!G.history.length)return;let s=null;
+  while(G.history.length){s=G.history.pop();if(s.turn===1)break}
+  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer','Zug zurückgenommen. Probier etwas anderes.');save();renderPlay();if(G.turn===2)aiMove()}
+let newArmed=false;
+function newGameClick(){const lab=$('#btn-new span');
+  if(G.moves>0&&G.phase!=='over'&&!newArmed){newArmed=true;lab.textContent='Sicher?';setTimeout(()=>{newArmed=false;lab.textContent='Neu'},3000);return}
+  newArmed=false;lab.textContent='Neu';G=newGame();busy=false;save();renderPlay()}
+function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white;G.phase='over';
+  G.result={black:sc.black,white:sc.white,m};if(m>0)store.stats.win++;else store.stats.loss++;
+  coachAdd('trainer',`Schwarz: ${sc.black} Punkte (Steine + Gebiet). Weiß: ${fmt(sc.white)} Punkte inklusive ${fmt(KOMI)} Komi. ${m>0?'Du gewinnst mit '+fmt(m)+' Punkten. Glückwunsch!':'Weiß gewinnt mit '+fmt(-m)+' Punkten. Mit „Neu“ startest du die nächste Partie.'}`);
+  save();renderPlay()}
+$('#btn-hint').onclick=hint;$('#btn-undo').onclick=undo;$('#btn-pass').onclick=userPass;$('#btn-new').onclick=newGameClick;
+$('#btn-confirm').onclick=confirmScore;
+$('#btn-resume').onclick=()=>{G.phase='play';G.dead=[];G.passes=0;G.turn=1;coachAdd('trainer','Weiter geht es. Du bist am Zug.');save();renderPlay()};
+document.querySelectorAll('#seg-size button').forEach(b=>b.onclick=()=>{store.settings.size=+b.dataset.v;
+  if(G.moves===0||G.phase==='over'){G=newGame()}else coachAdd('trainer',`Die Brettgröße ${b.dataset.v}×${b.dataset.v} gilt ab dem nächsten Spiel („Neu“).`);save();renderPlay()});
+document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
+$('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
+
+const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
+let coachOpen=false;
+$('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
+const sheet=$('#sheet');
+$('#btn-settings').onclick=()=>{sheet.hidden=false;$('#sheet-close').focus()};
+const closeSheet=()=>{sheet.hidden=true};
+$('#sheet-close').onclick=closeSheet;
+sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet()});
+function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scoreArea(G.board,n,G.dead):null;
+  drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
+    ghost:!scoring&&G.turn===1&&!busy,onPlay:i=>{if(G.phase==='score')toggleDead(i);else if(G.phase==='play')userMove(i)}});
+  let t;
+  if(G.phase==='over')t=G.result.m>0?`<span class="dot"></span>Du gewinnst mit ${fmt(G.result.m)} Punkten`:`<span class="dot w"></span>Weiß gewinnt mit ${fmt(-G.result.m)}`;
+  else if(G.phase==='score')t='Partie zählen';
+  else if(G.turn===2||busy)t='<span class="dot w"></span>Weiß überlegt …';
+  else t=`<span class="dot"></span>Du bist am Zug${G.passes?' · Weiß hat gepasst':''}`;
+  $('#turn').innerHTML=t;
+  $('#caps').innerHTML=`<span title="Von dir gefangen"><span class="dot w sm"></span>${G.caps[1]}</span><span title="Von Weiß gefangen"><span class="dot sm"></span>${G.caps[2]}</span>`;
+  const box=$('#scorebox');box.hidden=!scoring;
+  if(sc){$('#score-nums').textContent=`Schwarz ${sc.black} · Weiß ${fmt(sc.white)}`;
+    $('#score-note').textContent=G.phase==='score'?`Inklusive ${fmt(KOMI)} Komi für Weiß. Tippe eine Gruppe an, um sie als tot zu markieren oder wieder zu beleben.`:'Partie beendet. Starte mit „Neu“ die nächste.';
+    $('#score-actions').hidden=G.phase!=='score'}
+  $('#controls').hidden=G.phase==='score';
+  const play=G.phase==='play'&&G.turn===1&&!busy;
+  $('#btn-hint').disabled=!play;$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
+  $('#btn-new').classList.toggle('primary',G.phase==='over');
+  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=WHO[now.who];$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
+  $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${WHO[c.who]}</b>${c.t}</span>`).join('');
+  const cc=$('#coach-card');cc.hidden=G.phase==='score';cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
+  document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
+  document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
+  $('#opt-libs').checked=!!store.settings.libs;
+  const w=store.stats.win,l=store.stats.loss;
+  $('#record').textContent=(w||l)?`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`:''}
+
+/* ---------- Navigation ---------- */
+function show(v){['learn','lesson','play'].forEach(k=>$('#view-'+k).hidden=k!==v);
+  document.documentElement.classList.toggle('fit',v==='play');
+  $('#tab-learn').setAttribute('aria-selected',String(v!=='play'));$('#tab-play').setAttribute('aria-selected',String(v==='play'));
+  store.tab=v==='play'?'play':'learn';save();window.scrollTo(0,0);
+  if(v==='learn')renderLearn();if(v==='play'){renderPlay();if(G.phase==='play'&&G.turn===2&&!busy)aiMove()}}
+$('#tab-learn').onclick=()=>show('learn');$('#tab-play').onclick=()=>show('play');
+show(store.tab==='play'?'play':'learn');
+if('serviceWorker'in navigator&&window.GO_PWA){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+
+</body>
+</html>
