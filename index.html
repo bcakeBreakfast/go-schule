@@ -66,7 +66,7 @@ h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;
 
 /* Tab-Leiste unten */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(var(--s2),env(safe-area-inset-left,0px));padding-right:max(var(--s2),env(safe-area-inset-right,0px))}
-.tabbar-in{max-width:544px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;height:var(--s8)}
+.tabbar-in{max-width:544px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;height:var(--s8)}
 .tabbar button{appearance:none;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;line-height:16px;font-weight:500;cursor:pointer}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
 .tabbar svg{width:24px;height:24px}
@@ -183,7 +183,7 @@ html.fit,html.fit body{height:100%;overflow:hidden;overscroll-behavior:none}
 html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s8) + var(--s2));gap:var(--s2)}
 html.fit header.top{display:none}
 html.fit main{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
-html.fit #view-play{flex:1 1 0;min-height:0;gap:var(--s1)}
+html.fit #view-play,html.fit #view-drill{flex:1 1 0;min-height:0;gap:var(--s1)}
 html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 html.fit .statusbar{min-height:var(--s5)}
 .board-wrap{flex:1 1 0;min-height:0;container-type:size;display:grid;place-items:center}
@@ -207,6 +207,27 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
 .sheet{width:100%;max-width:576px;background:var(--surface);border-radius:var(--r2) var(--r2) 0 0;padding:var(--s3) max(var(--s2),env(safe-area-inset-right,0px)) calc(var(--s3) + env(safe-area-inset-bottom,0px)) max(var(--s2),env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:var(--s2)}
 .sheet-head{display:flex;justify-content:space-between;align-items:center}
 .sheet h3{margin:0;font-family:var(--f-display);font-size:20px;line-height:24px}
+
+/* Training */
+.muted{color:var(--muted);margin:0}
+.train-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r1);padding:var(--s2);display:flex;flex-direction:column}
+.stat b{font-family:var(--f-display);font-size:24px;line-height:32px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.train-row{appearance:none;width:100%;min-height:var(--s8);display:grid;grid-template-columns:var(--s5) 1fr auto;align-items:center;gap:var(--s2);padding:var(--s1) 0;background:none;border:0;border-bottom:1px solid var(--rule);text-align:left;cursor:pointer}
+.train-row:hover .t{color:var(--accent)}
+.tglyph{width:var(--s5);height:var(--s5);border-radius:var(--r1);background:var(--board);display:grid;place-items:center}
+.tglyph svg{width:var(--s4);height:var(--s4)}
+.chip{font-size:12px;line-height:16px;font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--r2);background:var(--surface);border:1px solid var(--rule);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip.hot{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.drill-title{flex:1;min-width:0;display:flex;flex-direction:column}
+.drill-title .turn{font-size:16px;line-height:24px}
+.controls.three{grid-template-columns:repeat(3,1fr)}
+.dr-fb{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r2);padding:var(--s1) var(--s2);display:flex;gap:var(--s1);align-items:flex-start;min-height:calc(var(--s8) + var(--s2));flex:none}
+.dr-fb .ic{width:20px;height:20px;margin-top:2px}
+.dr-fb[data-state="ok"]{background:var(--good-soft);border-color:transparent;color:var(--good)}
+.dr-fb[data-state="bad"]{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.dr-fb small{display:block;color:var(--ink);opacity:.8;font-size:14px;line-height:24px}
 </style>
 
 </head>
@@ -221,6 +242,10 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.1"/></symbol>
@@ -260,6 +285,31 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
       <div class="actions">
         <button class="btn primary block" id="ls-next" hidden>Weiter</button>
         <button class="btn block" id="ls-retry" hidden>Nochmal versuchen</button>
+      </div>
+    </section>
+
+    <section id="view-train" class="view" hidden>
+      <div class="stack"><span class="eyebrow">Training</span><h2>Aufgaben ohne Hilfe</h2></div>
+      <p class="muted">Kein Trainer, keine Markierungen, keine Freiheiten-Zahlen. Schwarz ist am Zug, du findest den besten Zug.</p>
+      <div class="train-stats">
+        <div class="stat"><b id="ts-solved">0</b><span>Gelöst</span></div>
+        <div class="stat"><b id="ts-best">0</b><span>Längste Serie</span></div>
+      </div>
+      <div class="lessons" id="train-list"></div>
+    </section>
+
+    <section id="view-drill" class="view" hidden>
+      <div class="statusbar">
+        <button class="iconbtn" id="dr-back" aria-label="Zurück zur Übersicht"><svg class="ic"><use href="#i-back"/></svg></button>
+        <div class="drill-title"><span class="eyebrow" id="dr-cat"></span><span class="turn"><span class="dot"></span>Schwarz am Zug</span></div>
+        <span class="chip" id="dr-streak"></span>
+      </div>
+      <div class="board-wrap"><div class="board" id="dr-board"></div></div>
+      <div class="dr-fb" id="dr-fb" aria-live="polite"></div>
+      <div class="controls three">
+        <button class="ctl" id="dr-show"><svg class="ic"><use href="#i-eye"/></svg>Lösung</button>
+        <button class="ctl" id="dr-retry"><svg class="ic"><use href="#i-retry"/></svg>Nochmal</button>
+        <button class="ctl" id="dr-next"><svg class="ic"><use href="#i-next"/></svg>Weiter</button>
       </div>
     </section>
 
@@ -312,6 +362,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
 <nav class="tabbar" role="tablist">
   <div class="tabbar-in">
     <button id="tab-learn" role="tab" aria-selected="true"><svg class="ic"><use href="#i-book"/></svg>Lernen</button>
+    <button id="tab-train" role="tab" aria-selected="false"><svg class="ic"><use href="#i-target"/></svg>Training</button>
     <button id="tab-play" role="tab" aria-selected="false"><svg class="ic"><use href="#i-stone"/></svg>Spielen</button>
   </div>
 </nav>
@@ -388,6 +439,101 @@ function scoreArea(b,n,dead){const nb=b.slice();for(const i of dead)nb[i]=0;cons
     if(border===1||border===2){s[border]+=reg.length;reg.forEach(q=>own[q]=border)}}
   return{black:s[1],white:s[2]+KOMI,own}}
 /*END ENGINE*/
+/*READER*/
+// Liest Fangsequenzen (Leiter, Netz, Mausefalle). att = Angreifer, Ziel t gehört 3-att.
+const RD={nodes:0,LIM:5000};
+function rdKill(b,t,n,att,d){ // Angreifer am Zug: kann er t fangen?
+  if(b[t]===0)return true;
+  const g=groupAt(b,t,n),L=g.libs.size;
+  if(L===1)return true;
+  if(L>=4||d<=0||++RD.nodes>RD.LIM)return false;
+  for(const m of g.libs){const r=tryPlay(b,m,att,n,-1);if(r.err)continue;
+    if(r.board[t]===0)return true;
+    if(!rdLive(r.board,t,n,att,d-1))return true}
+  return false}
+function rdDefMoves(b,t,n,att){const def=3-att,g=groupAt(b,t,n),c=new Set(g.libs),seen=new Set();
+  for(const s of g.stones)for(const j of nbrs(s,n)){if(b[j]===att&&!seen.has(j)){const a=groupAt(b,j,n);a.stones.forEach(q=>seen.add(q));if(a.libs.size<=2)a.libs.forEach(q=>c.add(q))}}
+  return[...c]}
+function rdLive(b,t,n,att,d){ // Verteidiger am Zug: kann t überleben?
+  if(b[t]===0)return false;
+  const g=groupAt(b,t,n),L=g.libs.size;
+  if(L>=4||d<=0||++RD.nodes>RD.LIM)return true;
+  for(const m of rdDefMoves(b,t,n,att)){const r=tryPlay(b,m,3-att,n,-1);if(r.err)continue;
+    if(r.board[t]===0)continue;
+    if(!rdKill(r.board,t,n,att,d-1))return true}
+  return false}
+// Wird t nach dem Zug m des Angreifers sicher gefangen?
+function rdWorks(b,t,n,att,m){RD.nodes=0;const r=tryPlay(b,m,att,n,-1);if(r.err)return false;if(r.board[t]===0)return true;
+  const ok=!rdLive(r.board,t,n,att,24);return ok&&RD.nodes<=RD.LIM}
+// Beste Gegenwehr des Verteidigers (für den Ablauf im Training)
+function rdReply(b,t,n,att){const def=3-att;let best=-1,bl=-1;
+  for(const m of rdDefMoves(b,t,n,att)){const r=tryPlay(b,m,def,n,-1);if(r.err||r.board[t]===0)continue;
+    RD.nodes=0;const alive=!rdKill(r.board,t,n,att,24);const l=groupAt(r.board,t,n).libs.size+(alive?100:0);
+    if(l>bl){bl=l;best=m}}
+  return best}
+/*END READER*/
+/*TGEN*/
+const rnd=k=>Math.floor(Math.random()*k);
+function tgLegal(b,n){for(let i=0;i<n*n;i++)if(b[i]&&groupAt(b,i,n).libs.size===0)return false;return true}
+function tgGroups(b,n,c){const out=[],seen=new Uint8Array(n*n);
+  for(let i=0;i<n*n;i++)if(b[i]===c&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>seen[s]=1);out.push(g)}return out}
+// Natürlich wirkende Stellung: Steine wachsen in Klumpen in einem Ausschnitt des Bretts
+function tgCluster(n,nb,nw){const b=new Array(n*n).fill(0),W=6,x0=rnd(n-W+1),y0=rnd(n-W+1),placed=[];let cB=0,cW=0;
+  for(let k=0;k<(nb+nw)*4&&(cB<nb||cW<nw);k++){let x,y;
+    if(placed.length&&Math.random()<0.8){const s=placed[rnd(placed.length)];x=s%n+rnd(3)-1;y=((s/n)|0)+rnd(3)-1}
+    else{x=x0+rnd(W);y=y0+rnd(W)}
+    if(x<0||y<0||x>=n||y>=n)continue;const i=y*n+x;if(b[i])continue;
+    const c=cB>=nb?2:cW>=nw?1:(Math.random()<0.5?1:2);b[i]=c;
+    if(!tgLegal(b,n)){b[i]=0;continue}placed.push(i);c===1?cB++:cW++}
+  return b}
+function genSchlagen(){const n=9;
+  for(let k=0;k<400;k++){const b=tgCluster(n,6+rnd(5),6+rnd(5));
+    if(tgGroups(b,n,1).some(g=>g.libs.size===1))continue;
+    if(!tgGroups(b,n,2).some(g=>g.libs.size===1))continue;
+    let mx=0,ans=[];
+    for(let m=0;m<n*n;m++){if(b[m])continue;const r=tryPlay(b,m,1,n,-1);if(r.err)continue;const c=r.captured.length;if(c>mx){mx=c;ans=[m]}else if(c&&c===mx)ans.push(m)}
+    if(mx<1||ans.length>2)continue;
+    if(k<200&&tgGroups(b,n,2).filter(g=>g.libs.size===1).length<2&&mx<2)continue; // lieber mit Auswahl
+    return{n,b,ans,t:-1}}
+  return null}
+function genDoppel(){const n=9;
+  for(let k=0;k<600;k++){const b=tgCluster(n,5+rnd(5),6+rnd(5));
+    if(tgGroups(b,n,1).some(g=>g.libs.size===1)||tgGroups(b,n,2).some(g=>g.libs.size===1))continue;
+    const ans=[];
+    for(let m=0;m<n*n;m++){if(b[m])continue;const r=tryPlay(b,m,1,n,-1);if(r.err||r.captured.length)continue;
+      if(r.group.libs.size<2)continue;const seen=new Set();let at=0;
+      for(const j of nbrs(m,n))if(r.board[j]===2&&!seen.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(s=>seen.add(s));if(g.libs.size===1)at++}
+      if(at>=2)ans.push(m)}
+    if(ans.length<1||ans.length>2)continue;
+    return{n,b,ans,t:-1}}
+  return null}
+function rdKillMove(b,t,n,att){const g=groupAt(b,t,n);if(g.libs.size>=4)return-1;
+  for(const m of g.libs){const r=tryPlay(b,m,att,n,-1);if(r.err)continue;if(r.board[t]===0)return m;RD.nodes=0;if(!rdLive(r.board,t,n,att,24))return m}
+  return-1}
+function genRetten(){const n=9;
+  for(let k=0;k<600;k++){const b=tgCluster(n,6+rnd(5),6+rnd(5));
+    const at=tgGroups(b,n,1).filter(g=>g.libs.size===1);if(at.length!==1)continue;
+    if(tgGroups(b,n,2).some(g=>g.libs.size===1))continue;
+    const g=at[0];if(g.stones.length<2&&k<300)continue;const t=g.stones[0];
+    const cand=new Set(g.libs),seen=new Set();
+    for(const s of g.stones)for(const j of nbrs(s,n))if(b[j]===2&&!seen.has(j)){const a=groupAt(b,j,n);a.stones.forEach(q=>seen.add(q));if(a.libs.size<=2)a.libs.forEach(q=>cand.add(q))}
+    const ans=[];let unsure=false;
+    for(const m of cand){const r=tryPlay(b,m,1,n,-1);if(r.err)continue;RD.nodes=0;const dead=rdKill(r.board,t,n,2,24);if(RD.nodes>RD.LIM)unsure=true;if(!dead)ans.push(m)}
+    if(unsure||ans.length<1||ans.length>2)continue;
+    // Es soll auch einen falschen, naheliegenden Zug geben (z. B. Verlängern in die Leiter) oder eine Gruppe mit mehreren Steinen
+    return{n,b,ans,t}}
+  return null}
+function genPunkte(){const n=13,b=new Array(n*n).fill(0),corners=[0,1,2,3].sort(()=>Math.random()-0.5),occ=1+rnd(3);
+  const pt=(c,dx,dy)=>{const x=c&1?n-1-dx:dx,y=c&2?n-1-dy:dy;return y*n+x};
+  const spots=[[3,3],[2,3],[3,2],[2,2],[3,4],[4,3]];
+  for(let k=0;k<occ;k++){const c=corners[k],s=spots[rnd(spots.length)];b[pt(c,s[0],s[1])]=Math.random()<0.5?1:2;
+    if(Math.random()<0.5){const s2=[[5,2],[2,5],[5,3],[3,5]][rnd(4)];b[pt(c,s2[0],s2[1])]=Math.random()<0.5?1:2}}
+  if(Math.random()<0.5){const side=rnd(4),k=6,p=[[k,3],[3,k],[k,n-4],[n-4,k]][side];b[p[1]*n+p[0]]=Math.random()<0.5?1:2}
+  const empty=corners.slice(occ),ans=[];
+  for(const c of empty)for(const[dx,dy]of[[2,2],[2,3],[3,2],[3,3]])ans.push(pt(c,dx,dy));
+  return{n,b,ans,t:-1,emptyCorners:empty}}
+/*END TGEN*/
+const TSET={"leiter":[["000000000020000000011200000001100000000000000000000000000000000000000000000020000",10,[11]],["011000000020000000001000000001000000002000000000000000000000000000000000000000000",10,[19]],["000000000000000021000000001000000111000000000000000000000000000000000000000000000",16,[15]],["000000000000000000000000000000000000000000000000200000001011000011200000000000000",66,[57]],["000000000000000000000000000001100000001100000020020000010000000000000000000000000",46,[47]],["000000000000000001000002100000000020000000010000000010000000002000000000000000000",34,[33]],["000000000000000000000000000000000000001000000021000000000000000001000000000000000",46,[55]],["000000000000000000000000000000000000000000000000002010000001200000000100000020100",60,[51]],["020000000000001000020120000000001100000000000000200000000000000000000000000000000",22,[31]],["000002000000000000022200000001100000100000000021000000100000000002000000000000000",46,[55]],["000000000000000000000000000000200000000000000000101000000021000001000200000000000",58,[67]],["002100000000100000000000100000012112000000000000000000000000000001000000000000000",32,[41]],["000000000000000000000000000100000000000000000001100000000100000000200000201010000",66,[67]],["000000000000000000000000000000001000000100000000002100000001000000000000000000000",50,[49]],["000000000000000000000022010000010000000001000000020000010110000000010000000000000",49,[48]],["000000000000000000101010000000000000002120000001000000000000000000000000000000000",38,[37]],["100110000010210000000000000000000000201000000000000000000000000000000000000000000",12,[21]],["000001000000000000000012000000000100000000000020000000000000000000000000000000000",23,[32]],["000000000000000000000000000000010000000021000020100100000001000000000000000000000",40,[39,49]],["000112000000002010000001010000000000000000000000000000000000000000000000000000000",14,[13]],["000000000000000000000000000000100000021000000001000000101000000000000000000000000",37,[28]],["000000002000000000000000000000000000000000000000010020000010000001201000000000000",66,[57]],["000000000000000000000100000000002000000000000000010010000002102000000000000001000",59,[50]],["000000002011000000010020000020100000000000000002000002000000000000000000000000020",28,[37]],["100000000001000000021000000100000000100000000000000000000000000000000000000000000",19,[28]],["000000000000000000000001121000000000000001001000000000000000000000000000000000000",25,[16,34]],["000000000000020000020110000000100000000020000000000000000000000000000000000000000",13,[14]],["000000000000000000000000000000001110000000000000000020000000010000000000000000000",52,[51]],["000000000000000000000000200000000001000000100000000210000001210000000000000000000",51,[50,69]],["000000000000000000002000000000000000000000000000000000210100000010201000000000000",66,[67]]],"fangen":[["000000000000000000000000000000000000110000000020200000110000000000100000000000000",46,[47]],["000000000000000001000020011000002020000000010000001000000000000000000000020000000",34,[33]],["000000000000000001000000000001000000100000000010000000021000000000000000000000000",55,[64]],["000000000000000000000000000000000000000000000000001000000002000000011210000002000",69,[60]],["000000001000000020000000011000001010000000200000000000000000000000000100000000000",16,[15]],["000000000200000000010000000020000000010000000010000000000000000000000000000001000",28,[29]],["000201010000121000000000000011000000000001000000000000000000000000000000000000000",13,[22]],["000000000000000020000000000000000000000002000001010000001000000000021200000010000",67,[66]],["000011000002000000000010100000000100000021000000010000000010000000000000000000000",40,[39]],["000000000000000000000000000000020000000000100000000101000001120000000000000000200",61,[70]],["000010000000012210000001000000100020000000000000000200002000000000000000000000000",14,[24]],["001020000111000000021000000000000000200000000000000000000000000000000000000000000",19,[28]],["000000000000000000000000000000000000000000000000000000000001000000000210000010010",69,[60]],["010100000001000000021000000000000000010000000000000000000000000000000000000000000",19,[28]],["001000000002121000000000000000000100012000100000000000000000000000000000000000000",13,[22]],["000000000000000000000000000000011000000002000000101000000000010000000000000000000",41,[42]],["000000010000000122000000010000000120000002000000000000000000000000000000000000000",16,[26]],["000000000000000000000000000000000000100000000010000000020000000001000000110000000",55,[56]],["000000000000000000000000000000000000000000000020000000000010000001210000000000000",66,[57]],["000000000000000000000000000000000000000000000110000000011000000020100000000000000",64,[63,65]],["000000000000020021000000101000001010000000000100000000000000000000000000000000000",16,[15]],["000000000000000000000000000020000000000000000000000000021000000110000000100000000",55,[46]],["000000000000000000000000000000000000000000000000000000000110020001220000000200000",67,[68]],["000000010000001000000000000000000000000000000000020000000000101000000021000002001",70,[69]],["000000000000000000000000200000001000000000011000000022000000210000000000000000000",52,[51]],["000000000000000000000000101000001012000000122000020000000000000000000000000000000",43,[52]],["000000000000000000000000000000000000000000000000000001000001100000000200000010001",69,[70]],["010010000000001000000210000000100000000000000000000000000000000000000000000000000",21,[20]],["101200000020000000010020000100100000000000000000000000000000000000000000000000000",10,[11]],["010000000000010000220000000110000000100000000000020000000000000000000000000000000",19,[20]],["000001000000001000000000000000001000000000000000000000000120110000002100000001000",68,[49]]]};
 
 const $=s=>document.querySelector(s);
 const LET='ABCDEFGHJKLMNOPQRST';
@@ -402,6 +548,7 @@ const KEY='go-schule-v1';
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.settings)return s}catch(e){}
   return{done:{},settings:{size:9,level:'leicht',libs:false},stats:{win:0,loss:0},tab:'learn',game:null}}
 let store=load();
+store.train=store.train||{};
 function save(){try{store.game=G;localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 
 /* ---------- Brett zeichnen ---------- */
@@ -433,6 +580,8 @@ function drawBoard(el,o){
       h+=`<rect x="${cx-q}" y="${cy-q}" width="${q*2}" height="${q*2}" style="fill:var(${o.own[i]===1?'--stone-b2':'--stone-w1'});stroke:var(--stone-edge);stroke-width:.8"/>`}}}
   if(o.libDots){const seen=new Set();for(let i=0;i<n*n;i++)if(b[i]===o.libDots){for(const j of groupAt(b,i,n).libs)seen.add(j)}
     for(const j of seen)h+=`<circle cx="${P(j%n)}" cy="${P((j/n)|0)}" r="5.5" style="fill:var(--accent)"/>`}
+  for(const i of(o.tri||[])){if(!b[i])continue;const cx=P(i%n),cy=P((i/n)|0),q=CELL*0.17;
+    h+=`<polygon points="${cx},${cy-q} ${cx+q},${cy+q*0.75} ${cx-q},${cy+q*0.75}" style="fill:var(${b[i]===1?'--stone-w1':'--stone-b2'})"/>`}
   for(const[x,y]of(o.marks||[])){const q=CELL*0.2;h+=`<rect x="${P(x)-q}" y="${P(y)-q}" width="${q*2}" height="${q*2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3"/>`}
   if(o.hint>=0&&!b[o.hint])h+=`<circle cx="${P(o.hint%n)}" cy="${P((o.hint/n)|0)}" r="${R-2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5"/>`;
   h+=`<circle class="ghost" cx="-100" cy="-100" r="${R}" opacity="0" style="fill:var(--stone-b2);pointer-events:none"/>`;
@@ -701,14 +850,109 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   const w=store.stats.win,l=store.stats.loss;
   $('#record').textContent=(w||l)?`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`:''}
 
+/* ---------- Training ---------- */
+const GLYPH={ // kleine Brettausschnitte als Symbol: [schwarz],[weiß]
+  schlagen:[[[1,0],[0,1],[2,1]],[[1,1]]],retten:[[[1,1],[1,2]],[[0,1],[2,1],[1,0]]],doppel:[[[1,1]],[[0,1],[2,1]]],
+  fangen:[[[0,1],[1,0],[2,2]],[[1,1]]],leiter:[[[0,0],[1,1],[2,2]],[[0,1],[1,2]]],punkte:[[[0,0]],[[2,2]]]};
+function glyph(id){const[bs,ws]=GLYPH[id];let h='<svg viewBox="0 0 32 32">';
+  for(let k=0;k<3;k++){const p=6+k*10;h+=`<line x1="6" y1="${p}" x2="26" y2="${p}" style="stroke:var(--grid);stroke-width:1"/><line x1="${p}" y1="6" x2="${p}" y2="26" style="stroke:var(--grid);stroke-width:1"/>`}
+  for(const[x,y]of bs)h+=`<circle cx="${6+x*10}" cy="${6+y*10}" r="4.6" style="fill:var(--stone-b2)"/>`;
+  for(const[x,y]of ws)h+=`<circle cx="${6+x*10}" cy="${6+y*10}" r="4.3" style="fill:var(--stone-w1);stroke:var(--stone-edge);stroke-width:.8"/>`;
+  return h+'</svg>'}
+const TCATS=[
+ {id:'schlagen',title:'Schlagen',sum:'Den größten Fang finden',gen:genSchlagen,goal:'Schlage so viele Steine wie möglich.',
+  tip:'Schau vor jedem Zug nach weißen Gruppen mit nur einer Freiheit.'},
+ {id:'retten',title:'Retten',sum:'Eigene Gruppe aus dem Atari holen',gen:genRetten,goal:'Eine deiner Gruppen hat nur noch eine Freiheit. Rette sie.',
+  tip:'Verlängere dorthin, wo deine Gruppe die meisten neuen Freiheiten bekommt, oder schlage einen Angreifer.'},
+ {id:'doppel',title:'Doppel-Atari',sum:'Zwei Gruppen auf einmal bedrohen',gen:genDoppel,goal:'Bedrohe zwei weiße Gruppen mit einem Zug.',
+  tip:'Ein Doppel-Atari bedroht zwei Gruppen gleichzeitig. Weiß kann nur eine davon retten.'},
+ {id:'fangen',title:'Fangen',sum:'Fluchtwege abschneiden',set:'fangen',goal:'Fange die Steine mit ▲. Weiß wehrt sich.',
+  tip:'Gib Atari von der Seite, auf der Weiß danach am wenigsten Freiheiten hat.'},
+ {id:'leiter',title:'Leiter',sum:'Fangen im Zickzack über das Brett',set:'leiter',goal:'Fange die Steine mit ▲. Weiß wehrt sich.',
+  tip:'Bei der Leiter hat Weiß nach jedem Verlängern wieder nur 2 Freiheiten. Ein weißer Stein im Weg bricht die Leiter.'},
+ {id:'punkte',title:'Große Punkte',sum:'Der wertvollste Zug der Eröffnung',gen:genPunkte,goal:'Spiele den größten Zug auf dem Brett.',
+  tip:'Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.'}];
+const TC=id=>TCATS.find(c=>c.id===id);
+const tstat=id=>store.train[id]||(store.train[id]={ok:0,tries:0,streak:0,best:0,last:-1});
+function symIdx(i,n,k){let x=i%n,y=(i/n)|0;if(k&1)x=n-1-x;if(k&2)y=n-1-y;if(k&4){const t=x;x=y;y=t}return y*n+x}
+function fromSet(id){const L=TSET[id],st=tstat(id);let j=rnd(L.length);if(L.length>1&&j===st.last)j=(j+1)%L.length;st.last=j;
+  const[bs,t,ans]=L[j],n=9,k=rnd(8),b=new Array(n*n).fill(0);
+  [...bs].forEach((c,i)=>{b[symIdx(i,n,k)]=+c});
+  return{n,b,t:symIdx(t,n,k),ans:ans.map(a=>symIdx(a,n,k))}}
+
+let D=null;
+function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);tot+=s.ok;best=Math.max(best,s.best)});
+  $('#ts-solved').textContent=tot;$('#ts-best').textContent=best;
+  $('#train-list').innerHTML=TCATS.map(c=>{const s=tstat(c.id);
+    const chip=s.streak>1?`<span class="chip hot">Serie ${s.streak}</span>`:(s.ok?`<span class="chip">${s.ok} gelöst</span>`:`<span class="chip">${c.set?TSET[c.set].length+' Aufgaben':'Endlos'}</span>`);
+    return`<button class="train-row" data-id="${c.id}"><span class="tglyph">${glyph(c.id)}</span><span class="lt"><span class="t">${c.title}</span><span class="d">${c.sum}</span></span>${chip}</button>`}).join('');
+  document.querySelectorAll('.train-row').forEach(b=>b.onclick=()=>openDrill(b.dataset.id))}
+function openDrill(id){D={cat:id};newDrill();show('drill')}
+function newDrill(){const c=TC(D.cat);const p=c.set?fromSet(c.set):c.gen();
+  if(!p){D.msg='Keine Aufgabe gefunden. Tippe auf „Weiter“.';D.state='';D.sub='';renderDrill();return}
+  Object.assign(D,p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,msg:c.goal,state:'',sub:''});
+  renderDrill()}
+function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:''});renderDrill()}
+function drillSolved(msg){const s=tstat(D.cat);D.phase='solved';D.state='ok';
+  if(!D.counted){D.counted=true;s.tries++;if(!D.fails&&!D.shown){s.ok++;s.streak++;s.best=Math.max(s.best,s.streak)}}
+  D.msg=msg;D.sub=TC(D.cat).tip;save();renderDrill()}
+function drillFailed(msg){const s=tstat(D.cat);D.phase='failed';D.state='bad';D.fails++;
+  if(!D.counted){D.counted=true;s.tries++;s.streak=0}D.msg=msg;D.sub='';save();renderDrill()}
+function drillMove(i){if(!D||D.phase!=='play')return;const n=D.n,c=D.cat;
+  const r=tryPlay(D.b,i,1,n,-1);if(r.err){D.msg=ERR[r.err==='ko'?'occupied':r.err];D.state='bad';D.sub='';renderDrill();return}
+  buzz();const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
+  if(c==='schlagen'){
+    if(D.ans.has(i))return drillSolved(k===1?'Richtig. Du schlägst einen Stein.':`Richtig. Du schlägst ${k} Steine.`);
+    return drillFailed(k?`Das schlägt nur ${k===1?'einen Stein':k+' Steine'}. Es gibt einen größeren Fang.`:'Das schlägt keinen Stein.')}
+  if(c==='doppel'){
+    if(D.ans.has(i))return drillSolved('Doppel-Atari! Weiß kann nur eine Gruppe retten.');
+    let at=0;const seen=new Set();for(const j of nbrs(i,n))if(r.board[j]===2&&!seen.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(s=>seen.add(s));if(g.libs.size===1)at++}
+    return drillFailed(at===1?'Das ist nur ein einfaches Atari. Weiß rettet die Gruppe.':(r.group.libs.size<2?'Dein Stein steht so selbst im Atari.':'Dieser Zug bedroht keine weiße Gruppe.'))}
+  if(c==='punkte'){
+    if(D.ans.has(i))return drillSolved('Richtig. Eine freie Ecke ist der größte Punkt.');
+    const x=i%n,y=(i/n)|0,d=Math.min(x,y,n-1-x,n-1-y);
+    const hx=x<=5?0:x>=n-6?1:-1,hy=y<=5?0:y>=n-6?2:-1,cornerOf=(hx>=0&&hy>=0)?(hx|hy):-1;
+    return drillFailed(d<=1?'Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet.':(cornerOf>=0&&!D.emptyCorners.includes(cornerOf)?'In dieser Ecke liegt schon ein Stein. Eine ganz freie Ecke ist größer.':'Seite und Mitte sind weniger wert. Es gibt noch eine freie Ecke.'))}
+  if(c==='retten'){
+    if(D.ans.has(i)){const L=groupAt(D.b,D.t,n).libs.size;return drillSolved(k?`Gerettet. Du schlägst den Angreifer und deine Gruppe hat wieder ${L} Freiheiten.`:`Gerettet. Deine Gruppe hat jetzt ${L} Freiheiten und Weiß kann sie nicht mehr fangen.`)}
+    const km=D.b[D.t]?rdKillMove(D.b,D.t,n,2):-1;
+    if(km>=0){D.b=tryPlay(D.b,km,2,n,-1).board;D.last=km}
+    return drillFailed(km>=0?`Weiß antwortet mit ${coord(km,n)}${D.b[D.t]?'. Deine Gruppe ist nicht mehr zu retten.':' und schlägt deine Gruppe.'}`:'Das rettet die Gruppe nicht.')}
+  // Fangen / Leiter: Weiß wehrt sich
+  const t=D.t;if(!D.b[t])return drillSolved(`Gefangen! ${coord(i,n)} schlägt die Steine.`);
+  const okMove=D.first?D.ans.has(i):(RD.nodes=0,!rdLive(D.b,t,n,1,24));
+  D.first=false;
+  const w=rdReply(D.b,t,n,1);if(w>=0){D.b=tryPlay(D.b,w,2,n,-1).board;D.last=w}
+  if(!okMove)return drillFailed(w>=0?`Weiß entkommt mit ${coord(w,n)}.`:'Weiß entkommt.');
+  if(w<0)D.msg='Weiß gibt auf. Schlage die Steine.';
+  else D.msg=`Gut. Weiß antwortet mit ${coord(w,n)}. Mach weiter.`;
+  D.state='';D.sub='';renderDrill()}
+function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
+  $('#dr-cat').textContent=c.title;
+  $('#dr-streak').textContent=s.streak?`Serie ${s.streak}`:`${s.ok} gelöst`;$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
+  if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
+    drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play',onPlay:drillMove})}
+  const fb=$('#dr-fb');fb.dataset.state=D.state||'';
+  fb.innerHTML=(D.state?icon(D.state==='ok'?'check':'alert'):'')+`<span>${D.msg||''}${D.sub?`<small>${D.sub}</small>`:''}</span>`;
+  const nx=$('#dr-next');nx.classList.toggle('primary',D.phase==='solved');
+  $('#dr-show').disabled=!D.b;$('#dr-retry').disabled=!D.b}
+$('#dr-back').onclick=()=>show('train');
+$('#dr-next').onclick=()=>newDrill();
+$('#dr-retry').onclick=()=>resetDrill();
+$('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=>[i%D.n,(i/D.n)|0]);
+  Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,state:'',sub:'',
+    msg:D.ans.size>1?'Die markierten Punkte sind richtig. Probier es aus.':'Der markierte Punkt ist richtig. Probier es aus.'});renderDrill()};
+
 /* ---------- Navigation ---------- */
-function show(v){['learn','lesson','play'].forEach(k=>$('#view-'+k).hidden=k!==v);
-  document.documentElement.classList.toggle('fit',v==='play');
-  $('#tab-learn').setAttribute('aria-selected',String(v!=='play'));$('#tab-play').setAttribute('aria-selected',String(v==='play'));
-  store.tab=v==='play'?'play':'learn';save();window.scrollTo(0,0);
-  if(v==='learn')renderLearn();if(v==='play'){renderPlay();if(G.phase==='play'&&G.turn===2&&!busy)aiMove()}}
-$('#tab-learn').onclick=()=>show('learn');$('#tab-play').onclick=()=>show('play');
-show(store.tab==='play'?'play':'learn');
+function show(v){['learn','lesson','train','drill','play'].forEach(k=>$('#view-'+k).hidden=k!==v);
+  document.documentElement.classList.toggle('fit',v==='play'||v==='drill');
+  const tab=v==='play'?'play':(v==='train'||v==='drill')?'train':'learn';
+  ['learn','train','play'].forEach(k=>$('#tab-'+k).setAttribute('aria-selected',String(k===tab)));
+  store.tab=tab;save();window.scrollTo(0,0);
+  if(v==='learn')renderLearn();if(v==='train')renderTrain();
+  if(v==='play'){renderPlay();if(G.phase==='play'&&G.turn===2&&!busy)aiMove()}}
+$('#tab-learn').onclick=()=>show('learn');$('#tab-play').onclick=()=>show('play');$('#tab-train').onclick=()=>show('train');
+show(store.tab==='play'?'play':store.tab==='train'?'train':'learn');
 if('serviceWorker'in navigator&&window.GO_PWA){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 </script>
 

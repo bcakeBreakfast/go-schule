@@ -1,7 +1,7 @@
 {
  "name": "Go-Schule",
  "short_name": "Go-Schule",
- "description": "Go von null lernen: Lektionen und Partien mit Trainer.",
+ "description": "Go von null lernen: Lektionen, Training ohne Hilfe und Partien mit Trainer.",
  "lang": "de",
  "start_url": "./",
  "scope": "./",
