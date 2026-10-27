@@ -76,7 +76,7 @@ h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;
 
 /* Buttons */
 .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:var(--s1);height:var(--s6);padding:0 var(--s3);border:1px solid var(--rule);background:var(--raised);color:var(--ink);border-radius:var(--r1);font-weight:500;font-size:16px;line-height:24px;cursor:pointer}
-.btn:hover{border-color:var(--muted)}
+@media (hover:hover){.btn:hover{border-color:var(--muted)}}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.block{width:100%}
 .btn:disabled{opacity:.4;cursor:default}
@@ -140,9 +140,9 @@ h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;
 .caps{display:flex;align-items:center;gap:var(--s2);font-size:14px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums}
 .caps span{display:inline-flex;align-items:center;gap:var(--s1)}
 .controls{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s1)}
-.ctl{appearance:none;height:var(--s8);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);background:var(--raised);border-radius:var(--r1);font-size:12px;line-height:16px;font-weight:500;cursor:pointer;color:var(--ink);padding:0}
-.ctl .ic{margin-bottom:var(--s1)}
-.ctl:hover{border-color:var(--muted)}
+.ctl{appearance:none;height:var(--s5);display:flex;flex-direction:row;gap:var(--s1);align-items:center;justify-content:center;border:1px solid var(--rule);background:var(--raised);border-radius:var(--r1);font-size:14px;line-height:16px;font-weight:500;cursor:pointer;color:var(--ink);padding:0}
+.ctl .ic{width:16px;height:16px}
+@media (hover:hover){.ctl:hover{border-color:var(--muted)}}
 .ctl:disabled{opacity:.4;cursor:default}
 .ctl.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .coach-card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r2);padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
@@ -183,7 +183,9 @@ html.fit,html.fit body{height:100%;overflow:hidden;overscroll-behavior:none}
 html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s8) + var(--s2));gap:var(--s2)}
 html.fit header.top{display:none}
 html.fit main{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
-html.fit #view-play{flex:1 1 0;min-height:0;gap:var(--s2)}
+html.fit #view-play{flex:1 1 0;min-height:0;gap:var(--s1)}
+html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
+html.fit .statusbar{min-height:var(--s5)}
 .board-wrap{flex:1 1 0;min-height:0;container-type:size;display:grid;place-items:center}
 .board-wrap .board{width:min(100cqw,100cqh);max-width:none;margin:0}
 @supports not (width:1cqw){.board-wrap .board{width:auto;height:100%;max-width:100%;aspect-ratio:1}}
@@ -403,7 +405,7 @@ let store=load();
 function save(){try{store.game=G;localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 
 /* ---------- Brett zeichnen ---------- */
-const CELL=40,M=40;
+const CELL=40,M=28;
 function hoshi(n){if(n===9)return[[2,2],[6,2],[2,6],[6,6],[4,4]];if(n===13)return[[3,3],[9,3],[3,9],[9,9],[6,6]];if(n===7)return[[3,3]];return[]}
 function drawBoard(el,o){
   const n=o.n,S=2*M+(n-1)*CELL,P=k=>M+k*CELL,R=CELL*0.47,id=el.id,b=o.board,dead=new Set(o.dead||[]);
@@ -415,7 +417,7 @@ function drawBoard(el,o){
   for(let k=0;k<n;k++){const w=(k===0||k===n-1)?1.7:1;
     h+=`<line x1="${P(0)}" y1="${P(k)}" x2="${P(n-1)}" y2="${P(k)}" style="stroke:var(--grid);stroke-width:${w}"/><line x1="${P(k)}" y1="${P(0)}" x2="${P(k)}" y2="${P(n-1)}" style="stroke:var(--grid);stroke-width:${w}"/>`}
   for(const[x,y]of hoshi(n))h+=`<circle cx="${P(x)}" cy="${P(y)}" r="3.6" style="fill:var(--grid)"/>`;
-  for(let k=0;k<n;k++)h+=`<text x="${P(k)}" y="${M-24}" class="co" text-anchor="middle">${LET[k]}</text><text x="${M-24}" y="${P(k)+4}" class="co" text-anchor="middle">${n-k}</text>`;
+  for(let k=0;k<n;k++)h+=`<text x="${P(k)}" y="${M-14}" class="co" text-anchor="middle">${LET[k]}</text><text x="${M-17}" y="${P(k)+4}" class="co" text-anchor="middle">${n-k}</text>`;
   let libs=null;
   if(o.atari||o.libNums){libs=new Int16Array(n*n);const seen=new Uint8Array(n*n);
     for(let i=0;i<n*n;i++)if(b[i]&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>{seen[s]=1;libs[s]=g.libs.size})}}
