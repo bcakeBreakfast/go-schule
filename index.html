@@ -772,7 +772,10 @@ function userMove(i){if(G.phase!=='play'||G.turn!==1||busy)return;
   buzz();
   const list=analyze(G.board,G.n,1,G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
   pushHist();applyMove(r,i,1);G.hint=-1;
-  coachAdd('du',commentUser(i,r,mine,best));
+  let cm=commentUser(i,r,mine,best);
+  if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=(good?'Gefunden! ':'Nicht ganz das, was der Tipp meinte. ')+cm}
+  G.hintLevel=0;
+  coachAdd('du',cm);
   save();renderPlay();aiMove()}
 function aiMove(){if(G.phase!=='play'||G.turn!==2)return;busy=true;renderPlay();
   setTimeout(()=>{const list=analyze(G.board,G.n,2,G.ko,G.moves),thr=G.passes?2:0.8;let pick=null;
@@ -791,9 +794,25 @@ function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.
   coachAdd('trainer','Beide haben gepasst. Tippe auf Gruppen, die nicht mehr leben können: Sie werden entfernt. Die kleinen Quadrate zeigen, wem welches Gebiet gehört.')}
 function toggleDead(i){if(!G.board[i])return;const g=groupAt(G.board,i,G.n).stones,ds=new Set(G.dead);
   if(g.every(s=>ds.has(s)))g.forEach(s=>ds.delete(s));else g.forEach(s=>ds.add(s));G.dead=[...ds];buzz();save();renderPlay()}
+const IDEA=[
+ [/^schlägt/,'Weiß hat Steine mit nur einer Freiheit. Findest du sie?'],
+ [/rettet/,'Eine deiner Gruppen hat nur noch eine Freiheit. Wie bekommt sie wieder Luft?'],
+ [/ins Atari/,'Einige weiße Steine haben nur noch zwei Freiheiten. Kannst du Druck machen?'],
+ [/trennt/,'Zwei weiße Gruppen hängen nur lose zusammen. Wo könntest du sie trennen?'],
+ [/verbindet/,'Zwei deiner Gruppen sind getrennt. Ein Zug könnte sie verbinden.'],
+ [/freie Ecke/,'Es gibt noch eine freie Ecke. Ecken sind am Anfang am wertvollsten.'],
+ [/eigene Gebiet/,'Gerade droht nichts. Wo kannst du dein Gebiet vergrößern?'],
+ [/gegnerische Gebiet/,'Schau dir das weiße Gebiet an. Wo kannst du es verkleinern?']];
+function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;
+  const R=[['oben links','am oberen Rand','oben rechts'],['am linken Rand','in der Mitte','am rechten Rand'],['unten links','am unteren Rand','unten rechts']];
+  return R[cy][cx]}
 function hint(){if(G.phase!=='play'||G.turn!==1||busy)return;const list=analyze(G.board,G.n,1,G.ko,G.moves);
-  if(!list.length||list[0].s<0.8)coachAdd('trainer','Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.');
-  else{const b=list[0],rs=b.why[0];G.hint=b.i;coachAdd('trainer',`Tipp: ${coord(b.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`)}
+  if(!list.length||list[0].s<0.8){coachAdd('trainer','Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.');save();renderPlay();return}
+  const b=list[0],rs=b.why[0],idea=(rs&&IDEA.find(([re])=>re.test(rs.t)))||null;
+  G.hintLevel=(G.hintLevel||0)+1;
+  const base=idea?idea[1]:'Geh deinen Denkplan durch: Atari? Schlagen? Verbinden? Wo ist die größte freie Fläche?';
+  if(G.hintLevel===1)coachAdd('trainer',base);
+  else coachAdd('trainer',`Schau mal ${region(b.i,G.n)}. ${base}`);
   save();renderPlay()}
 function undo(){if(busy||G.phase==='over'||!G.history.length)return;let s=null;
   while(G.history.length){s=G.history.pop();if(s.turn===1)break}
@@ -839,7 +858,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
     $('#score-actions').hidden=G.phase!=='score'}
   $('#controls').hidden=G.phase==='score';
   const play=G.phase==='play'&&G.turn===1&&!busy;
-  $('#btn-hint').disabled=!play;$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
+  $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?'Genauer':'Tipp';$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=WHO[now.who];$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${WHO[c.who]}</b>${c.t}</span>`).join('');
