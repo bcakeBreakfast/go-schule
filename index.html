@@ -135,6 +135,10 @@ h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;
 /* Spielen */
 .statusbar{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);min-height:var(--s5)}
 .turn{font-weight:700;display:flex;align-items:center;gap:var(--s1)}
+.spark{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;opacity:0;transition:opacity .3s}
+body.thinking .spark{opacity:1;animation:spark 1.6s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes spark{0%{transform:rotate(0) scale(.85)}50%{transform:rotate(90deg) scale(1.1)}100%{transform:rotate(180deg) scale(.85)}}
+@media (prefers-reduced-motion: reduce){body.thinking .spark{animation:none}}
 .dot{width:var(--s2);height:var(--s2);border-radius:50%;background:var(--stone-b2);display:inline-block;flex:none}
 .dot.w{background:var(--stone-w1);box-shadow:inset 0 0 0 1px var(--stone-edge)}
 .dot.sm{width:var(--s1);height:var(--s1)}
@@ -353,7 +357,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
       <div class="field"><span class="lab">Brett</span>
         <div class="seg" id="seg-size"><button data-v="9">9×9</button><button data-v="13">13×13</button></div></div>
       <div class="field"><span class="lab">Gegner</span>
-        <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button></div></div>
+        <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
     </div>
     <p class="record" id="record"></p>
@@ -368,6 +372,120 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
   </div>
 </nav>
 
+<script type="text/plain" id="mcts-src">
+// Monte-Carlo-Baumsuche (UCT + RAVE) mit schnellem Playout-Brett. Läuft im Web Worker.
+let n=9,W=11,SZ=121,D4=[1,-1,11,-11],DG=[12,10,-10,-12];
+let bd,hd,nx,pl,cs,ko,emp,ep,ne;          // aktuelles Brett
+let sbd,shd,snx,spl,scs,sko,semp,sep,sne; // Sicherung der Wurzelstellung
+function setup(size){n=size;W=n+2;SZ=W*W;D4=[1,-1,W,-W];DG=[W+1,W-1,-W+1,-W-1];
+  bd=new Int8Array(SZ);hd=new Int16Array(SZ);nx=new Int16Array(SZ);pl=new Int16Array(SZ);cs=new Int16Array(SZ);emp=new Int16Array(SZ);ep=new Int16Array(SZ);
+  sbd=new Int8Array(SZ);shd=new Int16Array(SZ);snx=new Int16Array(SZ);spl=new Int16Array(SZ);scs=new Int16Array(SZ);semp=new Int16Array(SZ);sep=new Int16Array(SZ)}
+function saveRoot(){sbd.set(bd);shd.set(hd);snx.set(nx);spl.set(pl);scs.set(cs);semp.set(emp);sep.set(ep);sne=ne;sko=ko}
+function loadRoot(){bd.set(sbd);hd.set(shd);nx.set(snx);pl.set(spl);cs.set(scs);emp.set(semp);ep.set(sep);ne=sne;ko=sko}
+function empAdd(p){ep[p]=ne;emp[ne++]=p}
+function empDel(p){const k=ep[p],last=emp[--ne];emp[k]=last;ep[last]=k}
+function merge(a,b){ // Kette b in a
+  let s=b;do{hd[s]=a;s=nx[s]}while(s!==b);
+  const t=nx[a];nx[a]=nx[b];nx[b]=t;pl[a]+=pl[b];cs[a]+=cs[b]}
+function removeChain(h){let s=h;
+  do{bd[s]=0;empAdd(s);s=nx[s]}while(s!==h);
+  s=h;do{for(let k=0;k<4;k++){const q=s+D4[k],v=bd[q];if(v===1||v===2)pl[hd[q]]++}s=nx[s]}while(s!==h)}
+function place(p,c){const o=3-c;bd[p]=c;hd[p]=p;nx[p]=p;cs[p]=1;pl[p]=0;empDel(p);
+  for(let k=0;k<4;k++){const q=p+D4[k],v=bd[q];if(v===0)pl[p]++;else if(v===1||v===2)pl[hd[q]]--}
+  for(let k=0;k<4;k++){const q=p+D4[k];if(bd[q]===c){const a=hd[p],b=hd[q];if(a!==b){if(cs[a]>=cs[b])merge(a,b);else merge(b,a)}}}
+  let cap=0,cp=-1;
+  for(let k=0;k<4;k++){const q=p+D4[k];if(bd[q]===o){const h=hd[q];if(pl[h]===0){cap+=cs[h];cp=h;removeChain(h)}}}
+  const h=hd[p];ko=(cap===1&&cs[h]===1&&pl[h]===1)?cp:-1;return cap}
+function adjCount(p,h){let c=0;for(let k=0;k<4;k++)if(hd[p+D4[k]]===h&&bd[p+D4[k]]>0&&bd[p+D4[k]]<3)c++;return c}
+function legal(p,c){if(bd[p]!==0||p===ko)return false;
+  for(let k=0;k<4;k++){const q=p+D4[k],v=bd[q];if(v===0)return true;
+    if(v===c){if(pl[hd[q]]>adjCount(p,hd[q]))return true}
+    else if(v===3-c){if(pl[hd[q]]===adjCount(p,hd[q]))return true}}
+  return false}
+function isEye(p,c){let edge=0;for(let k=0;k<4;k++){const v=bd[p+D4[k]];if(v===3)edge=1;else if(v!==c)return false}
+  let bad=0;for(let k=0;k<4;k++){const v=bd[p+DG[k]];if(v===3-c)bad++}
+  return edge?bad===0:bad<2}
+const LB=new Int16Array(8);
+function realLibs(h,max){let c=0,s=h;do{for(let k=0;k<4;k++){const q=s+D4[k];if(bd[q]===0){let seen=false;for(let j=0;j<c;j++)if(LB[j]===q){seen=true;break}if(!seen){LB[c++]=q;if(c>=max)return c}}}s=nx[s]}while(s!==h);return c}
+function tactical(last,c){ // Schlagen oder Retten rund um den letzten Zug
+  if(last<0||bd[last]===0)return-1;const o=3-c;
+  const hl=hd[last];if(bd[last]===o&&pl[hl]<=4&&realLibs(hl,2)===1&&legal(LB[0],c))return LB[0];
+  for(let k=0;k<4;k++){const q=last+D4[k];if(bd[q]===c){const h=hd[q];if(pl[h]<=4&&realLibs(h,2)===1){const e=LB[0];
+    // Angreifer im Atari schlagen?
+    let s=h;do{for(let j=0;j<4;j++){const r=s+D4[j];if(bd[r]===o){const ho=hd[r];if(pl[ho]<=4&&realLibs(ho,2)===1&&legal(LB[0],c))return LB[0]}}s=nx[s]}while(s!==h);
+    let fr=0;for(let j=0;j<4;j++)if(bd[e+D4[j]]===0)fr++;if(fr>=2&&legal(e,c))return e}}}
+  return-1}
+function randomMove(c){let m=ne;while(m>0){const k=(Math.random()*m)|0,p=emp[k];
+    if(legal(p,c)&&!isEye(p,c))return p;
+    m--;const t=emp[k];emp[k]=emp[m];emp[m]=t;ep[emp[k]]=k;ep[emp[m]]=m}
+  return-1}
+const AM=new Int8Array(1024);
+function playout(c,last,maxMoves){let passes=0,mv=0;
+  while(passes<2&&mv<maxMoves){let p=-1;
+    if(Math.random()<0.9)p=tactical(last,c);
+    if(p<0)p=randomMove(c);
+    if(p<0){passes++;last=-1}else{passes=0;if(AM[p]===0)AM[p]=c;place(p,c);last=p}
+    c=3-c;mv++}}
+function score(komi){let s=0;for(let y=1;y<=n;y++)for(let x=1;x<=n;x++){const p=y*W+x,v=bd[p];
+    if(v===1)s++;else if(v===2)s--;else{let b=0,w=0;for(let k=0;k<4;k++){const q=bd[p+D4[k]];if(q===1)b=1;else if(q===2)w=1}if(b&&!w)s++;else if(w&&!b)s--}}
+  return s-komi}
+function ownerOf(p){const v=bd[p];if(v===1||v===2)return v;let b=0,w=0;for(let k=0;k<4;k++){const q=bd[p+D4[k]];if(q===1)b=1;else if(q===2)w=1}return b&&!w?1:w&&!b?2:0}
+function Node(c){this.c=c;this.mv=null;this.N=null;this.Wn=null;this.RN=null;this.RW=null;this.ch=null;this.n=0}
+function expand(node,prior){const c=node.c,m=[];
+  for(let k=0;k<ne;k++){const p=emp[k];if(legal(p,c)&&!isEye(p,c))m.push(p)}
+  if(!m.length)m.push(0); // 0 = Passen
+  const L=m.length;node.mv=Int16Array.from(m);node.N=new Float32Array(L);node.Wn=new Float32Array(L);node.RN=new Float32Array(L);node.RW=new Float32Array(L);node.ch=new Array(L).fill(null);
+  for(let i=0;i<L;i++){const p=m[i];let pv=8,pw=4;
+    if(p){const x=p%W-1,y=(p/W|0)-1,d=Math.min(x,y,n-1-x,n-1-y);let near=0;
+      for(let k=0;k<4;k++){const v=bd[p+D4[k]];if(v===1||v===2)near=1}for(let k=0;k<4;k++){const v=bd[p+DG[k]];if(v===1||v===2)near=1}
+      if(d===0){pv=10;pw=near?3:1}else if(d===1&&!near&&ne>n*n*0.7){pv=10;pw=3}
+      else if(near){pv=10;pw=5.5}}
+    if(prior&&prior.has(p)){pv+=prior.get(p)*20;pw+=prior.get(p)*16}
+    node.N[i]=pv;node.Wn[i]=pw}}
+function select(node){const ln=Math.log(node.n+1);let best=0,bv=-1e9;
+  for(let i=0;i<node.mv.length;i++){const nn=node.N[i],q=node.Wn[i]/nn,rn=node.RN[i];
+    const rq=rn>0?node.RW[i]/rn:q,beta=rn/(rn+nn+rn*nn/2000);
+    const v=(1-beta)*q+beta*rq+0.25*Math.sqrt(ln/nn);if(v>bv){bv=v;best=i}}
+  return best}
+function search(msg){
+  setup(msg.n);const t0=Date.now();
+  bd.fill(3);ne=0;for(let y=1;y<=n;y++)for(let x=1;x<=n;x++){const p=y*W+x;bd[p]=0;empAdd(p)}
+  const stones=msg.board;ko=-1;
+  // Steine setzen (ohne Schlagen-Logik zu stören: alle Stellungen sind legal)
+  for(let i=0;i<n*n;i++)if(stones[i]){const p=((i/n|0)+1)*W+(i%n)+1;place(p,stones[i])}
+  ko=msg.ko>=0?((msg.ko/n|0)+1)*W+(msg.ko%n)+1:-1;
+  saveRoot();
+  const prior=new Map();for(const[i,w]of(msg.prior||[]))prior.set(((i/n|0)+1)*W+(i%n)+1,w);
+  const root=new Node(msg.color);expand(root,prior);
+  const own=new Float32Array(SZ);let sims=0;const path=[],idx=[];
+  const maxMoves=n*n*3;
+  while(Date.now()-t0<msg.ms||sims<200){
+    loadRoot();AM.fill(0,0,SZ);path.length=0;idx.length=0;let node=root,c=msg.color,last=msg.last>=0?((msg.last/n|0)+1)*W+(msg.last%n)+1:-1,passes=0;
+    // Abstieg
+    while(true){const i=select(node);path.push(node);idx.push(i);const p=node.mv[i];
+      if(p){if(!legal(p,c)){break}if(AM[p]===0)AM[p]=c;place(p,c);last=p;passes=0}else{passes++;last=-1}
+      c=3-c;
+      if(node.ch[i]===null){if(node.N[i]>=12&&passes<2){const ch=new Node(c);expand(ch,null);node.ch[i]=ch}break}
+      node=node.ch[i];if(passes>=2)break}
+    if(passes<2)playout(c,last,maxMoves);
+    const s=score(msg.komi),bw=s>0?1:2;sims++;
+    for(let y=1;y<=n;y++)for(let x=1;x<=n;x++){const p=y*W+x,o=ownerOf(p);if(o===1)own[p]++;else if(o===2)own[p]--}
+    // Rückwärts
+    for(let k=path.length-1;k>=0;k--){const nd=path[k],i=idx[k],win=bw===nd.c?1:0;nd.n++;nd.N[i]++;nd.Wn[i]+=win;
+      for(let j=0;j<nd.mv.length;j++){const p=nd.mv[j];if(p&&AM[p]===nd.c){nd.RN[j]++;nd.RW[j]+=win}}}
+    if(sims>=msg.maxSims)break}
+  let bi=0;for(let i=1;i<root.mv.length;i++)if(root.N[i]>root.N[bi])bi=i;
+  const bp=root.mv[bi],wr=root.Wn[bi]/root.N[bi];
+  // Eigentum und Abschätzung
+  loadRoot();const ownOut=new Float32Array(n*n);let settled=0,emptyCnt=0,est=0;
+  for(let y=1;y<=n;y++)for(let x=1;x<=n;x++){const p=y*W+x,v=own[p]/sims;ownOut[(y-1)*n+x-1]=v;est+=v;if(bd[p]===0){emptyCnt++;if(Math.abs(v)>0.85)settled++}}
+  est-=msg.komi;
+  return{move:bp?((bp/W|0)-1)*n+(bp%W-1):-1,winrate:wr,sims,settled:emptyCnt?settled/emptyCnt:1,est,own:Array.from(ownOut)}}
+if(typeof self!=='undefined'&&typeof window==='undefined'&&typeof importScripts==='function'){
+  self.onmessage=e=>{const r=search(e.data);r.id=e.data.id;self.postMessage(r)}}
+if(typeof module!=='undefined')module.exports={search};
+
+</script>
 <script>
 /*ENGINE*/
 const KOMI=7.5;
@@ -404,13 +522,17 @@ function evalMove(b,n,i,c,ko,moveNo,base,ownAtari){
   const x=i%n,y=(i/n)|0,nb=nbrs(i,n),k=r.captured.length;
   if(!k&&nb.every(j=>b[j]===c))add(-40);
   if(k)add(5+k*5,k===1?'schlägt einen Stein':`schlägt ${k} Steine`);
-  let rescued=0;for(const g of ownAtari){const s0=g.stones[0];if(r.board[s0]===c&&groupAt(r.board,s0,n).libs.size>=2)rescued+=g.stones.length}
+  let rescued=0;for(const g of ownAtari){const s0=g.stones[0];if(r.board[s0]===c&&groupAt(r.board,s0,n).libs.size>=2&&!tacDead(r.board,s0,n,o))rescued+=g.stones.length}
   if(rescued)add(6+rescued*5,'rettet eine Gruppe aus dem Atari');
   const L=r.group.libs.size;
   if(L===1&&!k)add(-6-r.group.stones.length*4);else if(L===1)add(-1);else if(L===2)add(-1);
+  let trap=false;if(L===2&&tacDead(r.board,i,n,o)){trap=true;add(-5-r.group.stones.length*4)}
   const so=new Set();let opG=0,at=0;
   for(const j of nb){if(r.board[j]===o&&!so.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(q=>so.add(q));opG++;if(g.libs.size===1)at+=g.stones.length}}
   if(at)add(2+at*2,'setzt gegnerische Steine ins Atari');
+  let caught=0;const sl=new Set();
+  if(!trap)for(const j of nb){if(r.board[j]===o&&!sl.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(q=>sl.add(q));if(g.libs.size===2&&tacCaught(r.board,j,n,c))caught+=g.stones.length}}
+  if(caught)add(3+caught*3,'fängt gegnerische Steine, sie können nicht mehr entkommen');
   if(opG>=2&&L>=2)add(1.5,'trennt gegnerische Steine');
   const sc=new Set();let ownG=0;
   for(const j of nb){if(b[j]===c&&!sc.has(j)){const g=groupAt(b,j,n);g.stones.forEach(q=>sc.add(q));ownG++}}
@@ -428,7 +550,7 @@ function evalMove(b,n,i,c,ko,moveNo,base,ownAtari){
       for(let yy=Math.max(0,y-2);yy<=Math.min(n-1,y+2);yy++)for(let xx=Math.max(0,x-2);xx<=Math.min(n-1,x+2);xx++)if(b[yy*n+xx])empty=false;
       if(empty){add(4);why.push({v:9,t:'besetzt eine freie Ecke'})}}}
   why.sort((a,b2)=>b2.v-a.v);
-  return{i,s,why,r}}
+  return{i,s,why,r,trap}}
 function analyze(b,n,c,ko,moveNo){const base=terrCount(b,n),oa=atariGroups(b,n,c),out=[];
   for(let i=0;i<n*n;i++){if(b[i])continue;const e=evalMove(b,n,i,c,ko,moveNo,base,oa);if(e)out.push(e)}
   out.sort((a,b2)=>b2.s-a.s);return out}
@@ -472,6 +594,8 @@ function rdReply(b,t,n,att){const def=3-att;let best=-1,bl=-1;
     RD.nodes=0;const alive=!rdKill(r.board,t,n,att,24);const l=groupAt(r.board,t,n).libs.size+(alive?100:0);
     if(l>bl){bl=l;best=m}}
   return best}
+function tacDead(b,t,n,att){const sv=RD.LIM;RD.LIM=700;RD.nodes=0;const r=rdKill(b,t,n,att,16);const ok=RD.nodes<=700;RD.LIM=sv;return r&&ok}
+function tacCaught(b,t,n,att){const sv=RD.LIM;RD.LIM=700;RD.nodes=0;const r=!rdLive(b,t,n,att,16);const ok=RD.nodes<=700;RD.LIM=sv;return r&&ok}
 /*END READER*/
 /*TGEN*/
 const rnd=k=>Math.floor(Math.random()*k);
@@ -756,6 +880,7 @@ function applyMove(r,i,c){G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko
 function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
   if(k)parts.push(k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`);
   if(r.group.libs.size===1)parts.push('Vorsicht: Dein Stein steht jetzt selbst im Atari.');
+  else if(mine&&mine.trap)parts.push('Vorsicht: Weiß kann diese Steine jetzt fangen, zum Beispiel in einer Leiter.');
   else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===2&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push('Atari! Weiß muss reagieren.')}
   const diff=best&&mine?best.s-mine.s:0;
   if(best&&best.i!==i&&diff>5){const rs=best.why[0];parts.push(`Stärker wäre ${coord(best.i,n)} gewesen${rs?', denn der Zug '+rs.t:''}.`)}
@@ -778,16 +903,42 @@ function userMove(i){if(G.phase!=='play'||G.turn!==1||busy)return;
   G.hintLevel=0;
   coachAdd('du',cm);
   save();renderPlay();aiMove()}
-function aiMove(){if(G.phase!=='play'||G.turn!==2)return;busy=true;renderPlay();
-  setTimeout(()=>{const list=analyze(G.board,G.n,2,G.ko,G.moves),thr=G.passes?2:0.8;let pick=null;
+let aiReq=0,thinkTimer=null,worker=null,workerFailed=false,mctsLocal=null;
+function getWorker(){if(worker||workerFailed)return worker;
+  try{worker=new Worker(URL.createObjectURL(new Blob([$('#mcts-src').textContent],{type:'text/javascript'})));worker.onerror=()=>{workerFailed=true;worker=null;if(busy&&G.turn===2){busy=false;aiMove()}}}catch(e){workerFailed=true;worker=null}
+  return worker}
+function localSearch(msg){if(!mctsLocal)mctsLocal=new Function($('#mcts-src').textContent+';return search;')();return mctsLocal(msg)}
+function startThinking(){clearTimeout(thinkTimer);thinkTimer=setTimeout(()=>document.body.classList.add('thinking'),1000)}
+function stopThinking(){clearTimeout(thinkTimer);document.body.classList.remove('thinking')}
+function aiPass(extra){G.passes++;G.turn=1;G.last=-1;G.ko=-1;coachAdd('weiss','Weiß passt.'+(extra||'')+' Wenn du auch passt, endet das Spiel und es wird gezählt.');if(G.passes>=2)enterScore()}
+function aiMove(){if(G.phase!=='play'||G.turn!==2)return;busy=true;const id=++aiReq;renderPlay();startThinking();
+  if(G.level==='stark'){
+    setTimeout(()=>{if(id!==aiReq)return;
+      const list=analyze(G.board,G.n,2,G.ko,G.moves),prior=list.slice(0,5).map((e,k)=>[e.i,[1,.6,.4,.3,.2][k]]);
+      const msg={id,n:G.n,board:G.board.slice(),ko:G.ko,color:2,komi:KOMI,ms:G.n>9?2600:1800,last:G.last,maxSims:1e9,prior};
+      const done=r=>{if(id!==aiReq)return;finishStark(r,list)};
+      const w=getWorker();
+      if(w){w.onmessage=e=>done(e.data);w.postMessage(msg)}
+      else setTimeout(()=>done(localSearch({...msg,ms:900})),30)},30);
+    return}
+  setTimeout(()=>{if(id!==aiReq)return;const list=analyze(G.board,G.n,2,G.ko,G.moves),thr=G.passes?2:0.8;let pick=null;
     if(list.length&&list[0].s>=thr){const easy=G.level==='leicht';
       const noisy=list.map(e=>({e,v:e.s+(Math.random()-0.5)*(easy?7:1.2)})).sort((a,b)=>b.v-a.v);
       pick=noisy[0].e;if(easy&&Math.random()<0.2){const top=noisy.slice(0,6);pick=top[Math.floor(Math.random()*top.length)].e}
       if(pick.s<thr)pick=list[0]}
-    pushHist();
-    if(!pick){G.passes++;G.turn=1;G.last=-1;G.ko=-1;coachAdd('weiss','Weiß passt. Wenn du auch passt, endet das Spiel und es wird gezählt.');if(G.passes>=2)enterScore()}
+    stopThinking();pushHist();
+    if(!pick)aiPass();
     else{applyMove(pick.r,pick.i,2);const rs=pick.why[0];coachAdd('weiss',`Weiß spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
     busy=false;save();renderPlay()},450)}
+function finishStark(r,list){stopThinking();pushHist();
+  let m=r.move,rr=m>=0?tryPlay(G.board,m,2,G.n,G.ko):null;
+  if(rr&&rr.err){rr=null;m=-1;if(list[0]&&list[0].s>0.8){m=list[0].i;rr=list[0].r}}
+  const pct=Math.round(r.winrate*100);
+  const settled=r.settled>0.96||(G.passes>0&&r.winrate>0.85);
+  if(m<0||settled)aiPass(` Weiß schätzt seine Gewinnchance auf ${pct} %.`);
+  else{applyMove(rr,m,2);const e=list.find(x=>x.i===m),rs=e&&e.why[0];
+    coachAdd('weiss',`Weiß spielt ${coord(m,G.n)}${rs?'. Der Zug '+rs.t:''}. Gewinnchance für Weiß: ${pct} %.`);warnAtari()}
+  busy=false;save();renderPlay()}
 function userPass(){if(G.phase!=='play'||G.turn!==1||busy)return;pushHist();G.passes++;G.turn=2;G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du','Du passt.');
   if(G.passes>=2){enterScore();save();renderPlay()}else{save();renderPlay();aiMove()}}
 function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.n);
@@ -798,6 +949,7 @@ function toggleDead(i){if(!G.board[i])return;const g=groupAt(G.board,i,G.n).ston
 const IDEA=[
  [/^schlägt/,'Weiß hat Steine mit nur einer Freiheit. Findest du sie?'],
  [/rettet/,'Eine deiner Gruppen hat nur noch eine Freiheit. Wie bekommt sie wieder Luft?'],
+ [/fängt gegnerische/,'Einige weiße Steine lassen sich fangen, wenn du von der richtigen Seite Atari gibst.'],
  [/ins Atari/,'Einige weiße Steine haben nur noch zwei Freiheiten. Kannst du Druck machen?'],
  [/trennt/,'Zwei weiße Gruppen hängen nur lose zusammen. Wo könntest du sie trennen?'],
  [/verbindet/,'Zwei deiner Gruppen sind getrennt. Ein Zug könnte sie verbinden.'],
@@ -821,7 +973,7 @@ function undo(){if(busy||G.phase==='over'||!G.history.length)return;let s=null;
 let newArmed=false;
 function newGameClick(){const lab=$('#btn-new span');
   if(G.moves>0&&G.phase!=='over'&&!newArmed){newArmed=true;lab.textContent='Sicher?';setTimeout(()=>{newArmed=false;lab.textContent='Neu'},3000);return}
-  newArmed=false;lab.textContent='Neu';G=newGame();busy=false;save();renderPlay()}
+  newArmed=false;lab.textContent='Neu';aiReq++;stopThinking();G=newGame();busy=false;save();renderPlay()}
 function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white;G.phase='over';
   G.result={black:sc.black,white:sc.white,m};if(m>0)store.stats.win++;else store.stats.loss++;
   coachAdd('trainer',`Schwarz: ${sc.black} Punkte (Steine + Gebiet). Weiß: ${fmt(sc.white)} Punkte inklusive ${fmt(KOMI)} Komi. ${m>0?'Du gewinnst mit '+fmt(m)+' Punkten. Glückwunsch!':'Weiß gewinnt mit '+fmt(-m)+' Punkten. Mit „Neu“ startest du die nächste Partie.'}`);
@@ -849,7 +1001,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   let t;
   if(G.phase==='over')t=G.result.m>0?`<span class="dot"></span>Du gewinnst mit ${fmt(G.result.m)} Punkten`:`<span class="dot w"></span>Weiß gewinnt mit ${fmt(-G.result.m)}`;
   else if(G.phase==='score')t='Partie zählen';
-  else if(G.turn===2||busy)t='<span class="dot w"></span>Weiß überlegt …';
+  else if(G.turn===2||busy)t='<span class="dot w"></span>Weiß überlegt<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>';
   else t=`<span class="dot"></span>Du bist am Zug${G.passes?' · Weiß hat gepasst':''}`;
   $('#turn').innerHTML=t;
   $('#caps').innerHTML=`<span title="Von dir gefangen"><span class="dot w sm"></span>${G.caps[1]}</span><span title="Von Weiß gefangen"><span class="dot sm"></span>${G.caps[2]}</span>`;
