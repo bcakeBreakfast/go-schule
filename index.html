@@ -228,6 +228,8 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
 .drill-title{flex:1;min-width:0;display:flex;flex-direction:column}
 .drill-title .turn{font-size:16px;line-height:24px}
 .controls.three{grid-template-columns:repeat(3,1fr)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
+.choices .ctl{font-variant-numeric:tabular-nums}
 .dr-fb{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r2);padding:var(--s1) var(--s2);display:flex;gap:var(--s1);align-items:flex-start;min-height:calc(var(--s8) + var(--s2));flex:none}
 .dr-fb .ic{width:20px;height:20px;margin-top:2px}
 .dr-fb[data-state="ok"]{background:var(--good-soft);border-color:transparent;color:var(--good)}
@@ -306,12 +308,13 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
     <section id="view-drill" class="view" hidden>
       <div class="statusbar">
         <button class="iconbtn" id="dr-back" aria-label="Zurück zur Übersicht"><svg class="ic"><use href="#i-back"/></svg></button>
-        <div class="drill-title"><span class="eyebrow" id="dr-cat"></span><span class="turn"><span class="dot"></span>Schwarz am Zug</span></div>
+        <div class="drill-title"><span class="eyebrow" id="dr-cat"></span><span class="turn" id="dr-turn"></span></div>
         <span class="chip" id="dr-streak"></span>
       </div>
       <div class="board-wrap"><div class="board" id="dr-board"></div></div>
       <div class="dr-fb" id="dr-fb" aria-live="polite"></div>
-      <div class="controls three">
+      <div class="choices" id="dr-choices" hidden></div>
+      <div class="controls three" id="dr-controls">
         <button class="ctl" id="dr-show"><svg class="ic"><use href="#i-eye"/></svg>Lösung</button>
         <button class="ctl" id="dr-retry"><svg class="ic"><use href="#i-retry"/></svg>Nochmal</button>
         <button class="ctl" id="dr-next"><svg class="ic"><use href="#i-next"/></svg>Weiter</button>
@@ -657,6 +660,34 @@ function genPunkte(){const n=13,b=new Array(n*n).fill(0),corners=[0,1,2,3].sort(
   const empty=corners.slice(occ),ans=[];
   for(const c of empty)for(const[dx,dy]of[[2,2],[2,3],[3,2],[3,3]])ans.push(pt(c,dx,dy));
   return{n,b,ans,t:-1,emptyCorners:empty}}
+function genZaehlen(){const n=Math.random()<0.35?7:9,b=new Array(n*n).fill(0);
+  let c=2+rnd(n-6);const cols=[];
+  for(let y=0;y<n;y++){if(y&&Math.random()<0.5)c=Math.max(1,Math.min(n-3,c+(Math.random()<0.5?-1:1)));cols.push(c)}
+  for(let y=0;y<n;y++){b[y*n+cols[y]]=1;b[y*n+cols[y]+1]=2}
+  for(let k=1+rnd(4);k>0;k--){const y=rnd(n),bl=Math.random()<0.5,x=bl?cols[y]-1:cols[y]+2;if(x>=0&&x<n&&!b[y*n+x])b[y*n+x]=bl?1:2}
+  const sk=rnd(8),B=new Array(n*n).fill(0);b.forEach((v,i)=>{B[symIdx(i,n,sk)]=v});
+  const dead=[];
+  if(Math.random()<0.5){const own=scoreArea(B,n,[]).own,cand=[];
+    for(let i=0;i<n*n;i++){if(B[i]||!own[i])continue;const x=i%n,y=(i/n)|0;let free=true;
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<n&&yy<n&&B[yy*n+xx])free=false}
+      if(free)cand.push(i)}
+    if(cand.length){const i=cand[rnd(cand.length)];B[i]=3-own[i];dead.push(i)}}
+  const sc=scoreArea(B,n,dead);let bs=0,ws=0;for(let i=0;i<n*n;i++){if(dead.includes(i))continue;if(B[i]===1)bs++;else if(B[i]===2)ws++}
+  const bt=sc.black-bs,wt=sc.white-KOMI-ws,m=sc.black-sc.white;
+  let q,opts;
+  if(Math.random()<0.5){q='Das Spiel ist vorbei. Wie viele Punkte hat Schwarz? Tote Steine zählen nicht.';
+    const set=new Set([sc.black]);if(bs!==sc.black)set.add(bs);
+    while(set.size<4){const d=1+rnd(4);set.add(sc.black+(Math.random()<0.5?-d:d))}
+    opts=[...set].filter(v=>v>0).sort((a,b2)=>a-b2).map(v=>({txt:String(v),ok:v===sc.black}))}
+  else{q=`Das Spiel ist vorbei. Wer gewinnt? Weiß bekommt ${fmt(KOMI)} Punkte Komi. Tote Steine zählen nicht.`;
+    const lab=v=>v>0?`Schwarz mit ${fmt(v)}`:`Weiß mit ${fmt(-v)}`;const set=new Map();set.set(lab(m),true);
+    for(const v of[-m,m+KOMI,m-KOMI,m+2,m-2,m+4])if(v!==0&&set.size<4&&!set.has(lab(v)))set.set(lab(v),false);
+    opts=[...set].map(([txt,ok])=>({txt,ok})).sort(()=>Math.random()-0.5)}
+  const res=`${m>0?'Schwarz':'Weiß'} gewinnt mit ${fmt(Math.abs(m))}.`,typeA=q.includes('Wie viele');
+  const right=typeA?`Richtig, Schwarz hat ${sc.black} Punkte.`:`Richtig. ${res}`,wrong=typeA?`Nicht ganz. Schwarz hat ${sc.black} Punkte.`:`Nicht ganz. ${res}`;
+  let detail=`Schwarz: ${bs} Steine + ${bt} Gebiet = ${sc.black}<br>Weiß: ${ws} Steine + ${wt} Gebiet + ${fmt(KOMI)} Komi = ${fmt(sc.white)}`;
+  if(dead.length){const d=dead[0],wc=B[d]===2;detail+=`<br>${coord(d,n)} ist tot und zählt als ${wc?'schwarzes':'weißes'} Gebiet.`}
+  return{n,b:B,t:-1,ans:[],quiz:{q,opts,dead,own:sc.own,right,wrong,detail}}}
 /*END TGEN*/
 const TSET={"leiter":[["000000000020000000011200000001100000000000000000000000000000000000000000000020000",10,[11]],["011000000020000000001000000001000000002000000000000000000000000000000000000000000",10,[19]],["000000000000000021000000001000000111000000000000000000000000000000000000000000000",16,[15]],["000000000000000000000000000000000000000000000000200000001011000011200000000000000",66,[57]],["000000000000000000000000000001100000001100000020020000010000000000000000000000000",46,[47]],["000000000000000001000002100000000020000000010000000010000000002000000000000000000",34,[33]],["000000000000000000000000000000000000001000000021000000000000000001000000000000000",46,[55]],["000000000000000000000000000000000000000000000000002010000001200000000100000020100",60,[51]],["020000000000001000020120000000001100000000000000200000000000000000000000000000000",22,[31]],["000002000000000000022200000001100000100000000021000000100000000002000000000000000",46,[55]],["000000000000000000000000000000200000000000000000101000000021000001000200000000000",58,[67]],["002100000000100000000000100000012112000000000000000000000000000001000000000000000",32,[41]],["000000000000000000000000000100000000000000000001100000000100000000200000201010000",66,[67]],["000000000000000000000000000000001000000100000000002100000001000000000000000000000",50,[49]],["000000000000000000000022010000010000000001000000020000010110000000010000000000000",49,[48]],["000000000000000000101010000000000000002120000001000000000000000000000000000000000",38,[37]],["100110000010210000000000000000000000201000000000000000000000000000000000000000000",12,[21]],["000001000000000000000012000000000100000000000020000000000000000000000000000000000",23,[32]],["000000000000000000000000000000010000000021000020100100000001000000000000000000000",40,[39,49]],["000112000000002010000001010000000000000000000000000000000000000000000000000000000",14,[13]],["000000000000000000000000000000100000021000000001000000101000000000000000000000000",37,[28]],["000000002000000000000000000000000000000000000000010020000010000001201000000000000",66,[57]],["000000000000000000000100000000002000000000000000010010000002102000000000000001000",59,[50]],["000000002011000000010020000020100000000000000002000002000000000000000000000000020",28,[37]],["100000000001000000021000000100000000100000000000000000000000000000000000000000000",19,[28]],["000000000000000000000001121000000000000001001000000000000000000000000000000000000",25,[16,34]],["000000000000020000020110000000100000000020000000000000000000000000000000000000000",13,[14]],["000000000000000000000000000000001110000000000000000020000000010000000000000000000",52,[51]],["000000000000000000000000200000000001000000100000000210000001210000000000000000000",51,[50,69]],["000000000000000000002000000000000000000000000000000000210100000010201000000000000",66,[67]]],"fangen":[["000000000000000000000000000000000000110000000020200000110000000000100000000000000",46,[47]],["000000000000000001000020011000002020000000010000001000000000000000000000020000000",34,[33]],["000000000000000001000000000001000000100000000010000000021000000000000000000000000",55,[64]],["000000000000000000000000000000000000000000000000001000000002000000011210000002000",69,[60]],["000000001000000020000000011000001010000000200000000000000000000000000100000000000",16,[15]],["000000000200000000010000000020000000010000000010000000000000000000000000000001000",28,[29]],["000201010000121000000000000011000000000001000000000000000000000000000000000000000",13,[22]],["000000000000000020000000000000000000000002000001010000001000000000021200000010000",67,[66]],["000011000002000000000010100000000100000021000000010000000010000000000000000000000",40,[39]],["000000000000000000000000000000020000000000100000000101000001120000000000000000200",61,[70]],["000010000000012210000001000000100020000000000000000200002000000000000000000000000",14,[24]],["001020000111000000021000000000000000200000000000000000000000000000000000000000000",19,[28]],["000000000000000000000000000000000000000000000000000000000001000000000210000010010",69,[60]],["010100000001000000021000000000000000010000000000000000000000000000000000000000000",19,[28]],["001000000002121000000000000000000100012000100000000000000000000000000000000000000",13,[22]],["000000000000000000000000000000011000000002000000101000000000010000000000000000000",41,[42]],["000000010000000122000000010000000120000002000000000000000000000000000000000000000",16,[26]],["000000000000000000000000000000000000100000000010000000020000000001000000110000000",55,[56]],["000000000000000000000000000000000000000000000020000000000010000001210000000000000",66,[57]],["000000000000000000000000000000000000000000000110000000011000000020100000000000000",64,[63,65]],["000000000000020021000000101000001010000000000100000000000000000000000000000000000",16,[15]],["000000000000000000000000000020000000000000000000000000021000000110000000100000000",55,[46]],["000000000000000000000000000000000000000000000000000000000110020001220000000200000",67,[68]],["000000010000001000000000000000000000000000000000020000000000101000000021000002001",70,[69]],["000000000000000000000000200000001000000000011000000022000000210000000000000000000",52,[51]],["000000000000000000000000101000001012000000122000020000000000000000000000000000000",43,[52]],["000000000000000000000000000000000000000000000000000001000001100000000200000010001",69,[70]],["010010000000001000000210000000100000000000000000000000000000000000000000000000000",21,[20]],["101200000020000000010020000100100000000000000000000000000000000000000000000000000",10,[11]],["010000000000010000220000000110000000100000000000020000000000000000000000000000000",19,[20]],["000001000000001000000000000000001000000000000000000000000120110000002100000001000",68,[49]]]};
 
@@ -785,6 +816,7 @@ const LESSONS=[
  {id:'zaehlen',title:'Spielende & Zählen',sum:'Passen, Gebiet, Komi',
   body:['Das Spiel endet, wenn beide nacheinander <b>passen</b>, weil kein Zug mehr etwas bringt.',
         'Gezählt wird so: deine Steine auf dem Brett plus alle leeren Punkte, die nur deine Steine umschließen. Gruppen, die nicht mehr leben können, werden vorher entfernt.',
+        'Geschlagene Steine zählen dabei nicht extra. Sie bringen trotzdem Punkte: Sie fehlen dem Gegner auf dem Brett, und ihr Platz wird dein Gebiet.',
         'Weil Schwarz anfängt, bekommt Weiß einen Ausgleich, das <b>Komi</b>. In dieser App sind es 7,5 Punkte. Der halbe Punkt verhindert ein Unentschieden.'],
   puzzles:[{task:'Die Grenze zwischen den Gebieten hat eine Lücke. Schließe sie, sonst dringt Weiß in dein Gebiet ein.',rows:['...XO..','...XO..','...XO..','....O..','...XO..','...XO..','...XO..'],
     check:c=>c.x===3&&c.y===3?ok('Grenze dicht. Schwarz: 7 Steine + 21 leere Punkte = 28. Weiß: 7 Steine + 14 Punkte = 21.'):bad('Die Lücke liegt auf der Grenze zwischen Schwarz und Weiß.')}]},
@@ -1025,7 +1057,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
 /* ---------- Training ---------- */
 const GLYPH={ // kleine Brettausschnitte als Symbol: [schwarz],[weiß]
   schlagen:[[[1,0],[0,1],[2,1]],[[1,1]]],retten:[[[1,1],[1,2]],[[0,1],[2,1],[1,0]]],doppel:[[[1,1]],[[0,1],[2,1]]],
-  fangen:[[[0,1],[1,0],[2,2]],[[1,1]]],leiter:[[[0,0],[1,1],[2,2]],[[0,1],[1,2]]],punkte:[[[0,0]],[[2,2]]]};
+  fangen:[[[0,1],[1,0],[2,2]],[[1,1]]],leiter:[[[0,0],[1,1],[2,2]],[[0,1],[1,2]]],punkte:[[[0,0]],[[2,2]]],zaehlen:[[[1,0],[1,1],[1,2]],[[2,0],[2,1],[2,2]]]};
 function glyph(id){const[bs,ws]=GLYPH[id];let h='<svg viewBox="0 0 32 32">';
   for(let k=0;k<3;k++){const p=6+k*10;h+=`<line x1="6" y1="${p}" x2="26" y2="${p}" style="stroke:var(--grid);stroke-width:1"/><line x1="${p}" y1="6" x2="${p}" y2="26" style="stroke:var(--grid);stroke-width:1"/>`}
   for(const[x,y]of bs)h+=`<circle cx="${6+x*10}" cy="${6+y*10}" r="4.6" style="fill:var(--stone-b2)"/>`;
@@ -1042,6 +1074,8 @@ const TCATS=[
   tip:'Gib Atari von der Seite, auf der Weiß danach am wenigsten Freiheiten hat.'},
  {id:'leiter',title:'Leiter',sum:'Fangen im Zickzack über das Brett',set:'leiter',goal:'Fange die Steine mit ▲. Weiß wehrt sich.',
   tip:'Bei der Leiter hat Weiß nach jedem Verlängern wieder nur 2 Freiheiten. Ein weißer Stein im Weg bricht die Leiter.'},
+ {id:'zaehlen',title:'Zählen',sum:'Punkte am Spielende ausrechnen',gen:genZaehlen,goal:'',
+  tip:'Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'},
  {id:'punkte',title:'Große Punkte',sum:'Der wertvollste Zug der Eröffnung',gen:genPunkte,goal:'Spiele den größten Zug auf dem Brett.',
   tip:'Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.'}];
 const TC=id=>TCATS.find(c=>c.id===id);
@@ -1062,7 +1096,7 @@ function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);to
 function openDrill(id){D={cat:id};newDrill();show('drill')}
 function newDrill(){const c=TC(D.cat);const p=c.set?fromSet(c.set):c.gen();
   if(!p){D.msg='Keine Aufgabe gefunden. Tippe auf „Weiter“.';D.state='';D.sub='';renderDrill();return}
-  Object.assign(D,p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,msg:c.goal,state:'',sub:''});
+  Object.assign(D,{quiz:null,answered:-1},p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,msg:p.quiz?p.quiz.q:c.goal,state:'',sub:''});
   renderDrill()}
 function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:''});renderDrill()}
 function drillSolved(msg){const s=tstat(D.cat);D.phase='solved';D.state='ok';
@@ -1070,7 +1104,9 @@ function drillSolved(msg){const s=tstat(D.cat);D.phase='solved';D.state='ok';
   D.msg=msg;D.sub=TC(D.cat).tip;save();renderDrill()}
 function drillFailed(msg){const s=tstat(D.cat);D.phase='failed';D.state='bad';D.fails++;
   if(!D.counted){D.counted=true;s.tries++;s.streak=0}D.msg=msg;D.sub='';save();renderDrill()}
-function drillMove(i){if(!D||D.phase!=='play')return;const n=D.n,c=D.cat;
+function drillAnswer(k){if(!D.quiz||D.phase!=='play')return;const o=D.quiz.opts[k];D.answered=k;
+  if(o.ok)drillSolved(D.quiz.right);else drillFailed(D.quiz.wrong);D.sub=D.quiz.detail;renderDrill()}
+function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat;
   const r=tryPlay(D.b,i,1,n,-1);if(r.err){D.msg=ERR[r.err==='ko'?'occupied':r.err];D.state='bad';D.sub='';renderDrill();return}
   buzz();const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
   if(c==='schlagen'){
@@ -1101,13 +1137,18 @@ function drillMove(i){if(!D||D.phase!=='play')return;const n=D.n,c=D.cat;
   D.state='';D.sub='';renderDrill()}
 function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
   $('#dr-cat').textContent=c.title;
+  $('#dr-turn').innerHTML=D.quiz?'Spiel beendet':'<span class="dot"></span>Schwarz am Zug';
   $('#dr-streak').textContent=s.streak?`Serie ${s.streak}`:`${s.ok} gelöst`;$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
   if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
-    drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play',onPlay:drillMove})}
+    const done=D.quiz&&D.phase!=='play';
+    drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play'&&!D.quiz,onPlay:drillMove,dead:done?D.quiz.dead:[],own:done?D.quiz.own:null})}
+  const ch=$('#dr-choices'),ctr=$('#dr-controls');
+  ch.hidden=!(D.quiz&&D.phase==='play');ctr.hidden=!ch.hidden;
+  if(D.quiz&&D.phase==='play'){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
   const fb=$('#dr-fb');fb.dataset.state=D.state||'';
   fb.innerHTML=(D.state?icon(D.state==='ok'?'check':'alert'):'')+`<span>${D.msg||''}${D.sub?`<small>${D.sub}</small>`:''}</span>`;
   const nx=$('#dr-next');nx.classList.toggle('primary',D.phase==='solved');
-  $('#dr-show').disabled=!D.b;$('#dr-retry').disabled=!D.b}
+  $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
 $('#dr-back').onclick=()=>show('train');
 $('#dr-next').onclick=()=>newDrill();
 $('#dr-retry').onclick=()=>resetDrill();
