@@ -359,6 +359,8 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
     <div class="settings">
       <div class="field"><span class="lab">Brett</span>
         <div class="seg" id="seg-size"><button data-v="9">9×9</button><button data-v="13">13×13</button></div></div>
+      <div class="field"><span class="lab">Deine Farbe</span>
+        <div class="seg" id="seg-color"><button data-v="1">Schwarz</button><button data-v="2">Weiß</button></div></div>
       <div class="field"><span class="lab">Gegner</span>
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
@@ -740,7 +742,7 @@ function drawBoard(el,o){
     h+=`<polygon points="${cx},${cy-q} ${cx+q},${cy+q*0.75} ${cx-q},${cy+q*0.75}" style="fill:var(${b[i]===1?'--stone-w1':'--stone-b2'})"/>`}
   for(const[x,y]of(o.marks||[])){const q=CELL*0.2;h+=`<rect x="${P(x)-q}" y="${P(y)-q}" width="${q*2}" height="${q*2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3"/>`}
   if(o.hint>=0&&!b[o.hint])h+=`<circle cx="${P(o.hint%n)}" cy="${P((o.hint/n)|0)}" r="${R-2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5"/>`;
-  h+=`<circle class="ghost" cx="-100" cy="-100" r="${R}" opacity="0" style="fill:var(--stone-b2);pointer-events:none"/>`;
+  h+=`<circle class="ghost" cx="-100" cy="-100" r="${R}" opacity="0" style="fill:var(${o.ghostColor===2?'--stone-w1':'--stone-b2'});stroke:var(--stone-edge);stroke-width:${o.ghostColor===2?1:0};pointer-events:none"/>`;
   h+='</svg>';el.innerHTML=h;el._o=o;
   if(!el._bound){el._bound=true;
     const pick=e=>{const svg=el.querySelector('svg'),o=el._o;if(!svg||!o)return-1;const rc=svg.getBoundingClientRect(),n=o.n,S=2*M+(n-1)*CELL;
@@ -899,9 +901,12 @@ $('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetAr
 $('#cta-play').onclick=()=>show('play');
 
 /* ---------- Spiel ---------- */
-function newGame(){const n=store.settings.size;
-  return{n,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:store.settings.level,
-    coach:[{who:'trainer',t:'Du spielst Schwarz und beginnst. Starte in einer Ecke, auf der 3. oder 4. Linie vom Rand.'}]}}
+const CN={1:'Schwarz',2:'Weiß'},ADJ={1:'schwarze',2:'weiße'};
+function newGame(){const n=store.settings.size,user=store.settings.color===2?2:1;
+  return{n,user,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:store.settings.level,
+    coach:[{who:'trainer',t:user===1?'Du spielst Schwarz und beginnst. Starte in einer Ecke, auf der 3. oder 4. Linie vom Rand.':`Du spielst Weiß. Der Computer beginnt mit Schwarz, dafür bekommst du ${fmt(KOMI)} Punkte Komi. Antworte in einer freien Ecke.`}]}}
+const U=()=>G.user||1,A=()=>3-(G.user||1);
+function startGame(){aiReq++;stopThinking();G=newGame();busy=false;save();renderPlay();if(G.turn===A())aiMove()}
 let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*store.game.n)?store.game:newGame();
 let busy=false;
 function coachAdd(who,t){G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
@@ -912,8 +917,8 @@ function applyMove(r,i,c){G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko
 function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
   if(k)parts.push(k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`);
   if(r.group.libs.size===1)parts.push('Vorsicht: Dein Stein steht jetzt selbst im Atari.');
-  else if(mine&&mine.trap)parts.push('Vorsicht: Weiß kann diese Steine jetzt fangen, zum Beispiel in einer Leiter.');
-  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===2&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push('Atari! Weiß muss reagieren.')}
+  else if(mine&&mine.trap)parts.push(`Vorsicht: ${CN[A()]} kann diese Steine jetzt fangen, zum Beispiel in einer Leiter.`);
+  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===A()&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push(`Atari! ${CN[A()]} muss reagieren.`)}
   const diff=best&&mine?best.s-mine.s:0;
   if(best&&best.i!==i&&diff>5){const rs=best.why[0];parts.push(`Stärker wäre ${coord(best.i,n)} gewesen${rs?', denn der Zug '+rs.t:''}.`)}
   else if(diff<=1.5){if(!k){const rs=mine&&mine.why[0];parts.push(rs?`Guter Zug. Er ${rs.t}.`:'Solider Zug.')}}
@@ -921,15 +926,15 @@ function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
   const x=i%n,y=(i/n)|0,d=Math.min(x,y,n-1-x,n-1-y);
   if(G.moves<=n*1.3&&d<=1&&diff>3)parts.push('In der Eröffnung sind die 1. und 2. Linie zu niedrig.');
   return`${coord(i,n)}: `+parts.join(' ')}
-function warnAtari(){const g=atariGroups(G.board,G.n,1);
+function warnAtari(){const g=atariGroups(G.board,G.n,U());
   if(g.length)coachAdd('trainer',g.length===1?`Achtung: Deine Gruppe bei ${coord(g[0].stones[0],G.n)} steht im Atari (roter Ring). Rette sie oder gib sie bewusst auf.`:`Achtung: ${g.length} deiner Gruppen stehen im Atari (rote Ringe).`)}
 
-function userMove(i){if(G.phase!=='play'||G.turn!==1||busy)return;
-  const r=tryPlay(G.board,i,1,G.n,G.ko);
+function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
+  const r=tryPlay(G.board,i,U(),G.n,G.ko);
   if(r.err){coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
   buzz();
-  const list=analyze(G.board,G.n,1,G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
-  pushHist();applyMove(r,i,1);G.hint=-1;
+  const list=analyze(G.board,G.n,U(),G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
+  pushHist();applyMove(r,i,U());G.hint=-1;
   let cm=commentUser(i,r,mine,best);
   if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=(good?'Gefunden! ':'Nicht ganz das, was der Tipp meinte. ')+cm}
   G.hintLevel=0;
@@ -937,41 +942,41 @@ function userMove(i){if(G.phase!=='play'||G.turn!==1||busy)return;
   save();renderPlay();aiMove()}
 let aiReq=0,thinkTimer=null,worker=null,workerFailed=false,mctsLocal=null;
 function getWorker(){if(worker||workerFailed)return worker;
-  try{worker=new Worker(URL.createObjectURL(new Blob([$('#mcts-src').textContent],{type:'text/javascript'})));worker.onerror=()=>{workerFailed=true;worker=null;if(busy&&G.turn===2){busy=false;aiMove()}}}catch(e){workerFailed=true;worker=null}
+  try{worker=new Worker(URL.createObjectURL(new Blob([$('#mcts-src').textContent],{type:'text/javascript'})));worker.onerror=()=>{workerFailed=true;worker=null;if(busy&&G.turn===A()){busy=false;aiMove()}}}catch(e){workerFailed=true;worker=null}
   return worker}
 function localSearch(msg){if(!mctsLocal)mctsLocal=new Function($('#mcts-src').textContent+';return search;')();return mctsLocal(msg)}
 function startThinking(){clearTimeout(thinkTimer);thinkTimer=setTimeout(()=>document.body.classList.add('thinking'),1000)}
 function stopThinking(){clearTimeout(thinkTimer);document.body.classList.remove('thinking')}
-function aiPass(extra){G.passes++;G.turn=1;G.last=-1;G.ko=-1;coachAdd('weiss','Weiß passt.'+(extra||'')+' Wenn du auch passt, endet das Spiel und es wird gezählt.');if(G.passes>=2)enterScore()}
-function aiMove(){if(G.phase!=='play'||G.turn!==2)return;busy=true;const id=++aiReq;renderPlay();startThinking();
+function aiPass(extra){G.passes++;G.turn=U();G.last=-1;G.ko=-1;coachAdd('weiss',CN[A()]+' passt.'+(extra||'')+' Wenn du auch passt, endet das Spiel und es wird gezählt.');if(G.passes>=2)enterScore()}
+function aiMove(){if(G.phase!=='play'||G.turn!==A())return;const AC=A();busy=true;const id=++aiReq;renderPlay();startThinking();
   if(G.level==='stark'){
     setTimeout(()=>{if(id!==aiReq)return;
-      const list=analyze(G.board,G.n,2,G.ko,G.moves),prior=list.slice(0,5).map((e,k)=>[e.i,[1,.6,.4,.3,.2][k]]);
-      const msg={id,n:G.n,board:G.board.slice(),ko:G.ko,color:2,komi:KOMI,ms:G.n>9?2600:1800,last:G.last,maxSims:1e9,prior};
+      const list=analyze(G.board,G.n,AC,G.ko,G.moves),prior=list.slice(0,5).map((e,k)=>[e.i,[1,.6,.4,.3,.2][k]]);
+      const msg={id,n:G.n,board:G.board.slice(),ko:G.ko,color:AC,komi:KOMI,ms:G.n>9?2600:1800,last:G.last,maxSims:1e9,prior};
       const done=r=>{if(id!==aiReq)return;finishStark(r,list)};
       const w=getWorker();
       if(w){w.onmessage=e=>done(e.data);w.postMessage(msg)}
       else setTimeout(()=>done(localSearch({...msg,ms:900})),30)},30);
     return}
-  setTimeout(()=>{if(id!==aiReq)return;const list=analyze(G.board,G.n,2,G.ko,G.moves),thr=G.passes?2:0.8;let pick=null;
+  setTimeout(()=>{if(id!==aiReq)return;const list=analyze(G.board,G.n,AC,G.ko,G.moves),thr=G.passes?2:0.8;let pick=null;
     if(list.length&&list[0].s>=thr){const easy=G.level==='leicht';
       const noisy=list.map(e=>({e,v:e.s+(Math.random()-0.5)*(easy?7:1.2)})).sort((a,b)=>b.v-a.v);
       pick=noisy[0].e;if(easy&&Math.random()<0.2){const top=noisy.slice(0,6);pick=top[Math.floor(Math.random()*top.length)].e}
       if(pick.s<thr)pick=list[0]}
     stopThinking();pushHist();
     if(!pick)aiPass();
-    else{applyMove(pick.r,pick.i,2);const rs=pick.why[0];coachAdd('weiss',`Weiß spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
+    else{applyMove(pick.r,pick.i,AC);const rs=pick.why[0];coachAdd('weiss',`${CN[AC]} spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
     busy=false;save();renderPlay()},450)}
 function finishStark(r,list){stopThinking();pushHist();
-  let m=r.move,rr=m>=0?tryPlay(G.board,m,2,G.n,G.ko):null;
+  const AC=A();let m=r.move,rr=m>=0?tryPlay(G.board,m,AC,G.n,G.ko):null;
   if(rr&&rr.err){rr=null;m=-1;if(list[0]&&list[0].s>0.8){m=list[0].i;rr=list[0].r}}
   const pct=Math.round(r.winrate*100);
   const settled=r.settled>0.96||(G.passes>0&&r.winrate>0.85);
-  if(m<0||settled)aiPass(` Weiß schätzt seine Gewinnchance auf ${pct} %.`);
-  else{applyMove(rr,m,2);const e=list.find(x=>x.i===m),rs=e&&e.why[0];
-    coachAdd('weiss',`Weiß spielt ${coord(m,G.n)}${rs?'. Der Zug '+rs.t:''}. Gewinnchance für Weiß: ${pct} %.`);warnAtari()}
+  if(m<0||settled)aiPass(` ${CN[AC]} schätzt seine Gewinnchance auf ${pct} %.`);
+  else{applyMove(rr,m,AC);const e=list.find(x=>x.i===m),rs=e&&e.why[0];
+    coachAdd('weiss',`${CN[AC]} spielt ${coord(m,G.n)}${rs?'. Der Zug '+rs.t:''}. Gewinnchance für ${CN[AC]}: ${pct} %.`);warnAtari()}
   busy=false;save();renderPlay()}
-function userPass(){if(G.phase!=='play'||G.turn!==1||busy)return;pushHist();G.passes++;G.turn=2;G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du','Du passt.');
+function userPass(){if(G.phase!=='play'||G.turn!==U()||busy)return;pushHist();G.passes++;G.turn=A();G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du','Du passt.');
   if(G.passes>=2){enterScore();save();renderPlay()}else{save();renderPlay();aiMove()}}
 function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.n);
   for(let i=0;i<G.n*G.n;i++)if(G.board[i]&&!seen[i]){const g=groupAt(G.board,i,G.n);g.stones.forEach(s=>seen[s]=1);if(g.libs.size<=1)G.dead.push(...g.stones)}
@@ -979,46 +984,50 @@ function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.
 function toggleDead(i){if(!G.board[i])return;const g=groupAt(G.board,i,G.n).stones,ds=new Set(G.dead);
   if(g.every(s=>ds.has(s)))g.forEach(s=>ds.delete(s));else g.forEach(s=>ds.add(s));G.dead=[...ds];buzz();save();renderPlay()}
 const IDEA=[
- [/^schlägt/,'Weiß hat Steine mit nur einer Freiheit. Findest du sie?'],
+ [/^schlägt/,'{G} hat Steine mit nur einer Freiheit. Findest du sie?'],
  [/rettet/,'Eine deiner Gruppen hat nur noch eine Freiheit. Wie bekommt sie wieder Luft?'],
- [/fängt gegnerische/,'Einige weiße Steine lassen sich fangen, wenn du von der richtigen Seite Atari gibst.'],
- [/ins Atari/,'Einige weiße Steine haben nur noch zwei Freiheiten. Kannst du Druck machen?'],
- [/trennt/,'Zwei weiße Gruppen hängen nur lose zusammen. Wo könntest du sie trennen?'],
+ [/fängt gegnerische/,'Einige {g} Steine lassen sich fangen, wenn du von der richtigen Seite Atari gibst.'],
+ [/ins Atari/,'Einige {g} Steine haben nur noch zwei Freiheiten. Kannst du Druck machen?'],
+ [/trennt/,'Zwei {g} Gruppen hängen nur lose zusammen. Wo könntest du sie trennen?'],
  [/verbindet/,'Zwei deiner Gruppen sind getrennt. Ein Zug könnte sie verbinden.'],
  [/freie Ecke/,'Es gibt noch eine freie Ecke. Ecken sind am Anfang am wertvollsten.'],
  [/eigene Gebiet/,'Gerade droht nichts. Wo kannst du dein Gebiet vergrößern?'],
- [/gegnerische Gebiet/,'Schau dir das weiße Gebiet an. Wo kannst du es verkleinern?']];
+ [/gegnerische Gebiet/,'Schau dir das {g} Gebiet an. Wo kannst du es verkleinern?']];
 function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;
   const R=[['oben links','am oberen Rand','oben rechts'],['am linken Rand','in der Mitte','am rechten Rand'],['unten links','am unteren Rand','unten rechts']];
   return R[cy][cx]}
-function hint(){if(G.phase!=='play'||G.turn!==1||busy)return;const list=analyze(G.board,G.n,1,G.ko,G.moves);
+function hint(){if(G.phase!=='play'||G.turn!==U()||busy)return;const list=analyze(G.board,G.n,U(),G.ko,G.moves);
   if(!list.length||list[0].s<0.8){coachAdd('trainer','Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.');save();renderPlay();return}
   const b=list[0],rs=b.why[0],idea=(rs&&IDEA.find(([re])=>re.test(rs.t)))||null;
   G.hintLevel=(G.hintLevel||0)+1;
-  const base=idea?idea[1]:'Geh deinen Denkplan durch: Atari? Schlagen? Verbinden? Wo ist die größte freie Fläche?';
+  const base=idea?idea[1].replace('{G}',CN[A()]).replace('{g}',ADJ[A()]):'Geh deinen Denkplan durch: Atari? Schlagen? Verbinden? Wo ist die größte freie Fläche?';
   if(G.hintLevel===1)coachAdd('trainer',base);
   else coachAdd('trainer',`Schau mal ${region(b.i,G.n)}. ${base}`);
   save();renderPlay()}
 function undo(){if(busy||G.phase==='over'||!G.history.length)return;let s=null;
-  while(G.history.length){s=G.history.pop();if(s.turn===1)break}
-  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer','Zug zurückgenommen. Probier etwas anderes.');save();renderPlay();if(G.turn===2)aiMove()}
+  while(G.history.length){s=G.history.pop();if(s.turn===U())break}
+  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer','Zug zurückgenommen. Probier etwas anderes.');save();renderPlay();if(G.turn===A())aiMove()}
 let newArmed=false;
 function newGameClick(){const lab=$('#btn-new span');
   if(G.moves>0&&G.phase!=='over'&&!newArmed){newArmed=true;lab.textContent='Sicher?';setTimeout(()=>{newArmed=false;lab.textContent='Neu'},3000);return}
-  newArmed=false;lab.textContent='Neu';aiReq++;stopThinking();G=newGame();busy=false;save();renderPlay()}
-function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white;G.phase='over';
-  G.result={black:sc.black,white:sc.white,m};if(m>0)store.stats.win++;else store.stats.loss++;
-  coachAdd('trainer',`Schwarz: ${sc.black} Punkte (Steine + Gebiet). Weiß: ${fmt(sc.white)} Punkte inklusive ${fmt(KOMI)} Komi. ${m>0?'Du gewinnst mit '+fmt(m)+' Punkten. Glückwunsch!':'Weiß gewinnt mit '+fmt(-m)+' Punkten. Mit „Neu“ startest du die nächste Partie.'}`);
+  newArmed=false;lab.textContent='Neu';startGame()}
+function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white,um=U()===1?m:-m;G.phase='over';
+  G.result={black:sc.black,white:sc.white,m,um};if(um>0)store.stats.win++;else store.stats.loss++;
+  coachAdd('trainer',`Schwarz: ${sc.black} Punkte (Steine + Gebiet). Weiß: ${fmt(sc.white)} Punkte inklusive ${fmt(KOMI)} Komi. ${um>0?'Du gewinnst mit '+fmt(um)+' Punkten. Glückwunsch!':CN[A()]+' gewinnt mit '+fmt(-um)+' Punkten. Mit „Neu“ startest du die nächste Partie.'}`);
   save();renderPlay()}
 $('#btn-hint').onclick=hint;$('#btn-undo').onclick=undo;$('#btn-pass').onclick=userPass;$('#btn-new').onclick=newGameClick;
 $('#btn-confirm').onclick=confirmScore;
-$('#btn-resume').onclick=()=>{G.phase='play';G.dead=[];G.passes=0;G.turn=1;coachAdd('trainer','Weiter geht es. Du bist am Zug.');save();renderPlay()};
+$('#btn-resume').onclick=()=>{G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer','Weiter geht es. Du bist am Zug.');save();renderPlay()};
 document.querySelectorAll('#seg-size button').forEach(b=>b.onclick=()=>{store.settings.size=+b.dataset.v;
-  if(G.moves===0||G.phase==='over'){G=newGame()}else coachAdd('trainer',`Die Brettgröße ${b.dataset.v}×${b.dataset.v} gilt ab dem nächsten Spiel („Neu“).`);save();renderPlay()});
+  if(G.moves===0||G.phase==='over')startGame();else{coachAdd('trainer',`Die Brettgröße ${b.dataset.v}×${b.dataset.v} gilt ab dem nächsten Spiel („Neu“).`);save();renderPlay()}});
+document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.settings.color=+b.dataset.v;
+  if(G.moves===0&&G.user===store.settings.color){renderPlay();return}
+  if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',`Du spielst ab der nächsten Partie ${CN[store.settings.color]} („Neu“).`);save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 
 const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
+const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
 let coachOpen=false;
 $('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
 const sheet=$('#sheet');
@@ -1029,26 +1038,28 @@ sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet()});
 function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scoreArea(G.board,n,G.dead):null;
   drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
-    ghost:!scoring&&G.turn===1&&!busy,onPlay:i=>{if(G.phase==='score')toggleDead(i);else if(G.phase==='play')userMove(i)}});
+    ghost:!scoring&&G.turn===U()&&!busy,ghostColor:U(),onPlay:i=>{if(G.phase==='score')toggleDead(i);else if(G.phase==='play')userMove(i)}});
   let t;
-  if(G.phase==='over')t=G.result.m>0?`<span class="dot"></span>Du gewinnst mit ${fmt(G.result.m)} Punkten`:`<span class="dot w"></span>Weiß gewinnt mit ${fmt(-G.result.m)}`;
+  const dU=U()===1?'dot':'dot w',dA=A()===1?'dot':'dot w';
+  if(G.phase==='over'){const um=G.result.um!=null?G.result.um:G.result.m;t=um>0?`<span class="${dU}"></span>Du gewinnst mit ${fmt(um)} Punkten`:`<span class="${dA}"></span>${CN[A()]} gewinnt mit ${fmt(-um)}`}
   else if(G.phase==='score')t='Partie zählen';
-  else if(G.turn===2||busy)t='<span class="dot w"></span>Weiß überlegt<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>';
-  else t=`<span class="dot"></span>Du bist am Zug${G.passes?' · Weiß hat gepasst':''}`;
+  else if(G.turn===A()||busy)t=`<span class="${dA}"></span>${CN[A()]} überlegt<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>`;
+  else t=`<span class="${dU}"></span>Du bist am Zug${G.passes?` · ${CN[A()]} hat gepasst`:''}`;
   $('#turn').innerHTML=t;
-  $('#caps').innerHTML=`<span title="Von dir gefangen"><span class="dot w sm"></span>${G.caps[1]}</span><span title="Von Weiß gefangen"><span class="dot sm"></span>${G.caps[2]}</span>`;
+  $('#caps').innerHTML=`<span title="Von dir gefangen"><span class="${dA} sm"></span>${G.caps[U()]}</span><span title="Vom Computer gefangen"><span class="${dU} sm"></span>${G.caps[A()]}</span>`;
   const box=$('#scorebox');box.hidden=!scoring;
   if(sc){$('#score-nums').textContent=`Schwarz ${sc.black} · Weiß ${fmt(sc.white)}`;
     $('#score-note').textContent=G.phase==='score'?`Inklusive ${fmt(KOMI)} Komi für Weiß. Tippe eine Gruppe an, um sie als tot zu markieren oder wieder zu beleben.`:'Partie beendet. Starte mit „Neu“ die nächste.';
     $('#score-actions').hidden=G.phase!=='score'}
   $('#controls').hidden=G.phase==='score';
-  const play=G.phase==='play'&&G.turn===1&&!busy;
+  const play=G.phase==='play'&&G.turn===U()&&!busy;
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?'Genauer':'Tipp';$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
-  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=WHO[now.who];$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
-  $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${WHO[c.who]}</b>${c.t}</span>`).join('');
+  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
+  $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${c.t}</span>`).join('');
   const cc=$('#coach-card');cc.hidden=G.phase==='score';cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
+  document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
   document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
   $('#opt-libs').checked=!!store.settings.libs;
   const w=store.stats.win,l=store.stats.loss;
@@ -1163,7 +1174,7 @@ function show(v){['learn','lesson','train','drill','play'].forEach(k=>$('#view-'
   ['learn','train','play'].forEach(k=>$('#tab-'+k).setAttribute('aria-selected',String(k===tab)));
   store.tab=tab;save();window.scrollTo(0,0);
   if(v==='learn')renderLearn();if(v==='train')renderTrain();
-  if(v==='play'){renderPlay();if(G.phase==='play'&&G.turn===2&&!busy)aiMove()}}
+  if(v==='play'){renderPlay();if(G.phase==='play'&&G.turn===A()&&!busy)aiMove()}}
 $('#tab-learn').onclick=()=>show('learn');$('#tab-play').onclick=()=>show('play');$('#tab-train').onclick=()=>show('train');
 show(store.tab==='play'?'play':store.tab==='train'?'train':'learn');
 if('serviceWorker'in navigator&&window.GO_PWA){navigator.serviceWorker.register('sw.js').catch(()=>{})}
