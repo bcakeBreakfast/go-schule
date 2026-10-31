@@ -364,6 +364,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
       <div class="field"><span class="lab">Gegner</span>
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
+      <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
     </div>
     <p class="record" id="record"></p>
   </div>
@@ -698,7 +699,14 @@ const LET='ABCDEFGHJKLMNOPQRST';
 const coord=(i,n)=>LET[i%n]+(n-Math.floor(i/n));
 const fmt=v=>String(v).replace('.',',');
 const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
-const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}};
+// Haptik: Android über die Vibrations-Schnittstelle, iPhone (iOS 18+) über einen versteckten System-Schalter
+let hapticEl=null;
+function buzz(strong){if(typeof store!=='undefined'&&store.settings&&store.settings.haptic===false)return;
+  try{if(navigator.vibrate&&navigator.vibrate(strong?[12,50,12]:10))return}catch(e){}
+  try{if(!hapticEl){const l=document.createElement('label');l.setAttribute('aria-hidden','true');
+      l.style.cssText='position:fixed;left:-200px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none';
+      const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');c.tabIndex=-1;l.appendChild(c);document.body.appendChild(l);hapticEl=l}
+    const prev=document.activeElement;hapticEl.click();hapticEl.firstChild.blur();if(prev&&prev!==document.body&&prev.focus)prev.focus({preventScroll:true})}catch(e){}}
 const ERR={occupied:'Dort liegt schon ein Stein.',suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.'};
 
 /* ---------- Speicher ---------- */
@@ -859,7 +867,7 @@ function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
 function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||LS.failed)return;
   const r=tryPlay(LS.board,i,1,LS.n,LS.ko);
   if(r.err){LS.msg=ERR[r.err];LS.state='bad';renderLesson();return}
-  buzz();const n=LS.n;LS.board=r.board;LS.last=i;
+  buzz(r.captured.length>0);const n=LS.n;LS.board=r.board;LS.last=i;
   const ctx={x:i%n,y:(i/n)|0,captured:r.captured.length,
     colorAt:(x,y)=>r.board[y*n+x],libsAt:(x,y)=>r.board[y*n+x]?groupAt(r.board,y*n+x,n).libs.size:0};
   const res=p.check(ctx);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
@@ -932,7 +940,7 @@ function warnAtari(){const g=atariGroups(G.board,G.n,U());
 function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const r=tryPlay(G.board,i,U(),G.n,G.ko);
   if(r.err){coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
-  buzz();
+  buzz(r.captured.length>0);
   const list=analyze(G.board,G.n,U(),G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
   pushHist();applyMove(r,i,U());G.hint=-1;
   let cm=commentUser(i,r,mine,best);
@@ -1025,6 +1033,7 @@ document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.s
   if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',`Du spielst ab der nächsten Partie ${CN[store.settings.color]} („Neu“).`);save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
+$('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();if(e.target.checked)buzz()};
 
 const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
 const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
@@ -1061,7 +1070,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
   document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
-  $('#opt-libs').checked=!!store.settings.libs;
+  $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;
   const w=store.stats.win,l=store.stats.loss;
   $('#record').textContent=(w||l)?`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`:''}
 
@@ -1119,7 +1128,7 @@ function drillAnswer(k){if(!D.quiz||D.phase!=='play')return;const o=D.quiz.opts[
   if(o.ok)drillSolved(D.quiz.right);else drillFailed(D.quiz.wrong);D.sub=D.quiz.detail;renderDrill()}
 function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat;
   const r=tryPlay(D.b,i,1,n,-1);if(r.err){D.msg=ERR[r.err==='ko'?'occupied':r.err];D.state='bad';D.sub='';renderDrill();return}
-  buzz();const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
+  buzz(r.captured.length>0);const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
   if(c==='schlagen'){
     if(D.ans.has(i))return drillSolved(k===1?'Richtig. Du schlägst einen Stein.':`Richtig. Du schlägst ${k} Steine.`);
     return drillFailed(k?`Das schlägt nur ${k===1?'einen Stein':k+' Steine'}. Es gibt einen größeren Fang.`:'Das schlägt keinen Stein.')}
