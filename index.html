@@ -198,6 +198,9 @@ html.fit #view-play,html.fit #view-drill{flex:1 1 0;min-height:0;gap:var(--s1)}
 html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 html.fit .statusbar{min-height:var(--s5)}
 .board-wrap{flex:1 1 0;min-height:0;container-type:size;display:grid;place-items:center}
+.haptic-host{position:relative;display:block;-webkit-tap-highlight-color:transparent}
+.haptic-host.board-wrap{display:grid}
+.hsw{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;opacity:.01;pointer-events:none}
 .board-wrap .board{width:min(100cqw,100cqh);max-width:none;margin:0}
 @supports not (width:1cqw){.board-wrap .board{width:auto;height:100%;max-width:100%;aspect-ratio:1}}
 .status-right{display:flex;align-items:center;gap:var(--s2)}
@@ -293,7 +296,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
         <div class="task-head"><span class="eyebrow" id="ls-task-label"></span><span class="steps" id="ls-steps"></span></div>
         <p id="ls-task-text"></p>
       </div>
-      <div class="board" id="ls-board"></div>
+      <label class="haptic-host" id="ls-host"><div class="board" id="ls-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <p class="feedback" id="ls-feedback" aria-live="polite" hidden></p>
       <div class="actions">
         <button class="btn primary block" id="ls-next" hidden>Weiter</button>
@@ -317,7 +320,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
         <div class="drill-title"><span class="eyebrow" id="dr-cat"></span><span class="turn" id="dr-turn"></span></div>
         <span class="chip" id="dr-streak"></span>
       </div>
-      <div class="board-wrap"><div class="board" id="dr-board"></div></div>
+      <label class="board-wrap haptic-host" id="dr-host"><div class="board" id="dr-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="dr-fb" id="dr-fb" aria-live="polite"></div>
       <div class="choices" id="dr-choices" hidden></div>
       <div class="controls three" id="dr-controls">
@@ -335,7 +338,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
           <button class="iconbtn" id="btn-settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
         </div>
       </div>
-      <div class="board-wrap"><div class="board" id="play-board"></div></div>
+      <label class="board-wrap haptic-host" id="play-host"><div class="board" id="play-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="scorebox" id="scorebox" hidden>
         <div class="nums" id="score-nums"></div>
         <p id="score-note"></p>
@@ -375,7 +378,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
         <p class="muted" id="haptic-info"></p>
         <div class="haptic-row" id="haptic-ios">
           <label class="native-sw">Direkt antippen <input type="checkbox" switch id="haptic-native"></label>
-          <button class="btn" data-m="1">Test 1</button><button class="btn" data-m="2">Test 2</button><button class="btn" data-m="3">Test 3</button>
+          <label class="btn haptic-host" id="haptic-label-test">Wie beim Setzen antippen<input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
         </div>
         <p class="muted" id="haptic-active"></p>
       </div>
@@ -716,19 +719,10 @@ const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
 // Haptik: Android über die Vibrations-Schnittstelle, iPhone (ab iOS 18) über einen kurz eingefügten System-Schalter
 function hapticKind(){try{if(typeof navigator.vibrate==='function')return'android'}catch(e){}
   return /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'ios':'none'}
-let hapticEl=null;
-function hapticSwitch(){if(hapticEl)return hapticEl;const l=document.createElement('label');l.setAttribute('aria-hidden','true');
-  l.style.cssText='position:fixed;left:0;bottom:0;width:2px;height:2px;overflow:hidden;opacity:.01;z-index:-1;pointer-events:none';
-  const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');c.tabIndex=-1;l.appendChild(c);document.body.appendChild(l);return hapticEl=l}
-function hapticFire(m){
-  if(m==='1'){const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.display='none';
-    const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');l.appendChild(c);document.head.appendChild(l);l.click();document.head.removeChild(l);return}
-  const l=hapticSwitch(),prev=document.activeElement;
-  if(m==='2')l.click();else l.firstChild.click();
-  l.firstChild.blur();if(prev&&prev!==document.body&&prev.focus)prev.focus({preventScroll:true})}
 function buzz(strong,force){if(!force&&typeof store!=='undefined'&&store.settings&&store.settings.haptic===false)return;
   try{if(typeof navigator.vibrate==='function'){navigator.vibrate(strong?[12,50,12]:10);return}}catch(e){}
-  try{hapticFire(force||(store.settings&&store.settings.hapticMethod)||'2')}catch(e){}}
+  // iPhone: Haptik kommt vom Schalter unter dem Brett (echte Berührung), hier nichts zu tun
+}
 const ERR={occupied:'Dort liegt schon ein Stein.',suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.'};
 
 /* ---------- Speicher ---------- */
@@ -1055,13 +1049,14 @@ document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.s
   if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',`Du spielst ab der nächsten Partie ${CN[store.settings.color]} („Neu“).`);save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
-$('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();if(e.target.checked)buzz()};
-function renderHaptic(){const k=hapticKind(),m=store.settings.hapticMethod||'2';
+$('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();syncHaptic();if(e.target.checked)buzz()};
+function renderHaptic(){const k=hapticKind();
   $('#haptic-ios').hidden=k==='android';
-  $('#haptic-info').textContent=k==='android'?'Dein Gerät vibriert über Android.':'iPhone: Tippe zuerst den Schalter direkt an. Tickt er, kann dein iPhone Haptik. Dann probiere Test 1 bis 3. Der zuletzt getippte Test wird beim Setzen benutzt.';
-  document.querySelectorAll('#haptic-ios .btn').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
-  $('#haptic-active').textContent=k==='android'?'':`Aktiv beim Setzen: Test ${m}.`}
-document.querySelectorAll('#haptic-ios .btn').forEach(b=>b.onclick=()=>{store.settings.hapticMethod=b.dataset.m;save();buzz(false,b.dataset.m);renderHaptic()});
+  $('#haptic-info').textContent=k==='android'?'Dein Gerät vibriert über Android.':'iPhone: Die Vibration entsteht, wenn dein Finger das Brett berührt. Probier es mit dem Knopf „Wie beim Setzen antippen“.';
+  $('#haptic-active').textContent='';syncHaptic()}
+// iPhone: unsichtbare Schalter unter den Brettern nur aktiv, wenn Vibration an ist
+function syncHaptic(){const on=hapticKind()!=='android'&&store.settings.haptic!==false;
+  document.querySelectorAll('.hsw').forEach(i=>{i.disabled=!on})}
 if(hapticKind()==='android'){const t=document.createElement('button');t.className='btn';t.textContent='Vibration testen';t.onclick=()=>buzz(false,'2');$('#haptic-test').appendChild(t)}
 renderHaptic();
 
@@ -1092,6 +1087,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
     $('#score-actions').hidden=G.phase!=='score'}
   $('#controls').hidden=G.phase==='score';
   const play=G.phase==='play'&&G.turn===U()&&!busy;
+  {const off=hapticKind()==='android'||store.settings.haptic===false||!(play||G.phase==='score');setTimeout(()=>{const i=$('#play-host .hsw');if(i)i.disabled=off},0)}
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?'Genauer':'Tipp';$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
