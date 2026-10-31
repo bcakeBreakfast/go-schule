@@ -375,12 +375,6 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
       <label class="switch">Ton beim Setzen <input type="checkbox" id="opt-sound"></label>
       <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
-      <div class="haptic-test" id="haptic-test">
-        <p class="muted" id="haptic-info"></p>
-        <div class="haptic-row" id="haptic-ios">
-          <label class="native-sw">Direkt antippen <input type="checkbox" switch id="haptic-native"></label>
-          <label class="btn haptic-host" id="haptic-label-test">Wie beim Setzen antippen<input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
-        </div>
         <p class="muted" id="haptic-active"></p>
       </div>
     </div>
@@ -1069,15 +1063,10 @@ document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.s
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 $('#opt-sound').onchange=e=>{store.settings.sound=e.target.checked;save();if(e.target.checked){audio();setTimeout(()=>playStone('me',0),30)}};
 $('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();syncHaptic();if(e.target.checked)buzz()};
-function renderHaptic(){const k=hapticKind();
-  $('#haptic-ios').hidden=k==='android';
-  $('#haptic-info').textContent=k==='android'?'Dein Gerät vibriert über Android.':'iPhone: Die Vibration entsteht, wenn dein Finger das Brett berührt. Probier es mit dem Knopf „Wie beim Setzen antippen“.';
-  $('#haptic-active').textContent='';syncHaptic()}
 // iPhone: unsichtbare Schalter unter den Brettern nur aktiv, wenn Vibration an ist
 function syncHaptic(){const on=hapticKind()!=='android'&&store.settings.haptic!==false;
   document.querySelectorAll('.hsw').forEach(i=>{i.disabled=!on})}
-if(hapticKind()==='android'){const t=document.createElement('button');t.className='btn';t.textContent='Vibration testen';t.onclick=()=>buzz(false,'2');$('#haptic-test').appendChild(t)}
-renderHaptic();
+syncHaptic();
 
 const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
 const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
