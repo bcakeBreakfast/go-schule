@@ -181,6 +181,9 @@ details.panel[open] summary .ic{transform:rotate(180deg)}
 .switch input:checked{background:var(--accent)}
 .switch input:checked::after{transform:translateX(var(--s3));box-shadow:0 0 0 2px var(--accent)}
 .record{font-size:14px;line-height:24px;color:var(--muted);margin:0}
+.haptic-test{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.haptic-test .btn{height:var(--s5);padding:0 var(--s2);font-size:14px}
+.haptic-test .muted{font-size:14px;line-height:24px;flex:1 1 160px}
 .record:empty{display:none}
 
 /* Spielansicht: genau ein Bildschirm, das Brett nimmt den Rest der Höhe */
@@ -365,6 +368,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
       <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
+      <div class="haptic-test"><button class="btn" id="btn-haptic-test">Vibration testen</button><span class="muted" id="haptic-info"></span></div>
     </div>
     <p class="record" id="record"></p>
   </div>
@@ -699,14 +703,14 @@ const LET='ABCDEFGHJKLMNOPQRST';
 const coord=(i,n)=>LET[i%n]+(n-Math.floor(i/n));
 const fmt=v=>String(v).replace('.',',');
 const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
-// Haptik: Android über die Vibrations-Schnittstelle, iPhone (iOS 18+) über einen versteckten System-Schalter
-let hapticEl=null;
+// Haptik: Android über die Vibrations-Schnittstelle, iPhone (ab iOS 18) über einen kurz eingefügten System-Schalter
+function hapticKind(){try{if(typeof navigator.vibrate==='function')return'android'}catch(e){}
+  return /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'ios':'none'}
 function buzz(strong){if(typeof store!=='undefined'&&store.settings&&store.settings.haptic===false)return;
-  try{if(navigator.vibrate&&navigator.vibrate(strong?[12,50,12]:10))return}catch(e){}
-  try{if(!hapticEl){const l=document.createElement('label');l.setAttribute('aria-hidden','true');
-      l.style.cssText='position:fixed;left:-200px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none';
-      const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');c.tabIndex=-1;l.appendChild(c);document.body.appendChild(l);hapticEl=l}
-    const prev=document.activeElement;hapticEl.click();hapticEl.firstChild.blur();if(prev&&prev!==document.body&&prev.focus)prev.focus({preventScroll:true})}catch(e){}}
+  try{if(typeof navigator.vibrate==='function'){navigator.vibrate(strong?[12,50,12]:10);return}}catch(e){}
+  try{const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.display='none';
+    const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');l.appendChild(c);
+    document.head.appendChild(l);l.click();document.head.removeChild(l)}catch(e){}}
 const ERR={occupied:'Dort liegt schon ein Stein.',suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.'};
 
 /* ---------- Speicher ---------- */
@@ -1034,6 +1038,8 @@ document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.s
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 $('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();if(e.target.checked)buzz()};
+$('#btn-haptic-test').onclick=()=>{const was=store.settings.haptic;store.settings.haptic=true;buzz();store.settings.haptic=was};
+$('#haptic-info').textContent={android:'Dein Gerät vibriert über Android.',ios:'iPhone: funktioniert ab iOS 18, wenn die Systemhaptik eingeschaltet ist.',none:'Dieses Gerät kann nicht vibrieren.'}[hapticKind()];
 
 const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
 const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
