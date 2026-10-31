@@ -181,9 +181,12 @@ details.panel[open] summary .ic{transform:rotate(180deg)}
 .switch input:checked{background:var(--accent)}
 .switch input:checked::after{transform:translateX(var(--s3));box-shadow:0 0 0 2px var(--accent)}
 .record{font-size:14px;line-height:24px;color:var(--muted);margin:0}
-.haptic-test{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.haptic-test{display:flex;flex-direction:column;gap:var(--s1)}
+.haptic-row{display:flex;align-items:center;gap:var(--s1);flex-wrap:wrap}
 .haptic-test .btn{height:var(--s5);padding:0 var(--s2);font-size:14px}
-.haptic-test .muted{font-size:14px;line-height:24px;flex:1 1 160px}
+.haptic-test .btn.on{border-color:var(--accent);color:var(--accent)}
+.haptic-test .muted{font-size:14px;line-height:24px}
+.native-sw{display:flex;align-items:center;gap:var(--s1);font-size:14px;margin-right:var(--s1)}
 .record:empty{display:none}
 
 /* Spielansicht: genau ein Bildschirm, das Brett nimmt den Rest der Höhe */
@@ -368,7 +371,14 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
       <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
-      <div class="haptic-test"><button class="btn" id="btn-haptic-test">Vibration testen</button><span class="muted" id="haptic-info"></span></div>
+      <div class="haptic-test" id="haptic-test">
+        <p class="muted" id="haptic-info"></p>
+        <div class="haptic-row" id="haptic-ios">
+          <label class="native-sw">Direkt antippen <input type="checkbox" switch id="haptic-native"></label>
+          <button class="btn" data-m="1">Test 1</button><button class="btn" data-m="2">Test 2</button><button class="btn" data-m="3">Test 3</button>
+        </div>
+        <p class="muted" id="haptic-active"></p>
+      </div>
     </div>
     <p class="record" id="record"></p>
   </div>
@@ -706,11 +716,19 @@ const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
 // Haptik: Android über die Vibrations-Schnittstelle, iPhone (ab iOS 18) über einen kurz eingefügten System-Schalter
 function hapticKind(){try{if(typeof navigator.vibrate==='function')return'android'}catch(e){}
   return /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'ios':'none'}
-function buzz(strong){if(typeof store!=='undefined'&&store.settings&&store.settings.haptic===false)return;
+let hapticEl=null;
+function hapticSwitch(){if(hapticEl)return hapticEl;const l=document.createElement('label');l.setAttribute('aria-hidden','true');
+  l.style.cssText='position:fixed;left:0;bottom:0;width:2px;height:2px;overflow:hidden;opacity:.01;z-index:-1;pointer-events:none';
+  const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');c.tabIndex=-1;l.appendChild(c);document.body.appendChild(l);return hapticEl=l}
+function hapticFire(m){
+  if(m==='1'){const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.display='none';
+    const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');l.appendChild(c);document.head.appendChild(l);l.click();document.head.removeChild(l);return}
+  const l=hapticSwitch(),prev=document.activeElement;
+  if(m==='2')l.click();else l.firstChild.click();
+  l.firstChild.blur();if(prev&&prev!==document.body&&prev.focus)prev.focus({preventScroll:true})}
+function buzz(strong,force){if(!force&&typeof store!=='undefined'&&store.settings&&store.settings.haptic===false)return;
   try{if(typeof navigator.vibrate==='function'){navigator.vibrate(strong?[12,50,12]:10);return}}catch(e){}
-  try{const l=document.createElement('label');l.setAttribute('aria-hidden','true');l.style.display='none';
-    const c=document.createElement('input');c.type='checkbox';c.setAttribute('switch','');l.appendChild(c);
-    document.head.appendChild(l);l.click();document.head.removeChild(l)}catch(e){}}
+  try{hapticFire(force||(store.settings&&store.settings.hapticMethod)||'2')}catch(e){}}
 const ERR={occupied:'Dort liegt schon ein Stein.',suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.'};
 
 /* ---------- Speicher ---------- */
@@ -1038,8 +1056,14 @@ document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.s
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 $('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();if(e.target.checked)buzz()};
-$('#btn-haptic-test').onclick=()=>{const was=store.settings.haptic;store.settings.haptic=true;buzz();store.settings.haptic=was};
-$('#haptic-info').textContent={android:'Dein Gerät vibriert über Android.',ios:'iPhone: funktioniert ab iOS 18, wenn die Systemhaptik eingeschaltet ist.',none:'Dieses Gerät kann nicht vibrieren.'}[hapticKind()];
+function renderHaptic(){const k=hapticKind(),m=store.settings.hapticMethod||'2';
+  $('#haptic-ios').hidden=k==='android';
+  $('#haptic-info').textContent=k==='android'?'Dein Gerät vibriert über Android.':'iPhone: Tippe zuerst den Schalter direkt an. Tickt er, kann dein iPhone Haptik. Dann probiere Test 1 bis 3. Der zuletzt getippte Test wird beim Setzen benutzt.';
+  document.querySelectorAll('#haptic-ios .btn').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  $('#haptic-active').textContent=k==='android'?'':`Aktiv beim Setzen: Test ${m}.`}
+document.querySelectorAll('#haptic-ios .btn').forEach(b=>b.onclick=()=>{store.settings.hapticMethod=b.dataset.m;save();buzz(false,b.dataset.m);renderHaptic()});
+if(hapticKind()==='android'){const t=document.createElement('button');t.className='btn';t.textContent='Vibration testen';t.onclick=()=>buzz(false,'2');$('#haptic-test').appendChild(t)}
+renderHaptic();
 
 const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
 const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
