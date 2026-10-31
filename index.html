@@ -373,6 +373,7 @@ button.coach-card{appearance:none;width:100%;text-align:left;font:inherit;color:
       <div class="field"><span class="lab">Gegner</span>
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
+      <label class="switch">Ton beim Setzen <input type="checkbox" id="opt-sound"></label>
       <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
       <div class="haptic-test" id="haptic-test">
         <p class="muted" id="haptic-info"></p>
@@ -719,6 +720,23 @@ const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
 // Haptik: Android über die Vibrations-Schnittstelle, iPhone (ab iOS 18) über einen kurz eingefügten System-Schalter
 function hapticKind(){try{if(typeof navigator.vibrate==='function')return'android'}catch(e){}
   return /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'ios':'none'}
+// Klang: Stein auf Holz, im Browser erzeugt. 'me' heller und knackiger, 'ai' tiefer und weicher.
+let AC_=null,noiseBuf=null;
+function audio(){if(!AC_){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC_=new C();
+    const len=Math.floor(AC_.sampleRate*0.05);noiseBuf=AC_.createBuffer(1,len,AC_.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}
+  if(AC_.state==='suspended')AC_.resume().catch(()=>{});return AC_}
+['pointerdown','touchend','keydown'].forEach(ev=>document.addEventListener(ev,()=>{if(typeof store!=='undefined'&&store.settings.sound!==false)audio()},{passive:true}));
+function tock(ac,t,f0,body,click,cf){const v=1+(Math.random()-0.5)*0.08,out=ac.destination;
+  const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f0*v,t);o.frequency.exponentialRampToValueAtTime(f0*0.55*v,t+0.07);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(body,t+0.002);g.gain.exponentialRampToValueAtTime(0.0001,t+0.1);o.connect(g).connect(out);o.start(t);o.stop(t+0.12);
+  const o2=ac.createOscillator(),g2=ac.createGain();o2.type='triangle';o2.frequency.setValueAtTime(f0*2.3*v,t);
+  g2.gain.setValueAtTime(0.0001,t);g2.gain.exponentialRampToValueAtTime(body*0.25,t+0.001);g2.gain.exponentialRampToValueAtTime(0.0001,t+0.035);o2.connect(g2).connect(out);o2.start(t);o2.stop(t+0.05);
+  const nz=ac.createBufferSource(),bp=ac.createBiquadFilter(),g3=ac.createGain();nz.buffer=noiseBuf;bp.type='bandpass';bp.frequency.value=cf*v;bp.Q.value=1.2;
+  g3.gain.value=click;nz.connect(bp).connect(g3).connect(out);nz.start(t)}
+function playStone(who,captured){if(typeof store==='undefined'||store.settings.sound===false)return;const ac=audio();if(!ac||ac.state!=='running')return;
+  const t=ac.currentTime+0.005;
+  if(who==='me')tock(ac,t,1150,0.55,0.9,3400);else tock(ac,t,780,0.4,0.5,2000);
+  if(captured){const k=Math.min(4,1+captured);for(let j=0;j<k;j++)tock(ac,t+0.14+j*0.055+Math.random()*0.03,1900+Math.random()*500,0.12,0.35,4200)}}
 function buzz(strong,force){if(!force&&typeof store!=='undefined'&&store.settings&&store.settings.haptic===false)return;
   try{if(typeof navigator.vibrate==='function'){navigator.vibrate(strong?[12,50,12]:10);return}}catch(e){}
   // iPhone: Haptik kommt vom Schalter unter dem Brett (echte Berührung), hier nichts zu tun
@@ -883,7 +901,7 @@ function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
 function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||LS.failed)return;
   const r=tryPlay(LS.board,i,1,LS.n,LS.ko);
   if(r.err){LS.msg=ERR[r.err];LS.state='bad';renderLesson();return}
-  buzz(r.captured.length>0);const n=LS.n;LS.board=r.board;LS.last=i;
+  buzz(r.captured.length>0);playStone('me',r.captured.length);const n=LS.n;LS.board=r.board;LS.last=i;
   const ctx={x:i%n,y:(i/n)|0,captured:r.captured.length,
     colorAt:(x,y)=>r.board[y*n+x],libsAt:(x,y)=>r.board[y*n+x]?groupAt(r.board,y*n+x,n).libs.size:0};
   const res=p.check(ctx);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
@@ -956,7 +974,7 @@ function warnAtari(){const g=atariGroups(G.board,G.n,U());
 function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const r=tryPlay(G.board,i,U(),G.n,G.ko);
   if(r.err){coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
-  buzz(r.captured.length>0);
+  buzz(r.captured.length>0);playStone('me',r.captured.length);
   const list=analyze(G.board,G.n,U(),G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
   pushHist();applyMove(r,i,U());G.hint=-1;
   let cm=commentUser(i,r,mine,best);
@@ -989,7 +1007,7 @@ function aiMove(){if(G.phase!=='play'||G.turn!==A())return;const AC=A();busy=tru
       if(pick.s<thr)pick=list[0]}
     stopThinking();pushHist();
     if(!pick)aiPass();
-    else{applyMove(pick.r,pick.i,AC);const rs=pick.why[0];coachAdd('weiss',`${CN[AC]} spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
+    else{applyMove(pick.r,pick.i,AC);playStone('ai',pick.r.captured.length);const rs=pick.why[0];coachAdd('weiss',`${CN[AC]} spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
     busy=false;save();renderPlay()},450)}
 function finishStark(r,list){stopThinking();pushHist();
   const AC=A();let m=r.move,rr=m>=0?tryPlay(G.board,m,AC,G.n,G.ko):null;
@@ -997,7 +1015,7 @@ function finishStark(r,list){stopThinking();pushHist();
   const pct=Math.round(r.winrate*100);
   const settled=r.settled>0.96||(G.passes>0&&r.winrate>0.85);
   if(m<0||settled)aiPass(` ${CN[AC]} schätzt seine Gewinnchance auf ${pct} %.`);
-  else{applyMove(rr,m,AC);const e=list.find(x=>x.i===m),rs=e&&e.why[0];
+  else{applyMove(rr,m,AC);playStone('ai',rr.captured.length);const e=list.find(x=>x.i===m),rs=e&&e.why[0];
     coachAdd('weiss',`${CN[AC]} spielt ${coord(m,G.n)}${rs?'. Der Zug '+rs.t:''}. Gewinnchance für ${CN[AC]}: ${pct} %.`);warnAtari()}
   busy=false;save();renderPlay()}
 function userPass(){if(G.phase!=='play'||G.turn!==U()||busy)return;pushHist();G.passes++;G.turn=A();G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du','Du passt.');
@@ -1049,6 +1067,7 @@ document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.s
   if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',`Du spielst ab der nächsten Partie ${CN[store.settings.color]} („Neu“).`);save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
+$('#opt-sound').onchange=e=>{store.settings.sound=e.target.checked;save();if(e.target.checked){audio();setTimeout(()=>playStone('me',0),30)}};
 $('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();syncHaptic();if(e.target.checked)buzz()};
 function renderHaptic(){const k=hapticKind();
   $('#haptic-ios').hidden=k==='android';
@@ -1096,7 +1115,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
   document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
-  $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;
+  $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;$('#opt-sound').checked=store.settings.sound!==false;
   const w=store.stats.win,l=store.stats.loss;
   $('#record').textContent=(w||l)?`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`:''}
 
@@ -1154,7 +1173,7 @@ function drillAnswer(k){if(!D.quiz||D.phase!=='play')return;const o=D.quiz.opts[
   if(o.ok)drillSolved(D.quiz.right);else drillFailed(D.quiz.wrong);D.sub=D.quiz.detail;renderDrill()}
 function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat;
   const r=tryPlay(D.b,i,1,n,-1);if(r.err){D.msg=ERR[r.err==='ko'?'occupied':r.err];D.state='bad';D.sub='';renderDrill();return}
-  buzz(r.captured.length>0);const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
+  buzz(r.captured.length>0);playStone('me',r.captured.length);const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
   if(c==='schlagen'){
     if(D.ans.has(i))return drillSolved(k===1?'Richtig. Du schlägst einen Stein.':`Richtig. Du schlägst ${k} Steine.`);
     return drillFailed(k?`Das schlägt nur ${k===1?'einen Stein':k+' Steine'}. Es gibt einen größeren Fang.`:'Das schlägt keinen Stein.')}
@@ -1170,13 +1189,13 @@ function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat
   if(c==='retten'){
     if(D.ans.has(i)){const L=groupAt(D.b,D.t,n).libs.size;return drillSolved(k?`Gerettet. Du schlägst den Angreifer und deine Gruppe hat wieder ${L} Freiheiten.`:`Gerettet. Deine Gruppe hat jetzt ${L} Freiheiten und Weiß kann sie nicht mehr fangen.`)}
     const km=D.b[D.t]?rdKillMove(D.b,D.t,n,2):-1;
-    if(km>=0){D.b=tryPlay(D.b,km,2,n,-1).board;D.last=km}
+    if(km>=0){const rk=tryPlay(D.b,km,2,n,-1);D.b=rk.board;D.last=km;setTimeout(()=>playStone('ai',rk.captured.length),260)}
     return drillFailed(km>=0?`Weiß antwortet mit ${coord(km,n)}${D.b[D.t]?'. Deine Gruppe ist nicht mehr zu retten.':' und schlägt deine Gruppe.'}`:'Das rettet die Gruppe nicht.')}
   // Fangen / Leiter: Weiß wehrt sich
   const t=D.t;if(!D.b[t])return drillSolved(`Gefangen! ${coord(i,n)} schlägt die Steine.`);
   const okMove=D.first?D.ans.has(i):(RD.nodes=0,!rdLive(D.b,t,n,1,24));
   D.first=false;
-  const w=rdReply(D.b,t,n,1);if(w>=0){D.b=tryPlay(D.b,w,2,n,-1).board;D.last=w}
+  const w=rdReply(D.b,t,n,1);if(w>=0){const rw=tryPlay(D.b,w,2,n,-1);D.b=rw.board;D.last=w;setTimeout(()=>playStone('ai',rw.captured.length),260)}
   if(!okMove)return drillFailed(w>=0?`Weiß entkommt mit ${coord(w,n)}.`:'Weiß entkommt.');
   if(w<0)D.msg='Weiß gibt auf. Schlage die Steine.';
   else D.msg=`Gut. Weiß antwortet mit ${coord(w,n)}. Mach weiter.`;
