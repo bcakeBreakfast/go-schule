@@ -294,6 +294,11 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .dr-fb .fb-text{flex:1;min-width:0}
 .dr-fb .fb-main{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .dr-fb.open .fb-main{display:block}
+.dr-fb.more{cursor:pointer}
+.dr-fb.open .fb-text{max-height:40vh;overflow-y:auto}
+.fb-chev{flex:none;align-self:center;display:grid;place-items:center;width:24px;height:24px;color:var(--muted);transition:transform .2s}
+.fb-chev .ic{width:16px;height:16px}
+.dr-fb.open .fb-chev{transform:rotate(180deg)}
 .why{appearance:none;border:0;background:none;color:inherit;font-size:calc(var(--u)*14);line-height:calc(var(--u)*24);font-weight:700;padding:12px 0 12px var(--s1);cursor:pointer;text-decoration:underline;text-underline-offset:4px;flex:none}
 html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 #view-lesson .statusbar{gap:var(--s2)}
@@ -1557,6 +1562,13 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
   renderLesson()}
 function fbHTML(state,msg){const tag=state==='ok'?`<b class="fb-tag ok">${T('tag_ok')}</b>`:state==='bad'?`<b class="fb-tag bad">${T('tag_bad')}</b>`:'';
   return tag+(state?String(msg).replace(/^(Richtig|Genau|Nicht ganz|Correct|Exactly|Not quite|Goed|Precies|Niet helemaal)[.,!]?\s*/,''):msg)}
+// Rückmeldung aufklappen, wenn der Text nicht in zwei Zeilen passt
+function fbMore(el,open,toggle){const m=el.querySelector('.fb-main');if(!m)return;
+  const over=open||m.scrollHeight>m.clientHeight+1;el.classList.toggle('more',over);
+  if(over){if(!el.querySelector('.fb-chev'))el.insertAdjacentHTML('beforeend','<span class="fb-chev" aria-hidden="true"><svg class="ic"><use href="#i-down"/></svg></span>');
+    el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-expanded',String(!!open));
+    el.onclick=e=>{if(e.target.closest('button'))return;toggle()};el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}}}
+  else{el.removeAttribute('role');el.removeAttribute('tabindex');el.removeAttribute('aria-expanded');el.onclick=null;el.onkeydown=null}}
 function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi],task=LS.stage==='task'&&!!p;
   if(!$('#view-lesson').hidden)document.documentElement.classList.toggle('fit',task);
   const X=LT(L);$('#ls-eyebrow').textContent=T('lesson_of',LS.li+1,LESSONS.length);$('#ls-title').textContent=X.title;
@@ -1572,7 +1584,9 @@ function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzz
   const ct=p.chase?p.chase[1]*LS.n+p.chase[0]:-1;
   drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,tri:ct>=0&&LS.board[ct]?groupAt(LS.board,ct,LS.n).stones:[],libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
   const fb=$('#ls-fb');fb.dataset.state=LS.state||'';fb.classList.remove('open');
-  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${LS.msg?fbHTML(LS.state,LS.msg):X.tasks[LS.pi]}</span></span>`;
+  const fbt=LS.msg?fbHTML(LS.state,LS.msg):X.tasks[LS.pi],fo=LS.fbOpen===fbt;fb.classList.toggle('open',fo);
+  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbt}</span></span>`;
+  fbMore(fb,fo,()=>{LS.fbOpen=fo?null:fbt;renderLesson()});
   $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed&&!LS.chasing;$('#ls-skip').disabled=!(LS.pi<cnt-1);
   $('#ls-next').textContent=LS.pi<cnt-1?T('next_task'):(LS.li<LESSONS.length-1?T('next_lesson'):T('play_now'))}
 function lessonAdvance(){const L=LESSONS[LS.li];
@@ -1981,6 +1995,8 @@ function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
   const fb=$('#dr-fb'),open=!!(D.quiz||D.whyOpen);fb.dataset.state=D.state||'';fb.classList.toggle('open',open);
   fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbHTML(D.state,D.msg||'')}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?`<button class="why" id="dr-why">${T('why')}</button>`:'');
   const why=$('#dr-why');if(why)why.onclick=()=>{D.whyOpen=true;renderDrill()};
+  if(D.quiz)fbMore(fb,true,()=>{});else fbMore(fb,open,()=>{D.whyOpen=!D.whyOpen;renderDrill()});
+  if(D.quiz){fb.classList.remove('more');const c=fb.querySelector('.fb-chev');if(c)c.remove();fb.onclick=null;fb.removeAttribute('role')}
   $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
 $('#dr-back').onclick=()=>{if(D)D.daily=0;show('train')};
 $('#dr-next').onclick=()=>newDrill();
