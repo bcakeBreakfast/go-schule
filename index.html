@@ -273,12 +273,18 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .drill-title .turn{font-size:calc(var(--u)*16);line-height:calc(var(--u)*24)}
 .controls.three{grid-template-columns:repeat(3,1fr)}
 /* Bedientasten unter dem Brett: runde Taste mit Symbol, Beschriftung darunter – wie an einem Braun-Gerät */
-.controls .ctl{flex-direction:column;height:auto;gap:var(--s1);background:none;color:var(--muted)}
-.controls .ctl .ic{display:block;width:var(--s5);height:var(--s5);padding:var(--s1);stroke-width:1.5;border-radius:50%;background:var(--key);color:var(--ink);transition:background .15s}
-.controls .ctl:active .ic{background:var(--key-down)}
-@media (hover:hover){.controls .ctl:not(:disabled):hover{background:none;color:var(--ink)}.controls .ctl:not(:disabled):not(.primary):hover .ic{background:var(--key-down)}}
-.controls .ctl.primary{background:none;color:var(--accent)}
-.controls .ctl.primary .ic{background:var(--accent);color:var(--accent-ink)}
+.controls{background:var(--surface);border-radius:var(--r);overflow:hidden;gap:0}
+.controls .ctl{position:relative;flex-direction:column;height:var(--s7);gap:4px;background:none;border-radius:0;color:var(--ink);font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);white-space:nowrap;min-width:0;padding:0 4px}
+.controls .ctl .ic{width:20px;height:20px}
+.controls .ctl span{overflow:hidden;text-overflow:ellipsis}
+.controls .ctl+.ctl::before{content:"";position:absolute;left:0;top:var(--s2);bottom:var(--s2);width:1px;background:var(--rule)}
+.controls .ctl:active{background:var(--key)}
+@media (hover:hover){.controls .ctl:not(:disabled):hover{background:var(--key)}}
+.controls .ctl.primary{background:none;color:var(--accent);font-weight:700}
+/* Unterseiten (Lektion, Aufgabe) ohne Tab-Leiste: nur eine Leiste unten */
+html.detail .tabbar{display:none}
+html.detail .app{padding-bottom:calc(var(--s3) + env(safe-area-inset-bottom,0px))}
+html.fit.detail .app{padding-bottom:calc(var(--s2) + env(safe-area-inset-bottom,0px))}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
 .choices .ctl{height:var(--s6);font-size:calc(var(--u)*16);letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
 .dr-fb{background:var(--surface);border-radius:var(--r);padding:var(--s1) var(--s2);display:flex;gap:var(--s1);align-items:flex-start;min-height:var(--s8);flex:none}
@@ -2008,7 +2014,7 @@ function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
   $('#dr-turn').textContent=c.title;
   $('#dr-streak').hidden=!!D.daily;
   if(D.daily){}
-  else{$('#dr-streak').textContent=T('drill_chip',s.streak,s.ok);$('#dr-streak').className='chip'+(s.streak>1?' hot':'')}
+  else{$('#dr-streak').textContent=s.streak?T('streak',s.streak):T('solved_n',s.ok);$('#dr-streak').className='chip'+(s.streak>1?' hot':'')}
   if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
     const done=D.quiz&&D.phase!=='play';
     drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play'&&!D.quiz,onPlay:drillMove,dead:done?D.quiz.dead:[],own:done?D.quiz.own:null})}
@@ -2033,6 +2039,7 @@ $('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=
 /* ---------- Navigation ---------- */
 function show(v){['learn','lesson','train','drill','play'].forEach(k=>$('#view-'+k).hidden=k!==v);
   document.documentElement.classList.toggle('fit',v==='play'||v==='drill');
+  document.documentElement.classList.toggle('detail',v==='lesson'||v==='drill');
   if(v==='lesson')renderLesson();
   const tab=v==='play'?'play':(v==='train'||v==='drill')?'train':'learn';
   ['learn','train','play'].forEach(k=>$('#tab-'+k).setAttribute('aria-selected',String(k===tab)));
