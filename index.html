@@ -186,6 +186,7 @@ button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inher
 .scorebox p{margin:0;color:var(--muted)}
 .scorebox .nums{font-family:var(--f-display);font-size:24px;line-height:32px;font-weight:700;font-variant-numeric:tabular-nums}
 .scorebox .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
+.scorebox .row .btn{padding:0 var(--s2);white-space:nowrap}
 
 /* Einstellungen */
 .sheet-backdrop{position:fixed;inset:0;z-index:30;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
@@ -246,6 +247,29 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .dr-fb[data-state="ok"]{background:var(--good-soft);color:var(--good)}
 .dr-fb[data-state="bad"]{background:var(--warn-soft);color:var(--warn)}
 .dr-fb small{display:block;color:var(--ink);opacity:.8;font-size:16px;line-height:24px}
+
+/* Spielerleiste: wer am Zug ist, ist hervorgehoben */
+.players{display:flex;align-items:center;gap:var(--s1);min-width:0;flex:1;overflow:hidden}
+.pl{display:inline-flex;align-items:center;gap:var(--s1);height:var(--s5);padding:0 var(--s2);border-radius:var(--s3);color:var(--muted);white-space:nowrap;min-width:0;transition:background .2s,color .2s}
+.pl.on{background:var(--key);color:var(--ink);font-weight:700}
+.pl-s{font-size:12px;line-height:16px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;color:var(--muted)}
+.pl .spark{margin-left:calc(var(--s1) * -1)}
+.result-line{font-size:16px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums}
+.scorebox h2{font-size:24px;line-height:32px}
+/* Lektionsliste: nächste Lektion an der orangen Nummer erkennbar */
+.num.next{color:var(--accent);font-weight:700}
+/* Rückmeldung: feste Höhe, Begründung auf Wunsch */
+.dr-fb{align-items:center}
+.dr-fb .fb-text{flex:1;min-width:0}
+.dr-fb .fb-main{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dr-fb.open .fb-main{display:block}
+.why{appearance:none;border:0;background:none;color:inherit;font-size:12px;line-height:16px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:var(--s1) 0 var(--s1) var(--s1);cursor:pointer;text-decoration:underline;text-underline-offset:4px;flex:none}
+html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
+#view-lesson .statusbar{gap:var(--s2)}
+/* Geschlagene Steine blenden aus, Vorschau-Stein beim Bestätigen */
+.vanish{transform-box:fill-box;transform-origin:center;animation:vanish .3s ease-in forwards}
+@keyframes vanish{to{opacity:0;transform:scale(.6)}}
+@media (prefers-reduced-motion: reduce){.vanish{display:none}}
 </style>
 
 </head>
@@ -270,15 +294,10 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 </svg>
 
 <div class="app">
-  <header class="top">
-    <span class="mark" aria-hidden="true">碁</span>
-    <div><h1>Go-Schule</h1><p class="sub">Regeln lernen, mit Trainer spielen</p></div>
-  </header>
-
   <main>
     <section id="view-learn" class="view">
+      <div class="stack"><span class="eyebrow">Go-Schule</span><h1>Lernen</h1></div>
       <div class="progress">
-        <div class="progress-row"><span class="eyebrow">Fortschritt</span></div>
         <div class="progress-num" id="prog-num"></div>
         <div class="bar"><span id="prog-bar"></span></div>
       </div>
@@ -291,25 +310,33 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
     </section>
 
     <section id="view-lesson" class="view" hidden>
-      <button class="textbtn" id="ls-back"><svg class="ic"><use href="#i-back"/></svg>Alle Lektionen</button>
-      <div class="stack"><div class="eyebrow" id="ls-eyebrow"></div><h2 id="ls-title"></h2></div>
-      <div class="prose" id="ls-body"></div>
-      <div class="task" id="ls-task">
-        <div class="task-head"><span class="eyebrow" id="ls-task-label"></span><span class="steps" id="ls-steps"></span></div>
-        <p id="ls-task-text"></p>
+      <div class="statusbar">
+        <button class="iconbtn" id="ls-back" aria-label="Zurück"><svg class="ic"><use href="#i-back"/></svg></button>
+        <div class="drill-title"><span class="eyebrow" id="ls-eyebrow"></span><span class="turn" id="ls-title"></span></div>
+        <span class="steps" id="ls-steps"></span>
       </div>
-      <label class="haptic-host" id="ls-host"><div class="board" id="ls-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
-      <p class="feedback" id="ls-feedback" aria-live="polite" hidden></p>
-      <div class="actions">
-        <button class="btn primary block" id="ls-next" hidden>Weiter</button>
-        <button class="btn block" id="ls-retry" hidden>Nochmal versuchen</button>
+      <div class="view" id="ls-read">
+        <div class="prose" id="ls-body"></div>
+        <button class="btn primary block" id="ls-start">Aufgabe lösen</button>
       </div>
+      <label class="board-wrap haptic-host" id="ls-host"><div class="board" id="ls-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
+      <div class="dr-fb" id="ls-fb" aria-live="polite"></div>
+      <div class="controls three" id="ls-controls">
+        <button class="ctl" id="ls-explain"><svg class="ic"><use href="#i-book"/></svg>Erklärung</button>
+        <button class="ctl" id="ls-retry"><svg class="ic"><use href="#i-retry"/></svg>Nochmal</button>
+        <button class="ctl" id="ls-skip"><svg class="ic"><use href="#i-next"/></svg>Überspringen</button>
+      </div>
+      <button class="btn primary block" id="ls-next" hidden>Weiter</button>
     </section>
 
     <section id="view-train" class="view" hidden>
-      <div class="stack"><span class="eyebrow">Training</span><h2>Aufgaben ohne Hilfe</h2></div>
-      <p class="muted">Kein Trainer, keine Markierungen, keine Freiheiten-Zahlen. Schwarz ist am Zug, du findest den besten Zug.</p>
-      <div class="train-stats">
+      <div class="stack"><span class="eyebrow">Go-Schule</span><h1>Training</h1></div>
+      <p class="muted">Aufgaben ohne Hilfe: kein Trainer, keine Markierungen, keine Freiheiten-Zahlen. Du findest den besten Zug selbst.</p>
+      <div class="cta" id="ts-empty" hidden>
+        <p><strong>Wo anfangen?</strong>Starte mit „Schlagen“. Jede Aufgabe, die du im ersten Versuch löst, verlängert deine Serie.</p>
+        <button class="btn primary block" id="ts-start">Mit Schlagen anfangen</button>
+      </div>
+      <div class="train-stats" id="ts-stats">
         <div class="stat"><b id="ts-solved">0</b><span>Gelöst</span></div>
         <div class="stat"><b id="ts-best">0</b><span>Längste Serie</span></div>
       </div>
@@ -330,24 +357,19 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
         <button class="ctl" id="dr-retry"><svg class="ic"><use href="#i-retry"/></svg>Nochmal</button>
         <button class="ctl" id="dr-next"><svg class="ic"><use href="#i-next"/></svg>Weiter</button>
       </div>
+      <button class="btn primary block" id="dr-nextbar" hidden>Weiter</button>
     </section>
 
     <section id="view-play" class="view" hidden>
       <div class="statusbar">
-        <div class="turn" id="turn"></div>
-        <div class="status-right">
-          <div class="caps" id="caps"></div>
-          <button class="iconbtn" id="btn-settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
-        </div>
+        <div class="players" id="turn"></div>
+        <button class="iconbtn" id="btn-settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
       </div>
       <label class="board-wrap haptic-host" id="play-host"><div class="board" id="play-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="scorebox" id="scorebox" hidden>
         <div class="nums" id="score-nums"></div>
         <p id="score-note"></p>
-        <div class="row" id="score-actions">
-          <button class="btn" id="btn-resume">Weiterspielen</button>
-          <button class="btn primary" id="btn-confirm">Bestätigen</button>
-        </div>
+        <div class="row" id="score-actions"></div>
       </div>
       <div class="controls" id="controls">
         <button class="ctl" id="btn-hint"><svg class="ic"><use href="#i-bulb"/></svg>Tipp</button>
@@ -374,12 +396,12 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
         <div class="seg" id="seg-color"><button data-v="1">Schwarz</button><button data-v="2">Weiß</button></div></div>
       <div class="field"><span class="lab">Gegner</span>
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
+      <div class="field"><span class="lab">Zug bestätigen (zweimal tippen)</span>
+        <div class="seg" id="seg-confirm"><button data-v="never">Nie</button><button data-v="13">Auf 13×13</button><button data-v="always">Immer</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
       <label class="switch">Trainer einblenden <input type="checkbox" id="opt-coach"></label>
       <label class="switch">Ton beim Setzen <input type="checkbox" id="opt-sound"></label>
       <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
-        <p class="muted" id="haptic-active"></p>
-      </div>
     </div>
     <p class="record" id="record"></p>
   </div>
@@ -693,11 +715,11 @@ function genZaehlen(){const n=Math.random()<0.35?7:9,b=new Array(n*n).fill(0);
   const sc=scoreArea(B,n,dead);let bs=0,ws=0;for(let i=0;i<n*n;i++){if(dead.includes(i))continue;if(B[i]===1)bs++;else if(B[i]===2)ws++}
   const bt=sc.black-bs,wt=sc.white-KOMI-ws,m=sc.black-sc.white;
   let q,opts;
-  if(Math.random()<0.5){q='Das Spiel ist vorbei. Wie viele Punkte hat Schwarz? Tote Steine zählen nicht.';
+  if(Math.random()<0.5){q='Wie viele Punkte hat Schwarz?';
     const set=new Set([sc.black]);if(bs!==sc.black)set.add(bs);
     while(set.size<4){const d=1+rnd(4);set.add(sc.black+(Math.random()<0.5?-d:d))}
     opts=[...set].filter(v=>v>0).sort((a,b2)=>a-b2).map(v=>({txt:String(v),ok:v===sc.black}))}
-  else{q=`Das Spiel ist vorbei. Wer gewinnt? Weiß bekommt ${fmt(KOMI)} Punkte Komi. Tote Steine zählen nicht.`;
+  else{q='Wer gewinnt?';
     const lab=v=>v>0?`Schwarz mit ${fmt(v)}`:`Weiß mit ${fmt(-v)}`;const set=new Map();set.set(lab(m),true);
     for(const v of[-m,m+KOMI,m-KOMI,m+2,m-2,m+4])if(v!==0&&set.size<4&&!set.has(lab(v)))set.set(lab(v),false);
     opts=[...set].map(([txt,ok])=>({txt,ok})).sort(()=>Math.random()-0.5)}
@@ -705,7 +727,7 @@ function genZaehlen(){const n=Math.random()<0.35?7:9,b=new Array(n*n).fill(0);
   const right=typeA?`Richtig, Schwarz hat ${sc.black} Punkte.`:`Richtig. ${res}`,wrong=typeA?`Nicht ganz. Schwarz hat ${sc.black} Punkte.`:`Nicht ganz. ${res}`;
   let detail=`Schwarz: ${bs} Steine + ${bt} Gebiet = ${sc.black}<br>Weiß: ${ws} Steine + ${wt} Gebiet + ${fmt(KOMI)} Komi = ${fmt(sc.white)}`;
   if(dead.length){const d=dead[0],wc=B[d]===2;detail+=`<br>${coord(d,n)} ist tot und zählt als ${wc?'schwarzes':'weißes'} Gebiet.`}
-  return{n,b:B,t:-1,ans:[],quiz:{q,opts,dead,own:sc.own,right,wrong,detail}}}
+  return{n,b:B,t:-1,ans:[],quiz:{q,note:`Komi ${fmt(KOMI)} für Weiß · Tote Steine zählen nicht`,opts,dead,own:sc.own,right,wrong,detail}}}
 /*END TGEN*/
 const TSET={"leiter":[["000000000020000000011200000001100000000000000000000000000000000000000000000020000",10,[11]],["011000000020000000001000000001000000002000000000000000000000000000000000000000000",10,[19]],["000000000000000021000000001000000111000000000000000000000000000000000000000000000",16,[15]],["000000000000000000000000000000000000000000000000200000001011000011200000000000000",66,[57]],["000000000000000000000000000001100000001100000020020000010000000000000000000000000",46,[47]],["000000000000000001000002100000000020000000010000000010000000002000000000000000000",34,[33]],["000000000000000000000000000000000000001000000021000000000000000001000000000000000",46,[55]],["000000000000000000000000000000000000000000000000002010000001200000000100000020100",60,[51]],["020000000000001000020120000000001100000000000000200000000000000000000000000000000",22,[31]],["000002000000000000022200000001100000100000000021000000100000000002000000000000000",46,[55]],["000000000000000000000000000000200000000000000000101000000021000001000200000000000",58,[67]],["002100000000100000000000100000012112000000000000000000000000000001000000000000000",32,[41]],["000000000000000000000000000100000000000000000001100000000100000000200000201010000",66,[67]],["000000000000000000000000000000001000000100000000002100000001000000000000000000000",50,[49]],["000000000000000000000022010000010000000001000000020000010110000000010000000000000",49,[48]],["000000000000000000101010000000000000002120000001000000000000000000000000000000000",38,[37]],["100110000010210000000000000000000000201000000000000000000000000000000000000000000",12,[21]],["000001000000000000000012000000000100000000000020000000000000000000000000000000000",23,[32]],["000000000000000000000000000000010000000021000020100100000001000000000000000000000",40,[39,49]],["000112000000002010000001010000000000000000000000000000000000000000000000000000000",14,[13]],["000000000000000000000000000000100000021000000001000000101000000000000000000000000",37,[28]],["000000002000000000000000000000000000000000000000010020000010000001201000000000000",66,[57]],["000000000000000000000100000000002000000000000000010010000002102000000000000001000",59,[50]],["000000002011000000010020000020100000000000000002000002000000000000000000000000020",28,[37]],["100000000001000000021000000100000000100000000000000000000000000000000000000000000",19,[28]],["000000000000000000000001121000000000000001001000000000000000000000000000000000000",25,[16,34]],["000000000000020000020110000000100000000020000000000000000000000000000000000000000",13,[14]],["000000000000000000000000000000001110000000000000000020000000010000000000000000000",52,[51]],["000000000000000000000000200000000001000000100000000210000001210000000000000000000",51,[50,69]],["000000000000000000002000000000000000000000000000000000210100000010201000000000000",66,[67]]],"fangen":[["000000000000000000000000000000000000110000000020200000110000000000100000000000000",46,[47]],["000000000000000001000020011000002020000000010000001000000000000000000000020000000",34,[33]],["000000000000000001000000000001000000100000000010000000021000000000000000000000000",55,[64]],["000000000000000000000000000000000000000000000000001000000002000000011210000002000",69,[60]],["000000001000000020000000011000001010000000200000000000000000000000000100000000000",16,[15]],["000000000200000000010000000020000000010000000010000000000000000000000000000001000",28,[29]],["000201010000121000000000000011000000000001000000000000000000000000000000000000000",13,[22]],["000000000000000020000000000000000000000002000001010000001000000000021200000010000",67,[66]],["000011000002000000000010100000000100000021000000010000000010000000000000000000000",40,[39]],["000000000000000000000000000000020000000000100000000101000001120000000000000000200",61,[70]],["000010000000012210000001000000100020000000000000000200002000000000000000000000000",14,[24]],["001020000111000000021000000000000000200000000000000000000000000000000000000000000",19,[28]],["000000000000000000000000000000000000000000000000000000000001000000000210000010010",69,[60]],["010100000001000000021000000000000000010000000000000000000000000000000000000000000",19,[28]],["001000000002121000000000000000000100012000100000000000000000000000000000000000000",13,[22]],["000000000000000000000000000000011000000002000000101000000000010000000000000000000",41,[42]],["000000010000000122000000010000000120000002000000000000000000000000000000000000000",16,[26]],["000000000000000000000000000000000000100000000010000000020000000001000000110000000",55,[56]],["000000000000000000000000000000000000000000000020000000000010000001210000000000000",66,[57]],["000000000000000000000000000000000000000000000110000000011000000020100000000000000",64,[63,65]],["000000000000020021000000101000001010000000000100000000000000000000000000000000000",16,[15]],["000000000000000000000000000020000000000000000000000000021000000110000000100000000",55,[46]],["000000000000000000000000000000000000000000000000000000000110020001220000000200000",67,[68]],["000000010000001000000000000000000000000000000000020000000000101000000021000002001",70,[69]],["000000000000000000000000200000001000000000011000000022000000210000000000000000000",52,[51]],["000000000000000000000000101000001012000000122000020000000000000000000000000000000",43,[52]],["000000000000000000000000000000000000000000000000000001000001100000000200000010001",69,[70]],["010010000000001000000210000000100000000000000000000000000000000000000000000000000",21,[20]],["101200000020000000010020000100100000000000000000000000000000000000000000000000000",10,[11]],["010000000000010000220000000110000000100000000000020000000000000000000000000000000",19,[20]],["000001000000001000000000000000001000000000000000000000000120110000002100000001000",68,[49]]]};
 
@@ -771,6 +793,14 @@ function drawBoard(el,o){
       if(o.atari&&libs[i]===1)h+=`<circle cx="${cx}" cy="${cy}" r="${R+2.5}" style="fill:none;stroke:var(--warn);stroke-width:2.6"/>`;
       if(o.libNums&&i!==o.last)h+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" class="ln" style="fill:var(${b[i]===1?'--stone-w1':'--stone-b2'})">${libs[i]}</text>`}
     h+='</g>'}
+  // Geschlagene Steine kurz ausblenden (auch über ein sofortiges Neuzeichnen hinweg)
+  if(el._pb&&el._pn===n){const gone=[];let add=0;for(let i=0;i<n*n;i++){if(el._pb[i]&&!b[i])gone.push([i,el._pb[i]]);else if(!el._pb[i]&&b[i])add++}
+    if(gone.length&&gone.length<=24&&add<=2)el._van={list:gone,t0:Date.now()}}
+  el._pb=b.slice();el._pn=n;
+  if(el._van){const age=Date.now()-el._van.t0;if(age<300){for(const[i,c]of el._van.list){if(b[i])continue;const cx=P(i%n),cy=P((i/n)|0),st=`animation-delay:-${age}ms;`;
+      h+=c===1?`<circle class="vanish" cx="${cx}" cy="${cy}" r="${R}" style="${st}fill:url(#${id}-b)"/>`:`<circle class="vanish" cx="${cx}" cy="${cy}" r="${R-0.5}" style="${st}fill:url(#${id}-w);stroke:var(--stone-edge);stroke-width:1"/>`}}else el._van=null}
+  if(o.pending>=0&&!b[o.pending]){const cx=P(o.pending%n),cy=P((o.pending/n)|0);
+    h+=o.ghostColor===2?`<circle cx="${cx}" cy="${cy}" r="${R-0.5}" opacity=".6" style="fill:url(#${id}-w);stroke:var(--stone-edge);stroke-width:1"/>`:`<circle cx="${cx}" cy="${cy}" r="${R}" opacity=".6" style="fill:url(#${id}-b)"/>`}
   if(o.last>=0&&b[o.last]){const cx=P(o.last%n),cy=P((o.last/n)|0);
     h+=`<circle cx="${cx}" cy="${cy}" r="${CELL*0.17}" style="fill:none;stroke:var(${b[o.last]===1?'--stone-w1':'--stone-b2'});stroke-width:2.2"/>`}
   if(o.own){for(let i=0;i<n*n;i++){if(o.own[i]&&(!b[i]||dead.has(i))){const cx=P(i%n),cy=P((i/n)|0),q=CELL*0.2;
@@ -891,7 +921,7 @@ const LESSONS=[
 function parse(rows){const n=rows.length,b=new Array(n*n).fill(0);rows.forEach((r,y)=>[...r].forEach((ch,x)=>{b[y*n+x]=ch==='X'?1:ch==='O'?2:0}));return{n,b}}
 
 let LS=null;
-function openLesson(li){LS={li,pi:0};loadPuzzle();show('lesson');window.scrollTo(0,0)}
+function openLesson(li){LS={li,pi:0,stage:'read'};loadPuzzle();show('lesson');window.scrollTo(0,0)}
 function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
   if(p){const{n,b}=parse(p.rows);Object.assign(LS,{n,board:b,ko:p.ko?p.ko[1]*n+p.ko[0]:-1,last:p.last?p.last[1]*n+p.last[0]:-1,solved:false,failed:false,msg:'',state:''})}
   renderLesson()}
@@ -904,35 +934,40 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
   const res=p.check(ctx);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
   if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){store.done[L.id]=true;save()}}else LS.failed=true;
   renderLesson()}
-function renderLesson(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
+function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi],task=LS.stage==='task'&&!!p;
+  if(!$('#view-lesson').hidden)document.documentElement.classList.toggle('fit',task);
   $('#ls-eyebrow').textContent=`Lektion ${LS.li+1} von ${LESSONS.length}`;$('#ls-title').textContent=L.title;
-  let body=L.body.map(t=>`<p>${t}</p>`).join('');
-  if(L.list)body+='<ol>'+L.list.map(t=>`<li>${t}</li>`).join('')+'</ol>';
-  if(L.after)body+=`<p>${L.after}</p>`;
-  $('#ls-body').innerHTML=body;
-  const next=$('#ls-next'),retry=$('#ls-retry'),fb=$('#ls-feedback');
-  $('#ls-task').hidden=!p;$('#ls-board').hidden=!p;
-  if(!p){fb.hidden=true;retry.hidden=true;next.hidden=false;next.textContent='Abschließen und spielen';return}
-  const cnt=L.puzzles.length;
-  $('#ls-task-label').textContent=cnt>1?`Aufgabe ${LS.pi+1} von ${cnt}`:'Aufgabe';
-  $('#ls-steps').innerHTML=cnt>1?L.puzzles.map((_,k)=>`<i class="${k<LS.pi||(k===LS.pi&&LS.solved)?'on':''}"></i>`).join(''):'';
-  $('#ls-task-text').textContent=p.task;
+  const cnt=p?L.puzzles.length:0;
+  $('#ls-steps').innerHTML=task&&cnt>1?L.puzzles.map((_,k)=>`<i class="${k<LS.pi||(k===LS.pi&&LS.solved)?'on':''}"></i>`).join(''):'';
+  $('#ls-read').hidden=task;$('#ls-host').hidden=!task;$('#ls-fb').hidden=!task;
+  if(!task){let body=L.body.map(t=>`<p>${t}</p>`).join('');
+    if(L.list)body+='<ol>'+L.list.map(t=>`<li>${t}</li>`).join('')+'</ol>';
+    if(L.after)body+=`<p>${L.after}</p>`;
+    $('#ls-body').innerHTML=body;
+    $('#ls-start').textContent=p?(LS.pi>0||LS.last>=0?'Zurück zur Aufgabe':(cnt>1?`${cnt} Aufgaben lösen`:'Aufgabe lösen')):(LS.li<LESSONS.length-1?'Abschließen und weiter':'Abschließen und spielen');
+    $('#ls-controls').hidden=true;$('#ls-next').hidden=true;return}
   drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
-  fb.hidden=!LS.msg;fb.dataset.state=LS.state;fb.innerHTML=LS.msg?icon(LS.state==='ok'?'check':'alert')+`<span>${LS.msg}</span>`:'';
-  retry.hidden=!LS.failed;next.hidden=!LS.solved;
-  next.textContent=LS.pi<cnt-1?'Nächste Aufgabe':(LS.li<LESSONS.length-1?'Nächste Lektion':'Jetzt spielen')}
+  const fb=$('#ls-fb');fb.dataset.state=LS.state||'';fb.classList.remove('open');
+  fb.innerHTML=(LS.state?icon(LS.state==='ok'?'check':'alert'):'')+`<span class="fb-text"><span class="fb-main">${LS.msg||p.task}</span></span>`;
+  $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed;
+  $('#ls-next').textContent=LS.pi<cnt-1?'Nächste Aufgabe':(LS.li<LESSONS.length-1?'Nächste Lektion':'Jetzt spielen')}
+function lessonAdvance(){const L=LESSONS[LS.li];
+  if(L.puzzles&&LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1)openLesson(LS.li+1);else show('play')}
+$('#ls-start').onclick=()=>{const L=LESSONS[LS.li];
+  if(!L.puzzles){store.done[L.id]=true;save();lessonAdvance();return}
+  LS.stage='task';renderLesson();window.scrollTo(0,0)};
+$('#ls-explain').onclick=()=>{LS.stage='read';renderLesson();window.scrollTo(0,0)};
 $('#ls-retry').onclick=loadPuzzle;
-$('#ls-next').onclick=()=>{const L=LESSONS[LS.li];
-  if(!L.puzzles){store.done[L.id]=true;save();show('play');return}
-  if(LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1)openLesson(LS.li+1);else show('play')};
-$('#ls-back').onclick=()=>show('learn');
+$('#ls-skip').onclick=lessonAdvance;
+$('#ls-next').onclick=lessonAdvance;
+$('#ls-back').onclick=()=>{if(LS&&LS.stage==='task'){LS.stage='read';renderLesson();window.scrollTo(0,0)}else show('learn')};
 
 function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
   $('#prog-num').innerHTML=`${done}<small>von ${LESSONS.length} Lektionen</small>`;
   $('#prog-bar').style.width=(done/LESSONS.length*100)+'%';
   const nextIdx=LESSONS.findIndex(l=>!store.done[l.id]);
-  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="erledigt"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:(i===nextIdx?'<span class="st next">Als Nächstes</span>':'<span></span>');
-    return`<li><button class="lesson-row" data-li="${i}"><span class="num">${i+1}</span><span class="lt"><span class="t">${l.title}</span><span class="d">${l.sum}</span></span>${st}</button></li>`}).join('');
+  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="erledigt"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
+    return`<li><button class="lesson-row" data-li="${i}"${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${l.title}</span><span class="d">${l.sum}</span></span>${st}</button></li>`}).join('');
   document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>openLesson(+b.dataset.li))}
 let resetArmed=false;
 $('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent='Wirklich alles zurücksetzen? Nochmal tippen.';setTimeout(()=>{resetArmed=false;t.textContent='Fortschritt zurücksetzen'},3500);return}
@@ -950,8 +985,8 @@ let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*stor
 let busy=false;
 function coachAdd(who,t){G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
 function pushHist(){G.history.push({b:G.board.join(''),turn:G.turn,caps:G.caps.slice(),ko:G.ko,last:G.last,passes:G.passes,moves:G.moves})}
-function restore(s){G.board=[...s.b].map(Number);G.turn=s.turn;G.caps=s.caps.slice();G.ko=s.ko;G.last=s.last;G.passes=s.passes;G.moves=s.moves}
-function applyMove(r,i,c){G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko;G.last=i;G.passes=0;G.moves++;G.turn=3-c}
+function restore(s){G.pending=-1;G.board=[...s.b].map(Number);G.turn=s.turn;G.caps=s.caps.slice();G.ko=s.ko;G.last=s.last;G.passes=s.passes;G.moves=s.moves}
+function applyMove(r,i,c){G.pending=-1;G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko;G.last=i;G.passes=0;G.moves++;G.turn=3-c}
 
 function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
   if(k)parts.push(k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`);
@@ -970,7 +1005,11 @@ function warnAtari(){const g=atariGroups(G.board,G.n,U());
 
 function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const r=tryPlay(G.board,i,U(),G.n,G.ko);
-  if(r.err){coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
+  if(r.err){G.pending=-1;coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
+  // Zug bestätigen: erster Tipp zeigt den Stein halbdurchsichtig, zweiter Tipp auf denselben Punkt setzt ihn
+  const cf=store.settings.confirm||'13';
+  if((cf==='always'||(cf==='13'&&G.n>9))&&G.pending!==i){G.pending=i;renderPlay();return}
+  G.pending=-1;
   buzz(r.captured.length>0);playStone('me',r.captured.length);
   const list=analyze(G.board,G.n,U(),G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
   pushHist();applyMove(r,i,U());G.hint=-1;
@@ -1055,8 +1094,13 @@ function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.whi
   coachAdd('trainer',`Schwarz: ${sc.black} Punkte (Steine + Gebiet). Weiß: ${fmt(sc.white)} Punkte inklusive ${fmt(KOMI)} Komi. ${um>0?'Du gewinnst mit '+fmt(um)+' Punkten. Glückwunsch!':CN[A()]+' gewinnt mit '+fmt(-um)+' Punkten. Mit „Neu“ startest du die nächste Partie.'}`);
   save();renderPlay()}
 $('#btn-hint').onclick=hint;$('#btn-undo').onclick=undo;$('#btn-pass').onclick=userPass;$('#btn-new').onclick=newGameClick;
-$('#btn-confirm').onclick=confirmScore;
-$('#btn-resume').onclick=()=>{G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer','Weiter geht es. Du bist am Zug.');save();renderPlay()};
+function resumeGame(){G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer','Weiter geht es. Du bist am Zug.');save();renderPlay()}
+$('#score-actions').onclick=e=>{const a=e.target.closest('button');if(!a)return;const k=a.dataset.act;
+  if(k==='resume')resumeGame();else if(k==='confirm')confirmScore();else if(k==='review'){G.reviewing=true;save();renderPlay()}else if(k==='again')startGame()};
+document.querySelectorAll('#seg-confirm button').forEach(b=>b.onclick=()=>{store.settings.confirm=b.dataset.v;G.pending=-1;save();renderPlay()});
+function tally(board,n,dead){const sc=scoreArea(board,n,dead);let bs=0,ws=0;const d=new Set(dead);
+  for(let i=0;i<n*n;i++){if(d.has(i))continue;if(board[i]===1)bs++;else if(board[i]===2)ws++}
+  return{sc,bs,ws,bt:sc.black-bs,wt:sc.white-KOMI-ws}}
 document.querySelectorAll('#seg-size button').forEach(b=>b.onclick=()=>{store.settings.size=+b.dataset.v;
   if(G.moves===0||G.phase==='over')startGame();else{coachAdd('trainer',`Die Brettgröße ${b.dataset.v}×${b.dataset.v} gilt ab dem nächsten Spiel („Neu“).`);save();renderPlay()}});
 document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.settings.color=+b.dataset.v;
@@ -1083,30 +1127,36 @@ $('#sheet-close').onclick=closeSheet;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet()});
 function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scoreArea(G.board,n,G.dead):null;
-  drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
+  drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,pending:G.phase==='play'&&G.pending>=0?G.pending:-1,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
     ghost:!scoring&&G.turn===U()&&!busy,ghostColor:U(),onPlay:i=>{if(G.phase==='score')toggleDead(i);else if(G.phase==='play')userMove(i)}});
-  let t;
-  const dU=U()===1?'dot':'dot w',dA=A()===1?'dot':'dot w';
-  if(G.phase==='over'){const um=G.result.um!=null?G.result.um:G.result.m;t=um>0?`<span class="${dU}"></span>Du gewinnst mit ${fmt(um)} Punkten`:`<span class="${dA}"></span>${CN[A()]} gewinnt mit ${fmt(-um)}`}
-  else if(G.phase==='score')t='Partie zählen';
-  else if(G.turn===A()||busy)t=`<span class="${dA}"></span>${CN[A()]} überlegt<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>`;
-  else t=`<span class="${dU}"></span>Du bist am Zug${G.passes?` · ${CN[A()]} hat gepasst`:''}`;
+  let t;const lvl={leicht:'Leicht',mittel:'Mittel',stark:'Stark'}[G.level]||'';
+  const pill=(c,name,sub,on,extra)=>`<span class="pl${on?' on':''}"><span class="${c===1?'dot':'dot w'}"></span>${name}${sub?`<span class="pl-s">${sub}</span>`:''}${extra||''}</span>`;
+  const um=G.result?(G.result.um!=null?G.result.um:G.result.m):0;
+  if(G.phase==='over')t=`<span class="turn">${um>0?'Du gewinnst mit '+fmt(um):CN[A()]+' gewinnt mit '+fmt(-um)}</span>`;
+  else if(G.phase==='score')t='<span class="turn">Partie zählen</span>';
+  else{const mine=G.turn===U()&&!busy;
+    t=pill(U(),'Du',G.pending>=0?'Bestätigen':'',mine)+pill(A(),'Computer',G.pending>=0?'':(G.passes&&mine?'hat gepasst':lvl),!mine,'<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>')}
   $('#turn').innerHTML=t;
-  $('#caps').innerHTML=`<span title="Von dir gefangen"><span class="${dA} sm"></span>${G.caps[U()]}</span><span title="Vom Computer gefangen"><span class="${dU} sm"></span>${G.caps[A()]}</span>`;
-  const box=$('#scorebox');box.hidden=!scoring;
-  if(sc){$('#score-nums').textContent=`Schwarz ${sc.black} · Weiß ${fmt(sc.white)}`;
-    $('#score-note').textContent=G.phase==='score'?`Inklusive ${fmt(KOMI)} Komi für Weiß. Tippe eine Gruppe an, um sie als tot zu markieren oder wieder zu beleben.`:'Partie beendet. Starte mit „Neu“ die nächste.';
-    $('#score-actions').hidden=G.phase!=='score'}
-  $('#controls').hidden=G.phase==='score';
+  const box=$('#scorebox'),showBox=scoring&&!(G.phase==='over'&&G.reviewing);box.hidden=!showBox;
+  if(showBox){const T=tally(G.board,n,G.dead),you=c=>c===U()?' (du)':'';
+    const lines=`Schwarz${you(1)}: ${T.bs} Steine + ${T.bt} Gebiet = ${T.sc.black}<br>Weiß${you(2)}: ${T.ws} Steine + ${T.wt} Gebiet + ${fmt(KOMI)} Komi = ${fmt(T.sc.white)}`;
+    if(G.phase==='score'){$('#score-nums').textContent=`Schwarz ${T.sc.black} · Weiß ${fmt(T.sc.white)}`;
+      $('#score-note').innerHTML='Tippe Gruppen an, die nicht mehr leben können. Die Quadrate zeigen, wem das Gebiet gehört.';
+      $('#score-actions').innerHTML='<button class="btn" data-act="resume">Weiterspielen</button><button class="btn primary" data-act="confirm">Bestätigen</button>'}
+    else{$('#score-nums').innerHTML=`<span class="eyebrow">Ergebnis</span><h2>${um>0?'Du gewinnst mit '+fmt(um)+' Punkten':CN[A()]+' gewinnt mit '+fmt(-um)+' Punkten'}</h2>`;
+      $('#score-note').innerHTML=`<span class="result-line">${lines}</span>`;
+      $('#score-actions').innerHTML='<button class="btn" data-act="review">Partie ansehen</button><button class="btn primary" data-act="again">Neue Partie</button>'}}
+  $('#controls').hidden=showBox;
   const play=G.phase==='play'&&G.turn===U()&&!busy;
   {const off=hapticKind()==='android'||store.settings.haptic===false||!(play||G.phase==='score');setTimeout(()=>{const i=$('#play-host .hsw');if(i)i.disabled=off},0)}
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?'Genauer':'Tipp';$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${c.t}</span>`).join('');
-  const cc=$('#coach-card');cc.hidden=G.phase==='score'||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
+  const cc=$('#coach-card');cc.hidden=showBox||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
+  document.querySelectorAll('#seg-confirm button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(store.settings.confirm||'13'))));
   document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
   $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;$('#opt-sound').checked=store.settings.sound!==false;$('#opt-coach').checked=store.settings.coach!==false;
   const w=store.stats.win,l=store.stats.loss;
@@ -1147,16 +1197,18 @@ function fromSet(id){const L=TSET[id],st=tstat(id);let j=rnd(L.length);if(L.leng
 let D=null;
 function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);tot+=s.ok;best=Math.max(best,s.best)});
   $('#ts-solved').textContent=tot;$('#ts-best').textContent=best;
+  const fresh=TCATS.every(c=>!tstat(c.id).tries);$('#ts-empty').hidden=!fresh;$('#ts-stats').hidden=fresh;
   $('#train-list').innerHTML=TCATS.map(c=>{const s=tstat(c.id);
     const chip=s.streak>1?`<span class="chip hot">Serie ${s.streak}</span>`:(s.ok?`<span class="chip">${s.ok} gelöst</span>`:`<span class="chip">${c.set?TSET[c.set].length+' Aufgaben':'Endlos'}</span>`);
     return`<button class="train-row" data-id="${c.id}"><span class="tglyph">${glyph(c.id)}</span><span class="lt"><span class="t">${c.title}</span><span class="d">${c.sum}</span></span>${chip}</button>`}).join('');
   document.querySelectorAll('.train-row').forEach(b=>b.onclick=()=>openDrill(b.dataset.id))}
+$('#ts-start').onclick=()=>openDrill('schlagen');
 function openDrill(id){D={cat:id};newDrill();show('drill')}
 function newDrill(){const c=TC(D.cat);const p=c.set?fromSet(c.set):c.gen();
   if(!p){D.msg='Keine Aufgabe gefunden. Tippe auf „Weiter“.';D.state='';D.sub='';renderDrill();return}
-  Object.assign(D,{quiz:null,answered:-1},p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,msg:p.quiz?p.quiz.q:c.goal,state:'',sub:''});
+  Object.assign(D,{quiz:null,answered:-1},p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,whyOpen:false,msg:p.quiz?p.quiz.q:c.goal,state:'',sub:p.quiz?p.quiz.note:''});
   renderDrill()}
-function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:''});renderDrill()}
+function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:'',whyOpen:false});renderDrill()}
 function drillSolved(msg){const s=tstat(D.cat);D.phase='solved';D.state='ok';
   if(!D.counted){D.counted=true;s.tries++;if(!D.fails&&!D.shown){s.ok++;s.streak++;s.best=Math.max(s.best,s.streak)}}
   D.msg=msg;D.sub=TC(D.cat).tip;save();renderDrill()}
@@ -1194,21 +1246,23 @@ function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat
   else D.msg=`Gut. Weiß antwortet mit ${coord(w,n)}. Mach weiter.`;
   D.state='';D.sub='';renderDrill()}
 function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
-  $('#dr-cat').textContent=c.title;
-  $('#dr-turn').innerHTML=D.quiz?'Spiel beendet':'<span class="dot"></span>Schwarz am Zug';
-  $('#dr-streak').textContent=s.streak?`Serie ${s.streak}`:`${s.ok} gelöst`;$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
+  $('#dr-cat').textContent='Training';
+  $('#dr-turn').textContent=c.title;
+  $('#dr-streak').textContent=`Serie ${s.streak} · ${s.ok} gelöst`;$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
   if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
     const done=D.quiz&&D.phase!=='play';
     drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play'&&!D.quiz,onPlay:drillMove,dead:done?D.quiz.dead:[],own:done?D.quiz.own:null})}
-  const ch=$('#dr-choices'),ctr=$('#dr-controls');
-  ch.hidden=!(D.quiz&&D.phase==='play');ctr.hidden=!ch.hidden;
-  if(D.quiz&&D.phase==='play'){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
-  const fb=$('#dr-fb');fb.dataset.state=D.state||'';
-  fb.innerHTML=(D.state?icon(D.state==='ok'?'check':'alert'):'')+`<span>${D.msg||''}${D.sub?`<small>${D.sub}</small>`:''}</span>`;
-  const nx=$('#dr-next');nx.classList.toggle('primary',D.phase==='solved');
+  const ch=$('#dr-choices'),ctr=$('#dr-controls'),nb=$('#dr-nextbar');
+  const asking=!!(D.quiz&&D.phase==='play'),finished=D.phase==='solved'||(D.quiz&&D.phase!=='play');
+  ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;
+  if(asking){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
+  const fb=$('#dr-fb'),open=!!(D.quiz||D.whyOpen);fb.dataset.state=D.state||'';fb.classList.toggle('open',open);
+  fb.innerHTML=(D.state?icon(D.state==='ok'?'check':'alert'):'')+`<span class="fb-text"><span class="fb-main">${D.msg||''}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?'<button class="why" id="dr-why">Warum?</button>':'');
+  const why=$('#dr-why');if(why)why.onclick=()=>{D.whyOpen=true;renderDrill()};
   $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
 $('#dr-back').onclick=()=>show('train');
 $('#dr-next').onclick=()=>newDrill();
+$('#dr-nextbar').onclick=()=>newDrill();
 $('#dr-retry').onclick=()=>resetDrill();
 $('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=>[i%D.n,(i/D.n)|0]);
   Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,state:'',sub:'',
@@ -1217,6 +1271,7 @@ $('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=
 /* ---------- Navigation ---------- */
 function show(v){['learn','lesson','train','drill','play'].forEach(k=>$('#view-'+k).hidden=k!==v);
   document.documentElement.classList.toggle('fit',v==='play'||v==='drill');
+  if(v==='lesson')renderLesson();
   const tab=v==='play'?'play':(v==='train'||v==='drill')?'train':'learn';
   ['learn','train','play'].forEach(k=>$('#tab-'+k).setAttribute('aria-selected',String(k===tab)));
   store.tab=tab;save();window.scrollTo(0,0);
