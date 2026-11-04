@@ -274,7 +274,8 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 .vanish{transform-box:fill-box;transform-origin:center;animation:vanish .3s ease-in forwards}
 @keyframes vanish{to{opacity:0;transform:scale(.6)}}
 @media (prefers-reduced-motion: reduce){.vanish{display:none}}
-.title-row{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s2)}
+.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2)}
+.sheet[data-scope="app"] .play-only{display:none}
 .seg-sm{grid-auto-columns:auto}
 .seg-sm button{height:var(--s4);padding:0 var(--s1);min-width:var(--s5)}
 </style>
@@ -303,7 +304,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 <div class="app">
   <main>
     <section id="view-learn" class="view">
-      <div class="title-row"><div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="learn_title">Lernen</h1></div><div class="seg seg-sm lang-seg" role="group" aria-label="Sprache / Language"><button data-v="de">DE</button><button data-v="en">EN</button><button data-v="nl">NL</button></div></div>
+      <div class="title-row"><div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="learn_title">Lernen</h1></div><button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button></div>
       <div class="progress">
         <div class="progress-num" id="prog-num"></div>
         <div class="bar"><span id="prog-bar"></span></div>
@@ -321,6 +322,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <button class="iconbtn" id="ls-back" data-i18n-aria="back" aria-label="Zurück"><svg class="ic"><use href="#i-back"/></svg></button>
         <div class="drill-title"><span class="eyebrow" id="ls-eyebrow"></span><span class="turn" id="ls-title"></span></div>
         <span class="steps" id="ls-steps"></span>
+        <button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
       </div>
       <div class="view" id="ls-read">
         <div class="prose" id="ls-body"></div>
@@ -337,7 +339,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
     </section>
 
     <section id="view-train" class="view" hidden>
-      <div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="train_title">Training</h1></div>
+      <div class="title-row"><div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="train_title">Training</h1></div><button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button></div>
       <p class="muted" data-i18n="train_intro"></p>
       <div class="cta" id="ts-empty" hidden>
         <p data-i18n-html="ts_empty_html"></p>
@@ -355,6 +357,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <button class="iconbtn" id="dr-back" data-i18n-aria="back" aria-label="Zurück"><svg class="ic"><use href="#i-back"/></svg></button>
         <div class="drill-title"><span class="eyebrow" id="dr-cat"></span><span class="turn" id="dr-turn"></span></div>
         <span class="chip" id="dr-streak"></span>
+        <button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
       </div>
       <label class="board-wrap haptic-host" id="dr-host"><div class="board" id="dr-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="dr-fb" id="dr-fb" aria-live="polite"></div>
@@ -370,7 +373,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
     <section id="view-play" class="view" hidden>
       <div class="statusbar">
         <div class="players" id="turn"></div>
-        <button class="iconbtn" id="btn-settings" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
+        <button class="iconbtn settings-btn" id="btn-settings" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
       </div>
       <label class="board-wrap haptic-host" id="play-host"><div class="board" id="play-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="scorebox" id="scorebox" hidden>
@@ -397,22 +400,22 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
     <div class="sheet-head"><h3 id="sheet-title" data-i18n="settings">Einstellungen</h3><button class="iconbtn" id="sheet-close" data-i18n-aria="close" aria-label="Schließen"><svg class="ic"><use href="#i-close"/></svg></button></div>
     <div class="settings">
-      <div class="field"><span class="lab" data-i18n="s_board">Brett</span>
+      <div class="field play-only"><span class="lab" data-i18n="s_board">Brett</span>
         <div class="seg" id="seg-size"><button data-v="9">9×9</button><button data-v="13">13×13</button></div></div>
-      <div class="field"><span class="lab" data-i18n="s_color">Deine Farbe</span>
+      <div class="field play-only"><span class="lab" data-i18n="s_color">Deine Farbe</span>
         <div class="seg" id="seg-color"><button data-v="1" data-i18n="black">Schwarz</button><button data-v="2" data-i18n="white">Weiß</button></div></div>
-      <div class="field"><span class="lab" data-i18n="s_opp">Gegner</span>
+      <div class="field play-only"><span class="lab" data-i18n="s_opp">Gegner</span>
         <div class="seg" id="seg-level"><button data-v="leicht" data-i18n="lvl_leicht">Leicht</button><button data-v="mittel" data-i18n="lvl_mittel">Mittel</button><button data-v="stark" data-i18n="lvl_stark">Stark</button></div></div>
-      <div class="field"><span class="lab" data-i18n="s_confirm">Zug bestätigen (zweimal tippen)</span>
+      <div class="field play-only"><span class="lab" data-i18n="s_confirm">Zug bestätigen (zweimal tippen)</span>
         <div class="seg" id="seg-confirm"><button data-v="never" data-i18n="c_never">Nie</button><button data-v="13" data-i18n="c_13">Auf 13×13</button><button data-v="always" data-i18n="c_always">Immer</button></div></div>
-      <label class="switch"><span data-i18n="s_libs">Freiheiten auf den Steinen zeigen</span> <input type="checkbox" id="opt-libs"></label>
-      <label class="switch"><span data-i18n="s_coach">Trainer einblenden</span> <input type="checkbox" id="opt-coach"></label>
+      <label class="switch play-only"><span data-i18n="s_libs">Freiheiten auf den Steinen zeigen</span> <input type="checkbox" id="opt-libs"></label>
+      <label class="switch play-only"><span data-i18n="s_coach">Trainer einblenden</span> <input type="checkbox" id="opt-coach"></label>
       <label class="switch"><span data-i18n="s_sound">Ton beim Setzen</span> <input type="checkbox" id="opt-sound"></label>
       <label class="switch"><span data-i18n="s_haptic">Vibration beim Setzen</span> <input type="checkbox" id="opt-haptic"></label>
       <div class="field"><span class="lab" data-i18n="s_lang">Sprache</span>
         <div class="seg lang-seg"><button data-v="de">Deutsch</button><button data-v="en">English</button><button data-v="nl">Nederlands</button></div></div>
     </div>
-    <p class="record" id="record"></p>
+    <p class="record play-only" id="record"></p>
   </div>
 </div>
 
@@ -1111,6 +1114,10 @@ const LT=L=>(LTXT[LANG]&&LTXT[LANG][L.id])||LTXT.de[L.id];
 const CNm=()=>({1:T('black'),2:T('white')});
 const ADJm=()=>({1:T('adj_b'),2:T('adj_w')});
 function RS(rs){if(!rs)return'';const v=T('r_'+rs.t,rs.n);return v}
+// Trainer-Meldungen als Bausteine: Sie werden erst bei der Anzeige übersetzt und folgen so jedem Sprachwechsel
+const K=(k,...a)=>({k,a}),F=v=>({f:v}),J=(sep,...j)=>({j,sep});
+const CK=c=>K(+c===1?'black':'white'),AK=c=>K(+c===1?'adj_b':'adj_w'),RK=rs=>rs?K('r_'+rs.t,rs.n):'';
+function Rm(m){if(m===null||typeof m!=='object')return m;if('f' in m)return fmt(m.f);if(m.j)return m.j.map(Rm).join(m.sep);if(m.r)return T('regions')[m.r[0]][m.r[1]];return T(m.k,...(m.a||[]).map(Rm))}
 function applyI18n(){document.documentElement.lang=LANG;
   document.querySelectorAll('[data-i18n]').forEach(e=>{e.textContent=T(e.dataset.i18n)});
   document.querySelectorAll('[data-i18n-html]').forEach(e=>{e.innerHTML=T(e.dataset.i18nHtml)});
@@ -1301,10 +1308,11 @@ $('#cta-play').onclick=()=>show('play');
 const CN=new Proxy({},{get:(o,k)=>+k===1?T('black'):T('white')}),ADJ=new Proxy({},{get:(o,k)=>+k===1?T('adj_b'):T('adj_w')});
 function newGame(){const n=store.settings.size,user=store.settings.color===2?2:1;
   return{n,user,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:store.settings.level,
-    coach:[{who:'trainer',t:user===1?T('intro_black'):T('intro_white',fmt(KOMI))}]}}
+    coach:[{who:'trainer',t:user===1?K('intro_black'):K('intro_white',F(KOMI))}]}}
 const U=()=>G.user||1,A=()=>3-(G.user||1);
 function startGame(){aiReq++;stopThinking();G=newGame();busy=false;save();renderPlay();if(G.turn===A())aiMove()}
 let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*store.game.n)?store.game:newGame();
+if(G.coach&&G.coach.some(c=>typeof c.t==='string'))G.coach=G.coach.filter(c=>typeof c.t!=='string');
 let busy=false;
 function coachAdd(who,t){G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
 function pushHist(){G.history.push({b:G.board.join(''),turn:G.turn,caps:G.caps.slice(),ko:G.ko,last:G.last,passes:G.passes,moves:G.moves})}
@@ -1312,23 +1320,23 @@ function restore(s){G.pending=-1;G.board=[...s.b].map(Number);G.turn=s.turn;G.ca
 function applyMove(r,i,c){G.pending=-1;G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko;G.last=i;G.passes=0;G.moves++;G.turn=3-c}
 
 function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
-  if(k)parts.push(T('you_cap',k));
-  if(r.group.libs.size===1)parts.push(T('self_atari'));
-  else if(mine&&mine.trap)parts.push(T('trap',CN[A()]));
-  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===A()&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push(T('atari_them',CN[A()]))}
+  if(k)parts.push(K('you_cap',k));
+  if(r.group.libs.size===1)parts.push(K('self_atari'));
+  else if(mine&&mine.trap)parts.push(K('trap',CK(A())));
+  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===A()&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push(K('atari_them',CK(A())))}
   const diff=best&&mine?best.s-mine.s:0;
-  if(best&&best.i!==i&&diff>5)parts.push(T('stronger',coord(best.i,n),RS(best.why[0])));
-  else if(diff<=1.5){if(!k){const rs=mine&&mine.why[0];parts.push(rs?T('good',RS(rs)):T('solid'))}}
-  else if(best&&!parts.length)parts.push(T('playable',coord(best.i,n)));
+  if(best&&best.i!==i&&diff>5)parts.push(K('stronger',coord(best.i,n),RK(best.why[0])));
+  else if(diff<=1.5){if(!k){const rs=mine&&mine.why[0];parts.push(rs?K('good',RK(rs)):K('solid'))}}
+  else if(best&&!parts.length)parts.push(K('playable',coord(best.i,n)));
   const x=i%n,y=(i/n)|0,d=Math.min(x,y,n-1-x,n-1-y);
-  if(G.moves<=n*1.3&&d<=1&&diff>3)parts.push(T('too_low'));
-  return`${coord(i,n)}: `+parts.join(' ')}
+  if(G.moves<=n*1.3&&d<=1&&diff>3)parts.push(K('too_low'));
+  return J('',coord(i,n)+': ',J(' ',...parts))}
 function warnAtari(){const g=atariGroups(G.board,G.n,U());
-  if(g.length)coachAdd('trainer',g.length===1?T('warn1',coord(g[0].stones[0],G.n)):T('warnN',g.length))}
+  if(g.length)coachAdd('trainer',g.length===1?K('warn1',coord(g[0].stones[0],G.n)):K('warnN',g.length))}
 
 function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const r=tryPlay(G.board,i,U(),G.n,G.ko);
-  if(r.err){G.pending=-1;coachAdd('trainer',ERR[r.err]);save();renderPlay();return}
+  if(r.err){G.pending=-1;coachAdd('trainer',K('err_'+r.err));save();renderPlay();return}
   // Zug bestätigen: erster Tipp zeigt den Stein halbdurchsichtig, zweiter Tipp auf denselben Punkt setzt ihn
   const cf=store.settings.confirm||'13';
   if((cf==='always'||(cf==='13'&&G.n>9))&&G.pending!==i){G.pending=i;renderPlay();return}
@@ -1337,7 +1345,7 @@ function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const list=analyze(G.board,G.n,U(),G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
   pushHist();applyMove(r,i,U());G.hint=-1;
   let cm=commentUser(i,r,mine,best);
-  if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=(good?T('found'):T('notquite_hint'))+cm}
+  if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=J('',K(good?'found':'notquite_hint'),cm)}
   G.hintLevel=0;coachPeek=false;
   coachAdd('du',cm);
   save();renderPlay();aiMove()}
@@ -1348,7 +1356,7 @@ function getWorker(){if(worker||workerFailed)return worker;
 function localSearch(msg){if(!mctsLocal)mctsLocal=new Function($('#mcts-src').textContent+';return search;')();return mctsLocal(msg)}
 function startThinking(){clearTimeout(thinkTimer);thinkTimer=setTimeout(()=>document.body.classList.add('thinking'),1000)}
 function stopThinking(){clearTimeout(thinkTimer);document.body.classList.remove('thinking')}
-function aiPass(extra){G.passes++;G.turn=U();G.last=-1;G.ko=-1;coachAdd('weiss',T('ai_pass',CN[A()],extra||''));if(G.passes>=2)enterScore()}
+function aiPass(extra){G.passes++;G.turn=U();G.last=-1;G.ko=-1;coachAdd('weiss',K('ai_pass',CK(A()),extra||''));if(G.passes>=2)enterScore()}
 function aiMove(){if(G.phase!=='play'||G.turn!==A())return;const AC=A();busy=true;const id=++aiReq;renderPlay();startThinking();
   if(G.level==='stark'){
     setTimeout(()=>{if(id!==aiReq)return;
@@ -1366,46 +1374,46 @@ function aiMove(){if(G.phase!=='play'||G.turn!==A())return;const AC=A();busy=tru
       if(pick.s<thr)pick=list[0]}
     stopThinking();pushHist();
     if(!pick)aiPass();
-    else{applyMove(pick.r,pick.i,AC);playStone('ai',pick.r.captured.length);coachAdd('weiss',T('ai_plays',CN[AC],coord(pick.i,G.n),RS(pick.why[0])));warnAtari()}
+    else{applyMove(pick.r,pick.i,AC);playStone('ai',pick.r.captured.length);coachAdd('weiss',K('ai_plays',CK(AC),coord(pick.i,G.n),RK(pick.why[0])));warnAtari()}
     busy=false;save();renderPlay()},450)}
 function finishStark(r,list){stopThinking();pushHist();
   const AC=A();let m=r.move,rr=m>=0?tryPlay(G.board,m,AC,G.n,G.ko):null;
   if(rr&&rr.err){rr=null;m=-1;if(list[0]&&list[0].s>0.8){m=list[0].i;rr=list[0].r}}
   const pct=Math.round(r.winrate*100);
   const settled=r.settled>0.96||(G.passes>0&&r.winrate>0.85);
-  if(m<0||settled)aiPass(T('winchance_pass',CN[AC],pct));
+  if(m<0||settled)aiPass(K('winchance_pass',CK(AC),pct));
   else{applyMove(rr,m,AC);playStone('ai',rr.captured.length);const e=list.find(x=>x.i===m);
-    coachAdd('weiss',T('ai_plays',CN[AC],coord(m,G.n),RS(e&&e.why[0]))+T('winchance',CN[AC],pct));warnAtari()}
+    coachAdd('weiss',J('',K('ai_plays',CK(AC),coord(m,G.n),RK(e&&e.why[0])),K('winchance',CK(AC),pct)));warnAtari()}
   busy=false;save();renderPlay()}
-function userPass(){if(G.phase!=='play'||G.turn!==U()||busy)return;pushHist();G.passes++;G.turn=A();G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du',T('you_pass'));
+function userPass(){if(G.phase!=='play'||G.turn!==U()||busy)return;pushHist();G.passes++;G.turn=A();G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du',K('you_pass'));
   if(G.passes>=2){enterScore();save();renderPlay()}else{save();renderPlay();aiMove()}}
 function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.n);
   for(let i=0;i<G.n*G.n;i++)if(G.board[i]&&!seen[i]){const g=groupAt(G.board,i,G.n);g.stones.forEach(s=>seen[s]=1);if(g.libs.size<=1)G.dead.push(...g.stones)}
-  coachAdd('trainer',T('score_start'))}
+  coachAdd('trainer',K('score_start'))}
 function toggleDead(i){if(!G.board[i])return;const g=groupAt(G.board,i,G.n).stones,ds=new Set(G.dead);
   if(g.every(s=>ds.has(s)))g.forEach(s=>ds.delete(s));else g.forEach(s=>ds.add(s));G.dead=[...ds];buzz();save();renderPlay()}
-function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;return T('regions')[cy][cx]}
+function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;return{r:[cy,cx]}}
 function hint(){if(G.phase!=='play'||G.turn!==U()||busy)return;coachPeek=true;const list=analyze(G.board,G.n,U(),G.ko,G.moves);
-  if(!list.length||list[0].s<0.8){coachAdd('trainer',T('nothing_left'));save();renderPlay();return}
+  if(!list.length||list[0].s<0.8){coachAdd('trainer',K('nothing_left'));save();renderPlay();return}
   const b=list[0],rs=b.why[0];
   G.hintLevel=(G.hintLevel||0)+1;
-  const base=rs?T('idea_'+rs.t,CN[A()],ADJ[A()]):T('plan_hint');
+  const base=rs?K('idea_'+rs.t,CK(A()),AK(A())):K('plan_hint');
   if(G.hintLevel===1)coachAdd('trainer',base);
-  else coachAdd('trainer',T('look_at',region(b.i,G.n),base));
+  else coachAdd('trainer',K('look_at',region(b.i,G.n),base));
   save();renderPlay()}
 function undo(){if(busy||G.phase==='over'||!G.history.length)return;let s=null;
   while(G.history.length){s=G.history.pop();if(s.turn===U())break}
-  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer',T('undo_msg'));save();renderPlay();if(G.turn===A())aiMove()}
+  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer',K('undo_msg'));save();renderPlay();if(G.turn===A())aiMove()}
 let newArmed=false;
 function newGameClick(){const lab=$('#btn-new span');
   if(G.moves>0&&G.phase!=='over'&&!newArmed){newArmed=true;lab.textContent=T('sure');setTimeout(()=>{newArmed=false;lab.textContent=T('new')},3000);return}
   newArmed=false;lab.textContent=T('new');startGame()}
 function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white,um=U()===1?m:-m;G.phase='over';
   G.result={black:sc.black,white:sc.white,m,um};if(um>0)store.stats.win++;else store.stats.loss++;
-  coachAdd('trainer',T('final',sc.black,fmt(sc.white),fmt(KOMI),um>0,CN[A()],fmt(Math.abs(um))));
+  coachAdd('trainer',K('final',sc.black,F(sc.white),F(KOMI),um>0,CK(A()),F(Math.abs(um))));
   save();renderPlay()}
 $('#btn-hint').onclick=hint;$('#btn-undo').onclick=undo;$('#btn-pass').onclick=userPass;$('#btn-new').onclick=newGameClick;
-function resumeGame(){G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer',T('resume_msg'));save();renderPlay()}
+function resumeGame(){G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer',K('resume_msg'));save();renderPlay()}
 $('#score-actions').onclick=e=>{const a=e.target.closest('button');if(!a)return;const k=a.dataset.act;
   if(k==='resume')resumeGame();else if(k==='confirm')confirmScore();else if(k==='review'){G.reviewing=true;save();renderPlay()}else if(k==='again')startGame()};
 document.querySelectorAll('#seg-confirm button').forEach(b=>b.onclick=()=>{store.settings.confirm=b.dataset.v;G.pending=-1;save();renderPlay()});
@@ -1413,10 +1421,10 @@ function tally(board,n,dead){const sc=scoreArea(board,n,dead);let bs=0,ws=0;cons
   for(let i=0;i<n*n;i++){if(d.has(i))continue;if(board[i]===1)bs++;else if(board[i]===2)ws++}
   return{sc,bs,ws,bt:sc.black-bs,wt:sc.white-KOMI-ws}}
 document.querySelectorAll('#seg-size button').forEach(b=>b.onclick=()=>{store.settings.size=+b.dataset.v;
-  if(G.moves===0||G.phase==='over')startGame();else{coachAdd('trainer',T('size_later',b.dataset.v));save();renderPlay()}});
+  if(G.moves===0||G.phase==='over')startGame();else{coachAdd('trainer',K('size_later',b.dataset.v));save();renderPlay()}});
 document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.settings.color=+b.dataset.v;
   if(G.moves===0&&G.user===store.settings.color){renderPlay();return}
-  if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',T('color_later',CN[store.settings.color]));save();renderPlay()}});
+  if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',K('color_later',CK(store.settings.color)));save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 $('#opt-coach').onchange=e=>{store.settings.coach=e.target.checked;save();renderPlay()};
@@ -1431,7 +1439,7 @@ const whoLabel=w=>w==='weiss'?CN[A()]:T(w==='du'?'who_du':'who_trainer');
 let coachOpen=false,coachPeek=false; // coachPeek: bei ausgeblendetem Trainer zeigt „Tipp“ die Karte bis zum nächsten Zug
 $('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
 const sheet=$('#sheet');
-$('#btn-settings').onclick=()=>{sheet.hidden=false;$('#sheet-close').focus()};
+document.querySelectorAll('.settings-btn').forEach(b=>b.onclick=()=>{$('.sheet').dataset.scope=$('#view-play').hidden?'app':'play';renderPlay();sheet.hidden=false;$('#sheet-close').focus()});
 const closeSheet=()=>{sheet.hidden=true};
 $('#sheet-close').onclick=closeSheet;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
@@ -1461,8 +1469,8 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   {const off=hapticKind()==='android'||store.settings.haptic===false||!(play||G.phase==='score');setTimeout(()=>{const i=$('#play-host .hsw');if(i)i.disabled=off},0)}
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?T('more'):T('hint');$('#btn-new span').textContent=newArmed?T('sure'):T('new');$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
-  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
-  $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${c.t}</span>`).join('');
+  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=Rm(now.t);
+  $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join('');
   const cc=$('#coach-card');cc.hidden=showBox||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
