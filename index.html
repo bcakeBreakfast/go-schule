@@ -276,6 +276,8 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .controls{background:var(--surface);border-radius:var(--r);overflow:hidden;gap:0}
 .controls .ctl{position:relative;flex-direction:column;height:var(--s7);gap:4px;background:none;border-radius:0;color:var(--ink);font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);white-space:nowrap;min-width:0;padding:0 4px}
 .controls .ctl .ic{width:20px;height:20px}
+/* optisch mittig: Grundlinie statt Unterlänge zählt */
+.controls .ctl{padding-top:2px}
 .controls .ctl span{overflow:hidden;text-overflow:ellipsis}
 .controls .ctl+.ctl::before{content:"";position:absolute;left:0;top:var(--s2);bottom:var(--s2);width:1px;background:var(--rule)}
 .controls .ctl:active{background:var(--key)}
