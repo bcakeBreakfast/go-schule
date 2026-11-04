@@ -47,6 +47,7 @@
     color-scheme:dark;
   }
 }
+:root[data-theme="light"]{color-scheme:light}
 :root[data-theme="dark"]{
   --bg:#151514; --surface:#1E1E1D; --raised:#262625; --key:#2C2C2A; --key-down:#363633;
   --ink:#ECECE8; --muted:#9C9C96; --rule:#30302E;
@@ -341,6 +342,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 .seg-sm button{height:var(--s4);padding:0 var(--s1);min-width:var(--s5)}
 </style>
 
+<script>try{var t=JSON.parse(localStorage.getItem('go-schule-v1')).settings.theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -506,6 +508,8 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
       <label class="switch play-only"><span data-i18n="s_coach">Trainer einblenden</span> <input type="checkbox" id="opt-coach"></label>
       <label class="switch"><span data-i18n="s_sound">Ton beim Setzen</span> <input type="checkbox" id="opt-sound"></label>
       <label class="switch"><span data-i18n="s_haptic">Vibration beim Setzen</span> <input type="checkbox" id="opt-haptic"></label>
+      <div class="field"><span class="lab" data-i18n="s_theme">Erscheinungsbild</span>
+        <div class="seg" id="seg-theme"><button data-v="auto" data-i18n="th_auto">Auto</button><button data-v="light" data-i18n="th_light">Hell</button><button data-v="dark" data-i18n="th_dark">Dunkel</button></div></div>
       <div class="field"><span class="lab" data-i18n="s_lang">Sprache</span>
         <div class="seg lang-seg"><button data-v="de">Deutsch</button><button data-v="en">English</button><button data-v="nl">Nederlands</button></div></div>
     </div>
@@ -839,7 +843,7 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{ a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
+de:{ s_theme:'Erscheinungsbild',th_auto:'Auto',th_light:'Hell',th_dark:'Dunkel', a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
  daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
  daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
  share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
@@ -918,7 +922,7 @@ de:{ a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stei
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{ a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
+en:{ s_theme:'Appearance',th_auto:'Auto',th_light:'Light',th_dark:'Dark', a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
  daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
  daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
  share_ok:'Solved on the first try',share_x:'Not solved',
@@ -997,7 +1001,7 @@ en:{ a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{ a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
+nl:{ s_theme:'Weergave',th_auto:'Auto',th_light:'Licht',th_dark:'Donker', a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
  daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
  daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
  share_ok:'In één keer opgelost',share_x:'Niet opgelost',
@@ -1738,6 +1742,13 @@ $('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();sync
 function syncHaptic(){const on=hapticKind()!=='android'&&store.settings.haptic!==false;
   document.querySelectorAll('.hsw').forEach(i=>{i.disabled=!on})}
 syncHaptic();
+// Erscheinungsbild: Auto folgt dem System, Hell/Dunkel fest
+function applyTheme(){const t=store.settings.theme||'auto',r=document.documentElement;
+  if(t==='auto')delete r.dataset.theme;else r.dataset.theme=t;
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=t==='auto'?m.dataset.c:(t==='dark'?'#151514':'#EDEDEA')});
+  document.querySelectorAll('#seg-theme button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===t)))}
+document.querySelectorAll('#seg-theme button').forEach(b=>b.onclick=()=>{store.settings.theme=b.dataset.v;save();applyTheme()});
+applyTheme();
 
 /* ---------- Partie-Analyse ---------- */
 let anReq=0;
