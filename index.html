@@ -192,6 +192,7 @@ button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inher
 .sheet-backdrop{position:fixed;inset:0;z-index:30;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:100%;max-width:576px;background:var(--surface);border-radius:var(--r2) var(--r2) 0 0;padding:var(--s3) max(var(--s2),env(safe-area-inset-right,0px)) calc(var(--s3) + env(safe-area-inset-bottom,0px)) max(var(--s2),env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:var(--s3)}
 .sheet-head{display:flex;justify-content:space-between;align-items:center}
+.sheet{max-height:calc(100% - var(--s4));overflow-y:auto;overscroll-behavior:contain}
 .sheet h3{margin:0;font-family:var(--f-display);font-size:24px;line-height:32px;font-weight:700}
 .settings{display:flex;flex-direction:column;gap:var(--s2)}
 .field{display:flex;flex-direction:column;gap:var(--s1);min-width:0}
@@ -273,6 +274,9 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 .vanish{transform-box:fill-box;transform-origin:center;animation:vanish .3s ease-in forwards}
 @keyframes vanish{to{opacity:0;transform:scale(.6)}}
 @media (prefers-reduced-motion: reduce){.vanish{display:none}}
+.title-row{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s2)}
+.seg-sm{grid-auto-columns:auto}
+.seg-sm button{height:var(--s4);padding:0 var(--s1);min-width:var(--s5)}
 </style>
 
 </head>
@@ -299,22 +303,22 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 <div class="app">
   <main>
     <section id="view-learn" class="view">
-      <div class="stack"><span class="eyebrow">Go-Schule</span><h1>Lernen</h1></div>
+      <div class="title-row"><div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="learn_title">Lernen</h1></div><div class="seg seg-sm lang-seg" role="group" aria-label="Sprache / Language"><button data-v="de">DE</button><button data-v="en">EN</button><button data-v="nl">NL</button></div></div>
       <div class="progress">
         <div class="progress-num" id="prog-num"></div>
         <div class="bar"><span id="prog-bar"></span></div>
       </div>
       <ol class="lessons" id="lesson-list"></ol>
       <div class="cta">
-        <p><strong>Lieber gleich ausprobieren?</strong>Spiele auf 9×9 gegen den Computer. Der Trainer erklärt jeden Zug.</p>
-        <button class="btn primary block" id="cta-play">Partie starten</button>
+        <p data-i18n-html="cta_html"></p>
+        <button class="btn primary block" id="cta-play" data-i18n="cta_btn">Partie starten</button>
       </div>
-      <button class="textbtn" id="reset-progress">Fortschritt zurücksetzen</button>
+      <button class="textbtn" id="reset-progress" data-i18n="reset">Fortschritt zurücksetzen</button>
     </section>
 
     <section id="view-lesson" class="view" hidden>
       <div class="statusbar">
-        <button class="iconbtn" id="ls-back" aria-label="Zurück"><svg class="ic"><use href="#i-back"/></svg></button>
+        <button class="iconbtn" id="ls-back" data-i18n-aria="back" aria-label="Zurück"><svg class="ic"><use href="#i-back"/></svg></button>
         <div class="drill-title"><span class="eyebrow" id="ls-eyebrow"></span><span class="turn" id="ls-title"></span></div>
         <span class="steps" id="ls-steps"></span>
       </div>
@@ -325,30 +329,30 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
       <label class="board-wrap haptic-host" id="ls-host"><div class="board" id="ls-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="dr-fb" id="ls-fb" aria-live="polite"></div>
       <div class="controls three" id="ls-controls">
-        <button class="ctl" id="ls-explain"><svg class="ic"><use href="#i-book"/></svg>Erklärung</button>
-        <button class="ctl" id="ls-retry"><svg class="ic"><use href="#i-retry"/></svg>Nochmal</button>
-        <button class="ctl" id="ls-skip"><svg class="ic"><use href="#i-next"/></svg>Überspringen</button>
+        <button class="ctl" id="ls-explain"><svg class="ic"><use href="#i-book"/></svg><span data-i18n="ls_explain">Erklärung</span></button>
+        <button class="ctl" id="ls-retry"><svg class="ic"><use href="#i-retry"/></svg><span data-i18n="retry">Nochmal</span></button>
+        <button class="ctl" id="ls-skip"><svg class="ic"><use href="#i-next"/></svg><span data-i18n="ls_skip">Überspringen</span></button>
       </div>
       <button class="btn primary block" id="ls-next" hidden>Weiter</button>
     </section>
 
     <section id="view-train" class="view" hidden>
-      <div class="stack"><span class="eyebrow">Go-Schule</span><h1>Training</h1></div>
-      <p class="muted">Aufgaben ohne Hilfe: kein Trainer, keine Markierungen, keine Freiheiten-Zahlen. Du findest den besten Zug selbst.</p>
+      <div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="train_title">Training</h1></div>
+      <p class="muted" data-i18n="train_intro"></p>
       <div class="cta" id="ts-empty" hidden>
-        <p><strong>Wo anfangen?</strong>Starte mit „Schlagen“. Jede Aufgabe, die du im ersten Versuch löst, verlängert deine Serie.</p>
-        <button class="btn primary block" id="ts-start">Mit Schlagen anfangen</button>
+        <p data-i18n-html="ts_empty_html"></p>
+        <button class="btn primary block" id="ts-start" data-i18n="ts_start">Mit Schlagen anfangen</button>
       </div>
       <div class="train-stats" id="ts-stats">
-        <div class="stat"><b id="ts-solved">0</b><span>Gelöst</span></div>
-        <div class="stat"><b id="ts-best">0</b><span>Längste Serie</span></div>
+        <div class="stat"><b id="ts-solved">0</b><span data-i18n="solved">Gelöst</span></div>
+        <div class="stat"><b id="ts-best">0</b><span data-i18n="best_streak">Längste Serie</span></div>
       </div>
       <div class="lessons" id="train-list"></div>
     </section>
 
     <section id="view-drill" class="view" hidden>
       <div class="statusbar">
-        <button class="iconbtn" id="dr-back" aria-label="Zurück zur Übersicht"><svg class="ic"><use href="#i-back"/></svg></button>
+        <button class="iconbtn" id="dr-back" data-i18n-aria="back" aria-label="Zurück"><svg class="ic"><use href="#i-back"/></svg></button>
         <div class="drill-title"><span class="eyebrow" id="dr-cat"></span><span class="turn" id="dr-turn"></span></div>
         <span class="chip" id="dr-streak"></span>
       </div>
@@ -356,17 +360,17 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
       <div class="dr-fb" id="dr-fb" aria-live="polite"></div>
       <div class="choices" id="dr-choices" hidden></div>
       <div class="controls three" id="dr-controls">
-        <button class="ctl" id="dr-show"><svg class="ic"><use href="#i-eye"/></svg>Lösung</button>
-        <button class="ctl" id="dr-retry"><svg class="ic"><use href="#i-retry"/></svg>Nochmal</button>
-        <button class="ctl" id="dr-next"><svg class="ic"><use href="#i-next"/></svg>Weiter</button>
+        <button class="ctl" id="dr-show"><svg class="ic"><use href="#i-eye"/></svg><span data-i18n="show_solution">Lösung</span></button>
+        <button class="ctl" id="dr-retry"><svg class="ic"><use href="#i-retry"/></svg><span data-i18n="retry">Nochmal</span></button>
+        <button class="ctl" id="dr-next"><svg class="ic"><use href="#i-next"/></svg><span data-i18n="next">Weiter</span></button>
       </div>
-      <button class="btn primary block" id="dr-nextbar" hidden>Weiter</button>
+      <button class="btn primary block" id="dr-nextbar" hidden data-i18n="next">Weiter</button>
     </section>
 
     <section id="view-play" class="view" hidden>
       <div class="statusbar">
         <div class="players" id="turn"></div>
-        <button class="iconbtn" id="btn-settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
+        <button class="iconbtn" id="btn-settings" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
       </div>
       <label class="board-wrap haptic-host" id="play-host"><div class="board" id="play-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="scorebox" id="scorebox" hidden>
@@ -375,9 +379,9 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <div class="row" id="score-actions"></div>
       </div>
       <div class="controls" id="controls">
-        <button class="ctl" id="btn-hint"><svg class="ic"><use href="#i-bulb"/></svg>Tipp</button>
-        <button class="ctl" id="btn-undo"><svg class="ic"><use href="#i-undo"/></svg>Zurück</button>
-        <button class="ctl" id="btn-pass"><svg class="ic"><use href="#i-pass"/></svg>Passen</button>
+        <button class="ctl" id="btn-hint"><svg class="ic"><use href="#i-bulb"/></svg><span>Tipp</span></button>
+        <button class="ctl" id="btn-undo"><svg class="ic"><use href="#i-undo"/></svg><span data-i18n="undo">Zurück</span></button>
+        <button class="ctl" id="btn-pass"><svg class="ic"><use href="#i-pass"/></svg><span data-i18n="pass">Passen</span></button>
         <button class="ctl" id="btn-new"><svg class="ic"><use href="#i-plus"/></svg><span>Neu</span></button>
       </div>
       <button class="coach-card" id="coach-card" aria-expanded="false" aria-live="polite">
@@ -391,20 +395,22 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 
 <div class="sheet-backdrop" id="sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-    <div class="sheet-head"><h3 id="sheet-title">Einstellungen</h3><button class="iconbtn" id="sheet-close" aria-label="Schließen"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="sheet-head"><h3 id="sheet-title" data-i18n="settings">Einstellungen</h3><button class="iconbtn" id="sheet-close" data-i18n-aria="close" aria-label="Schließen"><svg class="ic"><use href="#i-close"/></svg></button></div>
     <div class="settings">
-      <div class="field"><span class="lab">Brett</span>
+      <div class="field"><span class="lab" data-i18n="s_board">Brett</span>
         <div class="seg" id="seg-size"><button data-v="9">9×9</button><button data-v="13">13×13</button></div></div>
-      <div class="field"><span class="lab">Deine Farbe</span>
-        <div class="seg" id="seg-color"><button data-v="1">Schwarz</button><button data-v="2">Weiß</button></div></div>
-      <div class="field"><span class="lab">Gegner</span>
-        <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
-      <div class="field"><span class="lab">Zug bestätigen (zweimal tippen)</span>
-        <div class="seg" id="seg-confirm"><button data-v="never">Nie</button><button data-v="13">Auf 13×13</button><button data-v="always">Immer</button></div></div>
-      <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
-      <label class="switch">Trainer einblenden <input type="checkbox" id="opt-coach"></label>
-      <label class="switch">Ton beim Setzen <input type="checkbox" id="opt-sound"></label>
-      <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
+      <div class="field"><span class="lab" data-i18n="s_color">Deine Farbe</span>
+        <div class="seg" id="seg-color"><button data-v="1" data-i18n="black">Schwarz</button><button data-v="2" data-i18n="white">Weiß</button></div></div>
+      <div class="field"><span class="lab" data-i18n="s_opp">Gegner</span>
+        <div class="seg" id="seg-level"><button data-v="leicht" data-i18n="lvl_leicht">Leicht</button><button data-v="mittel" data-i18n="lvl_mittel">Mittel</button><button data-v="stark" data-i18n="lvl_stark">Stark</button></div></div>
+      <div class="field"><span class="lab" data-i18n="s_confirm">Zug bestätigen (zweimal tippen)</span>
+        <div class="seg" id="seg-confirm"><button data-v="never" data-i18n="c_never">Nie</button><button data-v="13" data-i18n="c_13">Auf 13×13</button><button data-v="always" data-i18n="c_always">Immer</button></div></div>
+      <label class="switch"><span data-i18n="s_libs">Freiheiten auf den Steinen zeigen</span> <input type="checkbox" id="opt-libs"></label>
+      <label class="switch"><span data-i18n="s_coach">Trainer einblenden</span> <input type="checkbox" id="opt-coach"></label>
+      <label class="switch"><span data-i18n="s_sound">Ton beim Setzen</span> <input type="checkbox" id="opt-sound"></label>
+      <label class="switch"><span data-i18n="s_haptic">Vibration beim Setzen</span> <input type="checkbox" id="opt-haptic"></label>
+      <div class="field"><span class="lab" data-i18n="s_lang">Sprache</span>
+        <div class="seg lang-seg"><button data-v="de">Deutsch</button><button data-v="en">English</button><button data-v="nl">Nederlands</button></div></div>
     </div>
     <p class="record" id="record"></p>
   </div>
@@ -412,9 +418,9 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 
 <nav class="tabbar" role="tablist">
   <div class="tabbar-in">
-    <button id="tab-learn" role="tab" aria-selected="true"><svg class="ic"><use href="#i-book"/></svg>Lernen</button>
-    <button id="tab-train" role="tab" aria-selected="false"><svg class="ic"><use href="#i-target"/></svg>Training</button>
-    <button id="tab-play" role="tab" aria-selected="false"><svg class="ic"><use href="#i-stone"/></svg>Spielen</button>
+    <button id="tab-learn" role="tab" aria-selected="true"><svg class="ic"><use href="#i-book"/></svg><span data-i18n="tab_learn">Lernen</span></button>
+    <button id="tab-train" role="tab" aria-selected="false"><svg class="ic"><use href="#i-target"/></svg><span data-i18n="tab_train">Training</span></button>
+    <button id="tab-play" role="tab" aria-selected="false"><svg class="ic"><use href="#i-stone"/></svg><span data-i18n="tab_play">Spielen</span></button>
   </div>
 </nav>
 
@@ -564,29 +570,29 @@ function atariGroups(b,n,c){const out=[],seen=new Uint8Array(n*n);
   for(let i=0;i<n*n;i++){if(b[i]===c&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>seen[s]=1);if(g.libs.size===1)out.push(g)}}return out}
 function evalMove(b,n,i,c,ko,moveNo,base,ownAtari){
   const r=tryPlay(b,i,c,n,ko);if(r.err)return null;
-  const o=3-c,why=[];let s=0;const add=(v,t)=>{s+=v;if(t)why.push({v,t})};
+  const o=3-c,why=[];let s=0;const add=(v,t,n)=>{s+=v;if(t)why.push({v,t,n})};
   const x=i%n,y=(i/n)|0,nb=nbrs(i,n),k=r.captured.length;
   if(!k&&nb.every(j=>b[j]===c))add(-40);
-  if(k)add(5+k*5,k===1?'schlägt einen Stein':`schlägt ${k} Steine`);
+  if(k)add(5+k*5,'cap',k);
   let rescued=0;for(const g of ownAtari){const s0=g.stones[0];if(r.board[s0]===c&&groupAt(r.board,s0,n).libs.size>=2&&!tacDead(r.board,s0,n,o))rescued+=g.stones.length}
-  if(rescued)add(6+rescued*5,'rettet eine Gruppe aus dem Atari');
+  if(rescued)add(6+rescued*5,'rescue');
   const L=r.group.libs.size;
   if(L===1&&!k)add(-6-r.group.stones.length*4);else if(L===1)add(-1);else if(L===2)add(-1);
   let trap=false;if(L===2&&tacDead(r.board,i,n,o)){trap=true;add(-5-r.group.stones.length*4)}
   const so=new Set();let opG=0,at=0;
   for(const j of nb){if(r.board[j]===o&&!so.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(q=>so.add(q));opG++;if(g.libs.size===1)at+=g.stones.length}}
-  if(at)add(2+at*2,'setzt gegnerische Steine ins Atari');
+  if(at)add(2+at*2,'atari');
   let caught=0;const sl=new Set();
   if(!trap)for(const j of nb){if(r.board[j]===o&&!sl.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(q=>sl.add(q));if(g.libs.size===2&&tacCaught(r.board,j,n,c))caught+=g.stones.length}}
-  if(caught)add(3+caught*3,'fängt gegnerische Steine, sie können nicht mehr entkommen');
-  if(opG>=2&&L>=2)add(1.5,'trennt gegnerische Steine');
+  if(caught)add(3+caught*3,'catch');
+  if(opG>=2&&L>=2)add(1.5,'cut');
   const sc=new Set();let ownG=0;
   for(const j of nb){if(b[j]===c&&!sc.has(j)){const g=groupAt(b,j,n);g.stones.forEach(q=>sc.add(q));ownG++}}
-  if(ownG>=2&&L>=2)add(1.5,'verbindet eigene Steine');
+  if(ownG>=2&&L>=2)add(1.5,'connect');
   const after=terrCount(r.board,n).t,og=after[c]-base.t[c],rg=base.t[o]-after[o];
   add(og*0.9+rg*0.9);
-  if(og>=3)why.push({v:og*0.9,t:'baut das eigene Gebiet aus'});
-  if(rg>=3)why.push({v:rg*0.9,t:'verkleinert das gegnerische Gebiet'});
+  if(og>=3)why.push({v:og*0.9,t:'terr'});
+  if(rg>=3)why.push({v:rg*0.9,t:'reduce'});
   const sg=c===1?1:-1;
   if(!k&&L<=2&&base.inf[i]*sg<-1.2)add(-4);
   const d=Math.min(x,y,n-1-x,n-1-y),early=moveNo<n*1.3;
@@ -594,7 +600,7 @@ function evalMove(b,n,i,c,ko,moveNo,base,ownAtari){
   if(early){const dx=Math.min(x,n-1-x),dy=Math.min(y,n-1-y);
     if((dx===2||dx===3)&&(dy===2||dy===3)){let empty=true;
       for(let yy=Math.max(0,y-2);yy<=Math.min(n-1,y+2);yy++)for(let xx=Math.max(0,x-2);xx<=Math.min(n-1,x+2);xx++)if(b[yy*n+xx])empty=false;
-      if(empty){add(4);why.push({v:9,t:'besetzt eine freie Ecke'})}}}
+      if(empty){add(4);why.push({v:9,t:'corner'})}}}
   why.sort((a,b2)=>b2.v-a.v);
   return{i,s,why,r,trap}}
 function analyze(b,n,c,ko,moveNo){const base=terrCount(b,n),oa=atariGroups(b,n,c),out=[];
@@ -717,27 +723,405 @@ function genZaehlen(){const n=Math.random()<0.35?7:9,b=new Array(n*n).fill(0);
     if(cand.length){const i=cand[rnd(cand.length)];B[i]=3-own[i];dead.push(i)}}
   const sc=scoreArea(B,n,dead);let bs=0,ws=0;for(let i=0;i<n*n;i++){if(dead.includes(i))continue;if(B[i]===1)bs++;else if(B[i]===2)ws++}
   const bt=sc.black-bs,wt=sc.white-KOMI-ws,m=sc.black-sc.white;
-  let q,opts;
-  if(Math.random()<0.5){q='Wie viele Punkte hat Schwarz?';
+  let q,opts;const typeA=Math.random()<0.5;
+  if(typeA){q=T('q_points');
     const set=new Set([sc.black]);if(bs!==sc.black)set.add(bs);
     while(set.size<4){const d=1+rnd(4);set.add(sc.black+(Math.random()<0.5?-d:d))}
     opts=[...set].filter(v=>v>0).sort((a,b2)=>a-b2).map(v=>({txt:String(v),ok:v===sc.black}))}
-  else{q='Wer gewinnt?';
-    const lab=v=>v>0?`Schwarz mit ${fmt(v)}`:`Weiß mit ${fmt(-v)}`;const set=new Map();set.set(lab(m),true);
+  else{q=T('q_who');
+    const lab=v=>v>0?T('opt_b',fmt(v)):T('opt_w',fmt(-v));const set=new Map();set.set(lab(m),true);
     for(const v of[-m,m+KOMI,m-KOMI,m+2,m-2,m+4])if(v!==0&&set.size<4&&!set.has(lab(v)))set.set(lab(v),false);
     opts=[...set].map(([txt,ok])=>({txt,ok})).sort(()=>Math.random()-0.5)}
-  const res=`${m>0?'Schwarz':'Weiß'} gewinnt mit ${fmt(Math.abs(m))}.`,typeA=q.includes('Wie viele');
-  const right=typeA?`Richtig, Schwarz hat ${sc.black} Punkte.`:`Richtig. ${res}`,wrong=typeA?`Nicht ganz. Schwarz hat ${sc.black} Punkte.`:`Nicht ganz. ${res}`;
-  let detail=`Schwarz: ${bs} Steine + ${bt} Gebiet = ${sc.black}<br>Weiß: ${ws} Steine + ${wt} Gebiet + ${fmt(KOMI)} Komi = ${fmt(sc.white)}`;
-  if(dead.length){const d=dead[0],wc=B[d]===2;detail+=`<br>${coord(d,n)} ist tot und zählt als ${wc?'schwarzes':'weißes'} Gebiet.`}
-  return{n,b:B,t:-1,ans:[],quiz:{q,note:`Komi ${fmt(KOMI)} für Weiß · Tote Steine zählen nicht`,opts,dead,own:sc.own,right,wrong,detail}}}
+  const res=m>0?T('res_b',fmt(Math.abs(m))):T('res_w',fmt(Math.abs(m)));
+  const right=typeA?T('has_pts',sc.black):res,wrong=right;
+  let detail=T('line_b','',bs,bt,sc.black)+'<br>'+T('line_w','',ws,wt,fmt(KOMI),fmt(sc.white));
+  if(dead.length){const d=dead[0],wc=B[d]===2;detail+='<br>'+T('dead_note',coord(d,n),wc)}
+  return{n,b:B,t:-1,ans:[],quiz:{q,note:T('q_note',fmt(KOMI)),opts,dead,own:sc.own,right,wrong,detail}}}
 /*END TGEN*/
 const TSET={"leiter":[["000000000020000000011200000001100000000000000000000000000000000000000000000020000",10,[11]],["011000000020000000001000000001000000002000000000000000000000000000000000000000000",10,[19]],["000000000000000021000000001000000111000000000000000000000000000000000000000000000",16,[15]],["000000000000000000000000000000000000000000000000200000001011000011200000000000000",66,[57]],["000000000000000000000000000001100000001100000020020000010000000000000000000000000",46,[47]],["000000000000000001000002100000000020000000010000000010000000002000000000000000000",34,[33]],["000000000000000000000000000000000000001000000021000000000000000001000000000000000",46,[55]],["000000000000000000000000000000000000000000000000002010000001200000000100000020100",60,[51]],["020000000000001000020120000000001100000000000000200000000000000000000000000000000",22,[31]],["000002000000000000022200000001100000100000000021000000100000000002000000000000000",46,[55]],["000000000000000000000000000000200000000000000000101000000021000001000200000000000",58,[67]],["002100000000100000000000100000012112000000000000000000000000000001000000000000000",32,[41]],["000000000000000000000000000100000000000000000001100000000100000000200000201010000",66,[67]],["000000000000000000000000000000001000000100000000002100000001000000000000000000000",50,[49]],["000000000000000000000022010000010000000001000000020000010110000000010000000000000",49,[48]],["000000000000000000101010000000000000002120000001000000000000000000000000000000000",38,[37]],["100110000010210000000000000000000000201000000000000000000000000000000000000000000",12,[21]],["000001000000000000000012000000000100000000000020000000000000000000000000000000000",23,[32]],["000000000000000000000000000000010000000021000020100100000001000000000000000000000",40,[39,49]],["000112000000002010000001010000000000000000000000000000000000000000000000000000000",14,[13]],["000000000000000000000000000000100000021000000001000000101000000000000000000000000",37,[28]],["000000002000000000000000000000000000000000000000010020000010000001201000000000000",66,[57]],["000000000000000000000100000000002000000000000000010010000002102000000000000001000",59,[50]],["000000002011000000010020000020100000000000000002000002000000000000000000000000020",28,[37]],["100000000001000000021000000100000000100000000000000000000000000000000000000000000",19,[28]],["000000000000000000000001121000000000000001001000000000000000000000000000000000000",25,[16,34]],["000000000000020000020110000000100000000020000000000000000000000000000000000000000",13,[14]],["000000000000000000000000000000001110000000000000000020000000010000000000000000000",52,[51]],["000000000000000000000000200000000001000000100000000210000001210000000000000000000",51,[50,69]],["000000000000000000002000000000000000000000000000000000210100000010201000000000000",66,[67]]],"fangen":[["000000000000000000000000000000000000110000000020200000110000000000100000000000000",46,[47]],["000000000000000001000020011000002020000000010000001000000000000000000000020000000",34,[33]],["000000000000000001000000000001000000100000000010000000021000000000000000000000000",55,[64]],["000000000000000000000000000000000000000000000000001000000002000000011210000002000",69,[60]],["000000001000000020000000011000001010000000200000000000000000000000000100000000000",16,[15]],["000000000200000000010000000020000000010000000010000000000000000000000000000001000",28,[29]],["000201010000121000000000000011000000000001000000000000000000000000000000000000000",13,[22]],["000000000000000020000000000000000000000002000001010000001000000000021200000010000",67,[66]],["000011000002000000000010100000000100000021000000010000000010000000000000000000000",40,[39]],["000000000000000000000000000000020000000000100000000101000001120000000000000000200",61,[70]],["000010000000012210000001000000100020000000000000000200002000000000000000000000000",14,[24]],["001020000111000000021000000000000000200000000000000000000000000000000000000000000",19,[28]],["000000000000000000000000000000000000000000000000000000000001000000000210000010010",69,[60]],["010100000001000000021000000000000000010000000000000000000000000000000000000000000",19,[28]],["001000000002121000000000000000000100012000100000000000000000000000000000000000000",13,[22]],["000000000000000000000000000000011000000002000000101000000000010000000000000000000",41,[42]],["000000010000000122000000010000000120000002000000000000000000000000000000000000000",16,[26]],["000000000000000000000000000000000000100000000010000000020000000001000000110000000",55,[56]],["000000000000000000000000000000000000000000000020000000000010000001210000000000000",66,[57]],["000000000000000000000000000000000000000000000110000000011000000020100000000000000",64,[63,65]],["000000000000020021000000101000001010000000000100000000000000000000000000000000000",16,[15]],["000000000000000000000000000020000000000000000000000000021000000110000000100000000",55,[46]],["000000000000000000000000000000000000000000000000000000000110020001220000000200000",67,[68]],["000000010000001000000000000000000000000000000000020000000000101000000021000002001",70,[69]],["000000000000000000000000200000001000000000011000000022000000210000000000000000000",52,[51]],["000000000000000000000000101000001012000000122000020000000000000000000000000000000",43,[52]],["000000000000000000000000000000000000000000000000000001000001100000000200000010001",69,[70]],["010010000000001000000210000000100000000000000000000000000000000000000000000000000",21,[20]],["101200000020000000010020000100100000000000000000000000000000000000000000000000000",10,[11]],["010000000000010000220000000110000000100000000000020000000000000000000000000000000",19,[20]],["000001000000001000000000000000001000000000000000000000000120110000002100000001000",68,[49]]]};
+
+/* ---------- Sprachen ---------- */
+const I18N={
+de:{
+ brand:'Go-Schule',tab_learn:'Lernen',tab_train:'Training',tab_play:'Spielen',learn_title:'Lernen',train_title:'Training',
+ of_lessons:n=>`von ${n} Lektionen`,done:'erledigt',
+ cta_html:'<strong>Lieber gleich ausprobieren?</strong>Spiele auf 9×9 gegen den Computer. Der Trainer erklärt jeden Zug.',cta_btn:'Partie starten',
+ reset:'Fortschritt zurücksetzen',reset_confirm:'Wirklich alles zurücksetzen? Nochmal tippen.',
+ back:'Zurück',close:'Schließen',settings:'Einstellungen',
+ ls_explain:'Erklärung',retry:'Nochmal',ls_skip:'Überspringen',next:'Weiter',
+ lesson_of:(i,n)=>`Lektion ${i} von ${n}`,ls_back_task:'Zurück zur Aufgabe',ls_solve_n:n=>`${n} Aufgaben lösen`,ls_solve1:'Aufgabe lösen',
+ ls_finish_next:'Abschließen und weiter',ls_finish_play:'Abschließen und spielen',next_task:'Nächste Aufgabe',next_lesson:'Nächste Lektion',play_now:'Jetzt spielen',
+ train_intro:'Aufgaben ohne Hilfe: kein Trainer, keine Markierungen, keine Freiheiten-Zahlen. Du findest den besten Zug selbst.',
+ ts_empty_html:'<strong>Wo anfangen?</strong>Starte mit „Schlagen“. Jede Aufgabe, die du im ersten Versuch löst, verlängert deine Serie.',
+ ts_start:'Mit Schlagen anfangen',solved:'Gelöst',best_streak:'Längste Serie',
+ show_solution:'Lösung',hint:'Tipp',more:'Genauer',undo:'Zurück',pass:'Passen',new:'Neu',sure:'Sicher?',
+ s_board:'Brett',s_color:'Deine Farbe',black:'Schwarz',white:'Weiß',s_opp:'Gegner',lvl_leicht:'Leicht',lvl_mittel:'Mittel',lvl_stark:'Stark',
+ s_confirm:'Zug bestätigen (zweimal tippen)',c_never:'Nie',c_13:'Auf 13×13',c_always:'Immer',
+ s_libs:'Freiheiten auf den Steinen zeigen',s_coach:'Trainer einblenden',s_sound:'Ton beim Setzen',s_haptic:'Vibration beim Setzen',s_lang:'Sprache',
+ record:(w,l)=>`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`,
+ you:'Du',computer:'Computer',confirm_pill:'Bestätigen',passed:'hat gepasst',counting:'Partie zählen',
+ you_win:x=>`Du gewinnst mit ${x}`,they_win:(c,x)=>`${c} gewinnt mit ${x}`,you_win_pts:x=>`Du gewinnst mit ${x} Punkten`,they_win_pts:(c,x)=>`${c} gewinnt mit ${x} Punkten`,
+ result:'Ergebnis',you_tag:' (du)',
+ line_b:(y,s,t,tot)=>`Schwarz${y}: ${s} ${s===1?'Stein':'Steine'} + ${t} Gebiet = ${tot}`,line_w:(y,s,t,k,tot)=>`Weiß${y}: ${s} ${s===1?'Stein':'Steine'} + ${t} Gebiet + ${k} Komi = ${tot}`,
+ score_nums:(b,w)=>`Schwarz ${b} · Weiß ${w}`,score_note:'Tippe Gruppen an, die nicht mehr leben können. Die Quadrate zeigen, wem das Gebiet gehört.',
+ resume:'Weiterspielen',confirm:'Bestätigen',review:'Partie ansehen',again:'Neue Partie',who_du:'Dein Zug',who_trainer:'Trainer',
+ intro_black:'Du spielst Schwarz und beginnst. Starte in einer Ecke, auf der 3. oder 4. Linie vom Rand.',
+ intro_white:k=>`Du spielst Weiß. Der Computer beginnt mit Schwarz, dafür bekommst du ${k} Punkte Komi. Antworte in einer freien Ecke.`,
+ you_cap:k=>k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`,self_atari:'Vorsicht: Dein Stein steht jetzt selbst im Atari.',
+ trap:c=>`Vorsicht: ${c} kann diese Steine jetzt fangen, zum Beispiel in einer Leiter.`,atari_them:c=>`Atari! ${c} muss reagieren.`,
+ stronger:(p,w)=>`Stärker wäre ${p} gewesen${w?', denn der Zug '+w:''}.`,good:w=>`Guter Zug. Er ${w}.`,solid:'Solider Zug.',
+ playable:p=>`Spielbar. ${p} wäre etwas besser gewesen.`,too_low:'In der Eröffnung sind die 1. und 2. Linie zu niedrig.',
+ warn1:p=>`Achtung: Deine Gruppe bei ${p} steht im Atari (roter Ring). Rette sie oder gib sie bewusst auf.`,warnN:k=>`Achtung: ${k} deiner Gruppen stehen im Atari (rote Ringe).`,
+ found:'Gefunden! ',notquite_hint:'Nicht ganz das, was der Tipp meinte. ',
+ ai_pass:(c,x)=>`${c} passt.${x} Wenn du auch passt, endet das Spiel und es wird gezählt.`,winchance_pass:(c,p)=>` ${c} schätzt seine Gewinnchance auf ${p} %.`,
+ ai_plays:(c,p,w)=>`${c} spielt ${p}${w?'. Der Zug '+w:''}.`,winchance:(c,p)=>` Gewinnchance für ${c}: ${p} %.`,you_pass:'Du passt.',
+ score_start:'Beide haben gepasst. Tippe auf Gruppen, die nicht mehr leben können: Sie werden entfernt. Die kleinen Quadrate zeigen, wem welches Gebiet gehört.',
+ nothing_left:'Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.',plan_hint:'Geh deinen Denkplan durch: Atari? Schlagen? Verbinden? Wo ist die größte freie Fläche?',
+ look_at:(r,b)=>`Schau mal ${r}. ${b}`,regions:[['oben links','am oberen Rand','oben rechts'],['am linken Rand','in der Mitte','am rechten Rand'],['unten links','am unteren Rand','unten rechts']],
+ undo_msg:'Zug zurückgenommen. Probier etwas anderes.',
+ final:(b,w,k,won,c,x)=>`Schwarz: ${b} Punkte (Steine + Gebiet). Weiß: ${w} Punkte inklusive ${k} Komi. `+(won?`Du gewinnst mit ${x} Punkten. Glückwunsch!`:`${c} gewinnt mit ${x} Punkten. Mit „Neu“ startest du die nächste Partie.`),
+ resume_msg:'Weiter geht es. Du bist am Zug.',size_later:n=>`Die Brettgröße ${n}×${n} gilt ab dem nächsten Spiel („Neu“).`,color_later:c=>`Du spielst ab der nächsten Partie ${c} („Neu“).`,
+ err_occupied:'Dort liegt schon ein Stein.',err_suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',err_ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.',
+ r_cap:n=>n===1?'schlägt einen Stein':`schlägt ${n} Steine`,r_rescue:'rettet eine Gruppe aus dem Atari',r_atari:'setzt gegnerische Steine ins Atari',
+ r_catch:'fängt gegnerische Steine, sie können nicht mehr entkommen',r_cut:'trennt gegnerische Steine',r_connect:'verbindet eigene Steine',
+ r_terr:'baut das eigene Gebiet aus',r_reduce:'verkleinert das gegnerische Gebiet',r_corner:'besetzt eine freie Ecke',
+ idea_cap:(G,g)=>`${G} hat Steine mit nur einer Freiheit. Findest du sie?`,idea_rescue:()=>'Eine deiner Gruppen hat nur noch eine Freiheit. Wie bekommt sie wieder Luft?',
+ idea_catch:(G,g)=>`Einige ${g} Steine lassen sich fangen, wenn du von der richtigen Seite Atari gibst.`,idea_atari:(G,g)=>`Einige ${g} Steine haben nur noch zwei Freiheiten. Kannst du Druck machen?`,
+ idea_cut:(G,g)=>`Zwei ${g} Gruppen hängen nur lose zusammen. Wo könntest du sie trennen?`,idea_connect:()=>'Zwei deiner Gruppen sind getrennt. Ein Zug könnte sie verbinden.',
+ idea_corner:()=>'Es gibt noch eine freie Ecke. Ecken sind am Anfang am wertvollsten.',idea_terr:()=>'Gerade droht nichts. Wo kannst du dein Gebiet vergrößern?',
+ idea_reduce:(G,g)=>`Schau dir das ${g} Gebiet an. Wo kannst du es verkleinern?`,adj_b:'schwarze',adj_w:'weiße',
+ streak:n=>`Serie ${n}`,solved_n:n=>`${n} gelöst`,tasks_n:n=>`${n} Aufgaben`,endless:'Endlos',drill_chip:(s,o)=>`Serie ${s} · ${o} gelöst`,
+ nodrill:'Keine Aufgabe gefunden. Tippe auf „Weiter“.',tag_ok:'Richtig',tag_bad:'Nicht ganz',why:'Warum?',
+ d_only:k=>`Das schlägt nur ${k===1?'einen Stein':k+' Steine'}. Es gibt einen größeren Fang.`,d_none:'Das schlägt keinen Stein.',
+ d_double_ok:'Doppel-Atari! Weiß kann nur eine Gruppe retten.',d_single:'Das ist nur ein einfaches Atari. Weiß rettet die Gruppe.',
+ d_selfatari:'Dein Stein steht so selbst im Atari.',d_nothreat:'Dieser Zug bedroht keine weiße Gruppe.',d_corner_ok:'Eine freie Ecke ist der größte Punkt.',
+ d_low:'Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet.',d_taken:'In dieser Ecke liegt schon ein Stein. Eine ganz freie Ecke ist größer.',
+ d_side:'Seite und Mitte sind weniger wert. Es gibt noch eine freie Ecke.',
+ d_saved_cap:L=>`Gerettet. Du schlägst den Angreifer und deine Gruppe hat wieder ${L} Freiheiten.`,d_saved:L=>`Gerettet. Deine Gruppe hat jetzt ${L} Freiheiten und Weiß kann sie nicht mehr fangen.`,
+ d_lost:p=>`Weiß antwortet mit ${p}. Deine Gruppe ist nicht mehr zu retten.`,d_lost_cap:p=>`Weiß antwortet mit ${p} und schlägt deine Gruppe.`,d_not_saved:'Das rettet die Gruppe nicht.',
+ d_caught:p=>`Gefangen! ${p} schlägt die Steine.`,d_escape:p=>p?`Weiß entkommt mit ${p}.`:'Weiß entkommt.',d_gives_up:'Weiß gibt auf. Schlage die Steine.',
+ d_continue:p=>`Gut. Weiß antwortet mit ${p}. Mach weiter.`,d_marked:n=>n>1?'Die markierten Punkte sind richtig. Probier es aus.':'Der markierte Punkt ist richtig. Probier es aus.',
+ q_points:'Wie viele Punkte hat Schwarz?',q_who:'Wer gewinnt?',q_note:k=>`Komi ${k} für Weiß · Tote Steine zählen nicht`,
+ opt_b:x=>`Schwarz mit ${x}`,opt_w:x=>`Weiß mit ${x}`,res_b:x=>`Schwarz gewinnt mit ${x}.`,res_w:x=>`Weiß gewinnt mit ${x}.`,has_pts:n=>`Schwarz hat ${n} Punkte.`,
+ dead_note:(p,toBlack)=>`${p} ist tot und zählt als ${toBlack?'schwarzes':'weißes'} Gebiet.`,
+ cat:{schlagen:['Schlagen','Den größten Fang finden','Schlage so viele Steine wie möglich.','Schau vor jedem Zug nach weißen Gruppen mit nur einer Freiheit.'],
+  retten:['Retten','Eigene Gruppe aus dem Atari holen','Eine deiner Gruppen hat nur noch eine Freiheit. Rette sie.','Verlängere dorthin, wo deine Gruppe die meisten neuen Freiheiten bekommt, oder schlage einen Angreifer.'],
+  doppel:['Doppel-Atari','Zwei Gruppen auf einmal bedrohen','Bedrohe zwei weiße Gruppen mit einem Zug.','Ein Doppel-Atari bedroht zwei Gruppen gleichzeitig. Weiß kann nur eine davon retten.'],
+  fangen:['Fangen','Fluchtwege abschneiden','Fange die Steine mit ▲. Weiß wehrt sich.','Gib Atari von der Seite, auf der Weiß danach am wenigsten Freiheiten hat.'],
+  leiter:['Leiter','Fangen im Zickzack über das Brett','Fange die Steine mit ▲. Weiß wehrt sich.','Bei der Leiter hat Weiß nach jedem Verlängern wieder nur 2 Freiheiten. Ein weißer Stein im Weg bricht die Leiter.'],
+  zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
+  punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
+},
+en:{
+ brand:'Go School',tab_learn:'Learn',tab_train:'Training',tab_play:'Play',learn_title:'Learn',train_title:'Training',
+ of_lessons:n=>`of ${n} lessons`,done:'done',
+ cta_html:'<strong>Want to try right away?</strong>Play 9×9 against the computer. The coach explains every move.',cta_btn:'Start a game',
+ reset:'Reset progress',reset_confirm:'Really reset everything? Tap again.',
+ back:'Back',close:'Close',settings:'Settings',
+ ls_explain:'Lesson',retry:'Retry',ls_skip:'Skip',next:'Next',
+ lesson_of:(i,n)=>`Lesson ${i} of ${n}`,ls_back_task:'Back to the exercise',ls_solve_n:n=>`Solve ${n} exercises`,ls_solve1:'Solve the exercise',
+ ls_finish_next:'Finish and continue',ls_finish_play:'Finish and play',next_task:'Next exercise',next_lesson:'Next lesson',play_now:'Play now',
+ train_intro:'Exercises without help: no coach, no markers, no liberty counts. You find the best move yourself.',
+ ts_empty_html:'<strong>Where to start?</strong>Begin with “Capture”. Every exercise you solve on the first try extends your streak.',
+ ts_start:'Start with Capture',solved:'Solved',best_streak:'Best streak',
+ show_solution:'Solution',hint:'Hint',more:'More',undo:'Undo',pass:'Pass',new:'New',sure:'Sure?',
+ s_board:'Board',s_color:'Your color',black:'Black',white:'White',s_opp:'Opponent',lvl_leicht:'Easy',lvl_mittel:'Medium',lvl_stark:'Strong',
+ s_confirm:'Confirm move (tap twice)',c_never:'Never',c_13:'On 13×13',c_always:'Always',
+ s_libs:'Show liberties on stones',s_coach:'Show coach',s_sound:'Sound when placing',s_haptic:'Vibrate when placing',s_lang:'Language',
+ record:(w,l)=>`Record against the computer: ${w} ${w===1?'win':'wins'} · ${l} ${l===1?'loss':'losses'}`,
+ you:'You',computer:'Computer',confirm_pill:'Confirm',passed:'passed',counting:'Counting',
+ you_win:x=>`You win by ${x}`,they_win:(c,x)=>`${c} wins by ${x}`,you_win_pts:x=>`You win by ${x} points`,they_win_pts:(c,x)=>`${c} wins by ${x} points`,
+ result:'Result',you_tag:' (you)',
+ line_b:(y,s,t,tot)=>`Black${y}: ${s} ${s===1?'stone':'stones'} + ${t} territory = ${tot}`,line_w:(y,s,t,k,tot)=>`White${y}: ${s} ${s===1?'stone':'stones'} + ${t} territory + ${k} komi = ${tot}`,
+ score_nums:(b,w)=>`Black ${b} · White ${w}`,score_note:'Tap groups that can no longer live. The squares show who owns the territory.',
+ resume:'Keep playing',confirm:'Confirm',review:'View game',again:'New game',who_du:'Your move',who_trainer:'Coach',
+ intro_black:'You play Black and move first. Start in a corner, on the 3rd or 4th line from the edge.',
+ intro_white:k=>`You play White. The computer starts with Black; in return you get ${k} points of komi. Answer in a free corner.`,
+ you_cap:k=>k===1?'You capture a stone.':`You capture ${k} stones.`,self_atari:'Careful: your own stone is now in atari.',
+ trap:c=>`Careful: ${c} can now capture these stones, for example in a ladder.`,atari_them:c=>`Atari! ${c} has to respond.`,
+ stronger:(p,w)=>`${p} would have been stronger${w?', because it '+w:''}.`,good:w=>`Good move. It ${w}.`,solid:'Solid move.',
+ playable:p=>`Playable. ${p} would have been a little better.`,too_low:'In the opening, the 1st and 2nd lines are too low.',
+ warn1:p=>`Watch out: your group at ${p} is in atari (red ring). Save it or give it up on purpose.`,warnN:k=>`Watch out: ${k} of your groups are in atari (red rings).`,
+ found:'Found it! ',notquite_hint:'Not quite what the hint meant. ',
+ ai_pass:(c,x)=>`${c} passes.${x} If you pass too, the game ends and is counted.`,winchance_pass:(c,p)=>` ${c} puts its winning chance at ${p}%.`,
+ ai_plays:(c,p,w)=>`${c} plays ${p}${w?'. The move '+w:''}.`,winchance:(c,p)=>` Winning chance for ${c}: ${p}%.`,you_pass:'You pass.',
+ score_start:'Both players passed. Tap groups that can no longer live: they will be removed. The small squares show who owns which territory.',
+ nothing_left:'There is hardly anything left to gain. You can pass.',plan_hint:'Go through your checklist: Atari? Capture? Connect? Where is the largest open area?',
+ look_at:(r,b)=>`Look ${r}. ${b}`,regions:[['at the top left','along the top edge','at the top right'],['along the left edge','in the center','along the right edge'],['at the bottom left','along the bottom edge','at the bottom right']],
+ undo_msg:'Move taken back. Try something else.',
+ final:(b,w,k,won,c,x)=>`Black: ${b} points (stones + territory). White: ${w} points including ${k} komi. `+(won?`You win by ${x} points. Well done!`:`${c} wins by ${x} points. Tap “New” to start the next game.`),
+ resume_msg:'Let’s continue. It’s your move.',size_later:n=>`Board size ${n}×${n} applies from the next game (“New”).`,color_later:c=>`You will play ${c} from the next game (“New”).`,
+ err_occupied:'There is already a stone there.',err_suicide:'Not allowed: your stone would have no liberty at all there. That would be suicide.',err_ko:'Ko! You may not recapture right away. Play somewhere else first.',
+ r_cap:n=>n===1?'captures a stone':`captures ${n} stones`,r_rescue:'saves a group from atari',r_atari:'puts opposing stones in atari',
+ r_catch:'traps opposing stones so they cannot escape',r_cut:'cuts opposing stones apart',r_connect:'connects friendly stones',
+ r_terr:'expands its own territory',r_reduce:'reduces the opponent’s territory',r_corner:'takes a free corner',
+ idea_cap:(G,g)=>`${G} has stones with only one liberty. Can you find them?`,idea_rescue:()=>'One of your groups has only one liberty left. How does it get air again?',
+ idea_catch:(G,g)=>`Some ${g} stones can be captured if you give atari from the right side.`,idea_atari:(G,g)=>`Some ${g} stones have only two liberties left. Can you put on pressure?`,
+ idea_cut:(G,g)=>`Two ${g} groups are only loosely connected. Where could you cut them apart?`,idea_connect:()=>'Two of your groups are separated. One move could connect them.',
+ idea_corner:()=>'There is still a free corner. Corners are worth the most at the start.',idea_terr:()=>'Nothing is threatened right now. Where can you expand your territory?',
+ idea_reduce:(G,g)=>`Look at the ${g} territory. Where can you reduce it?`,adj_b:'black',adj_w:'white',
+ streak:n=>`Streak ${n}`,solved_n:n=>`${n} solved`,tasks_n:n=>`${n} exercises`,endless:'Endless',drill_chip:(s,o)=>`Streak ${s} · ${o} solved`,
+ nodrill:'No exercise found. Tap “Next”.',tag_ok:'Correct',tag_bad:'Not quite',why:'Why?',
+ d_only:k=>`That only captures ${k===1?'one stone':k+' stones'}. There is a bigger capture.`,d_none:'That does not capture anything.',
+ d_double_ok:'Double atari! White can only save one group.',d_single:'That is only a single atari. White saves the group.',
+ d_selfatari:'This way your own stone is in atari.',d_nothreat:'This move does not threaten any white group.',d_corner_ok:'A free corner is the biggest point.',
+ d_low:'Too close to the edge. The 1st and 2nd lines make hardly any territory.',d_taken:'There is already a stone in this corner. A completely free corner is bigger.',
+ d_side:'Sides and center are worth less. There is still a free corner.',
+ d_saved_cap:L=>`Saved. You capture the attacker and your group has ${L} liberties again.`,d_saved:L=>`Saved. Your group now has ${L} liberties and White can no longer capture it.`,
+ d_lost:p=>`White answers at ${p}. Your group can no longer be saved.`,d_lost_cap:p=>`White answers at ${p} and captures your group.`,d_not_saved:'That does not save the group.',
+ d_caught:p=>`Captured! ${p} takes the stones.`,d_escape:p=>p?`White escapes at ${p}.`:'White escapes.',d_gives_up:'White gives up. Capture the stones.',
+ d_continue:p=>`Good. White answers at ${p}. Keep going.`,d_marked:n=>n>1?'The marked points are correct. Try it.':'The marked point is correct. Try it.',
+ q_points:'How many points does Black have?',q_who:'Who wins?',q_note:k=>`Komi ${k} for White · Dead stones do not count`,
+ opt_b:x=>`Black by ${x}`,opt_w:x=>`White by ${x}`,res_b:x=>`Black wins by ${x}.`,res_w:x=>`White wins by ${x}.`,has_pts:n=>`Black has ${n} points.`,
+ dead_note:(p,toBlack)=>`${p} is dead and counts as ${toBlack?'black':'white'} territory.`,
+ cat:{schlagen:['Capture','Find the biggest capture','Capture as many stones as possible.','Before every move, look for white groups with only one liberty.'],
+  retten:['Escape','Get your group out of atari','One of your groups has only one liberty left. Save it.','Extend where your group gains the most new liberties, or capture an attacker.'],
+  doppel:['Double atari','Threaten two groups at once','Threaten two white groups with one move.','A double atari threatens two groups at once. White can only save one of them.'],
+  fangen:['Trapping','Cut off escape routes','Capture the stones marked ▲. White fights back.','Give atari from the side where White ends up with the fewest liberties.'],
+  leiter:['Ladder','Zigzag capture across the board','Capture the stones marked ▲. White fights back.','In a ladder, White has only 2 liberties again after every extension. A white stone in the way breaks the ladder.'],
+  zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
+  punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
+},
+nl:{
+ brand:'Go-school',tab_learn:'Leren',tab_train:'Training',tab_play:'Spelen',learn_title:'Leren',train_title:'Training',
+ of_lessons:n=>`van ${n} lessen`,done:'klaar',
+ cta_html:'<strong>Liever meteen proberen?</strong>Speel 9×9 tegen de computer. De trainer legt elke zet uit.',cta_btn:'Partij starten',
+ reset:'Voortgang wissen',reset_confirm:'Echt alles wissen? Tik nog een keer.',
+ back:'Terug',close:'Sluiten',settings:'Instellingen',
+ ls_explain:'Uitleg',retry:'Opnieuw',ls_skip:'Overslaan',next:'Verder',
+ lesson_of:(i,n)=>`Les ${i} van ${n}`,ls_back_task:'Terug naar de opgave',ls_solve_n:n=>`${n} opgaven oplossen`,ls_solve1:'Opgave oplossen',
+ ls_finish_next:'Afronden en verder',ls_finish_play:'Afronden en spelen',next_task:'Volgende opgave',next_lesson:'Volgende les',play_now:'Nu spelen',
+ train_intro:'Opgaven zonder hulp: geen trainer, geen markeringen, geen vrijheden-getallen. Je vindt de beste zet zelf.',
+ ts_empty_html:'<strong>Waar beginnen?</strong>Begin met „Slaan”. Elke opgave die je in één keer oplost, verlengt je reeks.',
+ ts_start:'Begin met Slaan',solved:'Opgelost',best_streak:'Langste reeks',
+ show_solution:'Oplossing',hint:'Tip',more:'Meer',undo:'Terug',pass:'Passen',new:'Nieuw',sure:'Zeker?',
+ s_board:'Bord',s_color:'Jouw kleur',black:'Zwart',white:'Wit',s_opp:'Tegenstander',lvl_leicht:'Makkelijk',lvl_mittel:'Gemiddeld',lvl_stark:'Sterk',
+ s_confirm:'Zet bevestigen (twee keer tikken)',c_never:'Nooit',c_13:'Op 13×13',c_always:'Altijd',
+ s_libs:'Vrijheden op stenen tonen',s_coach:'Trainer tonen',s_sound:'Geluid bij plaatsen',s_haptic:'Trillen bij plaatsen',s_lang:'Taal',
+ record:(w,l)=>`Resultaat tegen de computer: ${w} ${w===1?'overwinning':'overwinningen'} · ${l} ${l===1?'nederlaag':'nederlagen'}`,
+ you:'Jij',computer:'Computer',confirm_pill:'Bevestigen',passed:'heeft gepast',counting:'Partij tellen',
+ you_win:x=>`Je wint met ${x}`,they_win:(c,x)=>`${c} wint met ${x}`,you_win_pts:x=>`Je wint met ${x} punten`,they_win_pts:(c,x)=>`${c} wint met ${x} punten`,
+ result:'Uitslag',you_tag:' (jij)',
+ line_b:(y,s,t,tot)=>`Zwart${y}: ${s} ${s===1?'steen':'stenen'} + ${t} gebied = ${tot}`,line_w:(y,s,t,k,tot)=>`Wit${y}: ${s} ${s===1?'steen':'stenen'} + ${t} gebied + ${k} komi = ${tot}`,
+ score_nums:(b,w)=>`Zwart ${b} · Wit ${w}`,score_note:'Tik groepen aan die niet meer kunnen leven. De vierkantjes tonen wie het gebied bezit.',
+ resume:'Verder spelen',confirm:'Bevestigen',review:'Partij bekijken',again:'Nieuwe partij',who_du:'Jouw zet',who_trainer:'Trainer',
+ intro_black:'Je speelt Zwart en begint. Begin in een hoek, op de 3e of 4e lijn vanaf de rand.',
+ intro_white:k=>`Je speelt Wit. De computer begint met Zwart; daarvoor krijg je ${k} punten komi. Antwoord in een vrije hoek.`,
+ you_cap:k=>k===1?'Je slaat een steen.':`Je slaat ${k} stenen.`,self_atari:'Pas op: je eigen steen staat nu in atari.',
+ trap:c=>`Pas op: ${c} kan deze stenen nu vangen, bijvoorbeeld in een ladder.`,atari_them:c=>`Atari! ${c} moet reageren.`,
+ stronger:(p,w)=>`${p} was sterker geweest${w?', want die zet '+w:''}.`,good:w=>`Goede zet. Hij ${w}.`,solid:'Solide zet.',
+ playable:p=>`Speelbaar. ${p} was iets beter geweest.`,too_low:'In de opening zijn de 1e en 2e lijn te laag.',
+ warn1:p=>`Let op: je groep bij ${p} staat in atari (rode ring). Red hem of geef hem bewust op.`,warnN:k=>`Let op: ${k} van je groepen staan in atari (rode ringen).`,
+ found:'Gevonden! ',notquite_hint:'Niet helemaal wat de tip bedoelde. ',
+ ai_pass:(c,x)=>`${c} past.${x} Als jij ook past, eindigt de partij en wordt er geteld.`,winchance_pass:(c,p)=>` ${c} schat zijn winkans op ${p}%.`,
+ ai_plays:(c,p,w)=>`${c} speelt ${p}${w?'. De zet '+w:''}.`,winchance:(c,p)=>` Winkans voor ${c}: ${p}%.`,you_pass:'Je past.',
+ score_start:'Beide spelers hebben gepast. Tik groepen aan die niet meer kunnen leven: ze worden verwijderd. De kleine vierkantjes tonen wie welk gebied bezit.',
+ nothing_left:'Er valt hier nauwelijks nog iets te winnen. Je kunt passen.',plan_hint:'Loop je denkplan door: Atari? Slaan? Verbinden? Waar is het grootste vrije gebied?',
+ look_at:(r,b)=>`Kijk eens ${r}. ${b}`,regions:[['linksboven','langs de bovenrand','rechtsboven'],['langs de linkerrand','in het midden','langs de rechterrand'],['linksonder','langs de onderrand','rechtsonder']],
+ undo_msg:'Zet teruggenomen. Probeer iets anders.',
+ final:(b,w,k,won,c,x)=>`Zwart: ${b} punten (stenen + gebied). Wit: ${w} punten inclusief ${k} komi. `+(won?`Je wint met ${x} punten. Gefeliciteerd!`:`${c} wint met ${x} punten. Met „Nieuw” start je de volgende partij.`),
+ resume_msg:'We gaan verder. Jij bent aan zet.',size_later:n=>`Bordgrootte ${n}×${n} geldt vanaf de volgende partij („Nieuw”).`,color_later:c=>`Vanaf de volgende partij speel je ${c} („Nieuw”).`,
+ err_occupied:'Daar ligt al een steen.',err_suicide:'Niet toegestaan: je steen zou daar geen enkele vrijheid hebben. Dat is zelfmoord.',err_ko:'Ko! Je mag niet meteen terugslaan. Speel eerst ergens anders.',
+ r_cap:n=>n===1?'slaat een steen':`slaat ${n} stenen`,r_rescue:'redt een groep uit atari',r_atari:'zet stenen van de tegenstander in atari',
+ r_catch:'vangt stenen van de tegenstander, ze kunnen niet meer ontsnappen',r_cut:'snijdt stenen van de tegenstander los',r_connect:'verbindt eigen stenen',
+ r_terr:'breidt het eigen gebied uit',r_reduce:'verkleint het gebied van de tegenstander',r_corner:'bezet een vrije hoek',
+ idea_cap:(G,g)=>`${G} heeft stenen met maar één vrijheid. Vind je ze?`,idea_rescue:()=>'Een van je groepen heeft nog maar één vrijheid. Hoe krijgt hij weer lucht?',
+ idea_catch:(G,g)=>`Sommige ${g} stenen kun je vangen als je vanaf de goede kant atari geeft.`,idea_atari:(G,g)=>`Sommige ${g} stenen hebben nog maar twee vrijheden. Kun je druk zetten?`,
+ idea_cut:(G,g)=>`Twee ${g} groepen hangen maar los samen. Waar zou je ze kunnen scheiden?`,idea_connect:()=>'Twee van je groepen zijn gescheiden. Eén zet kan ze verbinden.',
+ idea_corner:()=>'Er is nog een vrije hoek. Hoeken zijn in het begin het meest waard.',idea_terr:()=>'Er wordt nu niets bedreigd. Waar kun je je gebied vergroten?',
+ idea_reduce:(G,g)=>`Kijk naar het ${g} gebied. Waar kun je het verkleinen?`,adj_b:'zwarte',adj_w:'witte',
+ streak:n=>`Reeks ${n}`,solved_n:n=>`${n} opgelost`,tasks_n:n=>`${n} opgaven`,endless:'Eindeloos',drill_chip:(s,o)=>`Reeks ${s} · ${o} opgelost`,
+ nodrill:'Geen opgave gevonden. Tik op „Verder”.',tag_ok:'Goed',tag_bad:'Niet helemaal',why:'Waarom?',
+ d_only:k=>`Dat slaat maar ${k===1?'één steen':k+' stenen'}. Er is een grotere vangst.`,d_none:'Dat slaat geen steen.',
+ d_double_ok:'Dubbel atari! Wit kan maar één groep redden.',d_single:'Dat is maar een enkel atari. Wit redt de groep.',
+ d_selfatari:'Zo staat je eigen steen in atari.',d_nothreat:'Deze zet bedreigt geen witte groep.',d_corner_ok:'Een vrije hoek is het grootste punt.',
+ d_low:'Te dicht bij de rand. Op de 1e en 2e lijn ontstaat nauwelijks gebied.',d_taken:'In deze hoek ligt al een steen. Een helemaal vrije hoek is groter.',
+ d_side:'Zijkant en midden zijn minder waard. Er is nog een vrije hoek.',
+ d_saved_cap:L=>`Gered. Je slaat de aanvaller en je groep heeft weer ${L} vrijheden.`,d_saved:L=>`Gered. Je groep heeft nu ${L} vrijheden en Wit kan hem niet meer vangen.`,
+ d_lost:p=>`Wit antwoordt met ${p}. Je groep is niet meer te redden.`,d_lost_cap:p=>`Wit antwoordt met ${p} en slaat je groep.`,d_not_saved:'Dat redt de groep niet.',
+ d_caught:p=>`Gevangen! ${p} slaat de stenen.`,d_escape:p=>p?`Wit ontsnapt met ${p}.`:'Wit ontsnapt.',d_gives_up:'Wit geeft op. Sla de stenen.',
+ d_continue:p=>`Goed. Wit antwoordt met ${p}. Ga door.`,d_marked:n=>n>1?'De gemarkeerde punten zijn goed. Probeer het.':'Het gemarkeerde punt is goed. Probeer het.',
+ q_points:'Hoeveel punten heeft Zwart?',q_who:'Wie wint?',q_note:k=>`Komi ${k} voor Wit · Dode stenen tellen niet`,
+ opt_b:x=>`Zwart met ${x}`,opt_w:x=>`Wit met ${x}`,res_b:x=>`Zwart wint met ${x}.`,res_w:x=>`Wit wint met ${x}.`,has_pts:n=>`Zwart heeft ${n} punten.`,
+ dead_note:(p,toBlack)=>`${p} is dood en telt als ${toBlack?'zwart':'wit'} gebied.`,
+ cat:{schlagen:['Slaan','Vind de grootste vangst','Sla zoveel mogelijk stenen.','Kijk voor elke zet naar witte groepen met maar één vrijheid.'],
+  retten:['Redden','Je groep uit atari halen','Een van je groepen heeft nog maar één vrijheid. Red hem.','Verleng waar je groep de meeste nieuwe vrijheden krijgt, of sla een aanvaller.'],
+  doppel:['Dubbel atari','Twee groepen tegelijk bedreigen','Bedreig twee witte groepen met één zet.','Een dubbel atari bedreigt twee groepen tegelijk. Wit kan er maar één redden.'],
+  fangen:['Vangen','Vluchtwegen afsnijden','Vang de stenen met ▲. Wit verweert zich.','Geef atari vanaf de kant waar Wit daarna de minste vrijheden heeft.'],
+  leiter:['Ladder','Zigzaggend vangen over het bord','Vang de stenen met ▲. Wit verweert zich.','Bij een ladder heeft Wit na elke verlenging weer maar 2 vrijheden. Een witte steen in de weg breekt de ladder.'],
+  zaehlen:['Tellen','Punten aan het einde uitrekenen','','Je telt je stenen plus de lege punten die alleen jij omsluit. Geslagen stenen tellen niet extra: ze ontbreken bij de tegenstander, en hun plek wordt jouw gebied.'],
+  punkte:['Grote punten','De waardevolste openingszet','Speel de grootste zet op het bord.','Eerst de hoeken: daar heb je de minste stenen nodig voor zeker gebied.']}
+}};
+
+/* Lektionstexte je Sprache: title, sum, body, list, after, tasks, m (Rückmeldungen der Aufgaben) */
+const LTXT={
+de:{
+ brett:{title:'Das Brett',sum:'Schnittpunkte, Zugfolge, Ziel',
+  body:['Go spielt man auf den <b>Schnittpunkten</b> der Linien, nicht in den Feldern. Profis nutzen ein 19×19-Brett. Zum Lernen sind 9×9 oder kleiner ideal.','Schwarz beginnt, danach setzen beide abwechselnd je einen Stein. Gesetzte Steine werden nie verschoben.','Das Ziel: Am Ende hast du mehr Fläche des Bretts umschlossen als dein Gegner.'],
+  tasks:['Setze einen Stein auf den markierten Punkt. Die Mitte des Bretts heißt Tengen.'],
+  m:{a:'Genau. Jeder Stein steht auf einem Schnittpunkt.',b:'Gültiger Punkt, aber nicht der markierte. Versuch es nochmal.'}},
+ freiheiten:{title:'Freiheiten',sum:'Wie viel Luft ein Stein hat',
+  body:['Jeder Stein braucht Luft. Die leeren Punkte direkt neben ihm (oben, unten, links, rechts) heißen <b>Freiheiten</b>. Diagonale Punkte zählen nicht.','In der Mitte hat ein Stein 4 Freiheiten, am Rand 3, in der Ecke nur 2. Die blauen Punkte zeigen sie dir.'],
+  tasks:['Nimm dem weißen Stein eine Freiheit, indem du direkt neben ihn setzt.','Dieser Stein steht in der Ecke und hat nur 2 Freiheiten. Nimm ihm eine davon.'],
+  m:{a:'Richtig. Er hat jetzt nur noch 3 Freiheiten.',b:'Diagonal oder weiter weg nimmt ihm keine Freiheit. Setze direkt auf einen blauen Punkt.',c:'Genau. Jetzt hat er nur noch eine Freiheit. Man sagt: Er steht im Atari.',d:'Setze direkt neben den Stein in der Ecke.'}},
+ schlagen:{title:'Schlagen',sum:'Die letzte Freiheit nehmen',
+  body:['Nimmst du einem Stein seine <b>letzte</b> Freiheit, ist er geschlagen. Er wird vom Brett genommen und zählt als Gefangener.','Hat ein Stein nur noch eine Freiheit, steht er im <b>Atari</b>. Das ist die wichtigste Warnung im ganzen Spiel. Im Spielmodus markiert ein roter Ring solche Steine.'],
+  tasks:['Der weiße Stein steht im Atari. Schlage ihn.','Auch am Rand: Schlage den weißen Stein.'],
+  m:{a:'Geschlagen! Der Stein ist weg und zählt für dich.',b:'Der weiße Stein hat noch eine Freiheit. Finde den leeren Punkt direkt neben ihm.',c:'Richtig. Am Rand reichen weniger Steine zum Schlagen.',d:'Am Rand fehlt die untere Seite. Welche Freiheit bleibt ihm noch?'}},
+ gruppen:{title:'Gruppen',sum:'Verbundene Steine teilen Freiheiten',
+  body:['Steine gleicher Farbe, die waagerecht oder senkrecht nebeneinander liegen, bilden eine <b>Gruppe</b>. Sie teilen sich ihre Freiheiten und werden nur gemeinsam geschlagen.','Diagonal liegende Steine sind nicht verbunden. Größere Gruppen sind meist schwerer zu fangen, weil sie mehr Freiheiten haben.'],
+  tasks:['Die zwei weißen Steine sind eine Gruppe mit nur einer Freiheit. Schlage beide.'],
+  m:{a:'Beide auf einmal geschlagen. So funktionieren Gruppen.',b:'Suche die letzte gemeinsame Freiheit der beiden weißen Steine.'}},
+ retten:{title:'Atari: Retten',sum:'Verlängern oder zurückschlagen',
+  body:['Steht eine deiner Gruppen im Atari, musst du meist sofort reagieren. Es gibt zwei Wege:','<b>Verlängern:</b> Setze an deine Gruppe an, damit sie neue Freiheiten bekommt. <b>Zurückschlagen:</b> Schlage einen angreifenden Stein, der selbst im Atari steht.'],
+  tasks:['Dein Stein steht im Atari. Rette ihn durch Verlängern.','Wieder Atari. Diesmal hilft Verlängern nicht. Finde die Rettung.'],
+  m:{a:'Gerettet. Deine Gruppe hat jetzt 3 Freiheiten.',b:'Dein Stein steht immer noch im Atari. Wo bekommt er neue Freiheiten?',c:'Stark. Du schlägst den Angreifer und dein Stein bekommt neue Luft.',d:'Schau dir den weißen Stein unter deinem an. Wie viele Freiheiten hat er?'}},
+ verboten:{title:'Verbotene Punkte',sum:'Selbstmord und die Ausnahme',
+  body:['Du darfst keinen Stein dorthin setzen, wo er (samt seiner Gruppe) sofort keine Freiheit hätte. Das wäre <b>Selbstmord</b>.','<b>Ausnahme:</b> Schlägt dein Zug dabei gegnerische Steine, ist er erlaubt. Durch das Schlagen entstehen neue Freiheiten.'],
+  tasks:['Eine leere Ecke ist für dich verboten, die andere nicht. Finde den erlaubten Zug, der schlägt.'],
+  m:{a:'Richtig. Ohne Schlagen wäre der Punkt verboten. Weil du schlägst, ist er erlaubt.',b:'Das schlägt nichts. Suche den leeren Punkt, an dem Weiß selbst keine Luft mehr hat.'}},
+ ko:{title:'Ko',sum:'Kein sofortiges Zurückschlagen',
+  body:['Manchmal könnten beide endlos abwechselnd einen einzelnen Stein zurückschlagen. Die <b>Ko-Regel</b> verbietet das: Nach so einem Schlag darf der Gegner nicht sofort zurückschlagen.','Er muss zuerst woanders spielen, am besten eine Drohung, auf die du antworten musst. Erst danach darf er zurückschlagen.'],
+  tasks:['Schlage den weißen Stein in der Mitte.','Weiß hat gerade mit dem markierten Stein deinen Stein geschlagen. Versuche zurückzuschlagen, dann spiele woanders.'],
+  m:{a:'Geschlagen. Weiß dürfte jetzt nicht sofort zurückschlagen, obwohl es so aussieht. Das ist Ko.',b:'Der weiße Stein in der Mitte hat nur eine Freiheit. Wo?',c:'Richtig. Nach einem Zug woanders darfst du den Ko wieder schlagen, falls Weiß ihn nicht vorher schließt.'}},
+ augen:{title:'Zwei Augen',sum:'Wann eine Gruppe lebt',
+  body:['Ein <b>Auge</b> ist ein leerer Punkt, der ganz von deiner Gruppe umschlossen ist. Der Gegner darf dort nicht setzen, außer er schlägt damit.','Hat eine Gruppe <b>zwei getrennte Augen</b>, kann sie nie geschlagen werden: Der Gegner müsste beide gleichzeitig füllen. Sie lebt für immer.','Bei drei leeren Punkten in einer Reihe entscheidet der mittlere. Wer ihn zuerst besetzt, entscheidet über Leben oder Tod.'],
+  tasks:['Deine Gruppe unten links ist eingeschlossen. Sorge für zwei Augen.','Jetzt umgekehrt: Töte die weiße Gruppe.'],
+  m:{a:'Zwei getrennte Augen. Deine Gruppe lebt, Weiß kann sie nie schlagen.',b:'Jetzt bleibt nur ein Auge übrig. Probier den mittleren Punkt.',c:'Wenn du hier nicht reagierst, setzt Weiß in die Mitte und deine Gruppe hat nur noch ein Auge.',d:'Getroffen. Weiß kann nur noch ein Auge bilden. Die Gruppe ist tot.',e:'Weiß kann jetzt in die Mitte setzen und zwei Augen bilden. Nimm den Schlüsselpunkt.'}},
+ zaehlen:{title:'Spielende & Zählen',sum:'Passen, Gebiet, Komi',
+  body:['Das Spiel endet, wenn beide nacheinander <b>passen</b>, weil kein Zug mehr etwas bringt.','Gezählt wird so: deine Steine auf dem Brett plus alle leeren Punkte, die nur deine Steine umschließen. Gruppen, die nicht mehr leben können, werden vorher entfernt.','Geschlagene Steine zählen dabei nicht extra. Sie bringen trotzdem Punkte: Sie fehlen dem Gegner auf dem Brett, und ihr Platz wird dein Gebiet.','Weil Schwarz anfängt, bekommt Weiß einen Ausgleich, das <b>Komi</b>. In dieser App sind es 7,5 Punkte. Der halbe Punkt verhindert ein Unentschieden.'],
+  tasks:['Die Grenze zwischen den Gebieten hat eine Lücke. Schließe sie, sonst dringt Weiß in dein Gebiet ein.'],
+  m:{a:'Grenze dicht. Schwarz: 7 Steine + 21 leere Punkte = 28. Weiß: 7 Steine + 14 Punkte = 21.',b:'Die Lücke liegt auf der Grenze zwischen Schwarz und Weiß.'}},
+ ecken:{title:'Ecke, Seite, Mitte',sum:'Die erste Strategie',
+  body:['In der Ecke helfen dir zwei Ränder beim Einschließen. Für dieselbe Fläche brauchst du dort viel weniger Steine als in der Mitte.','Darum gilt in der Eröffnung: <b>erst Ecken, dann Seiten, zuletzt die Mitte.</b>','Die 1. und 2. Linie vom Rand sind am Anfang zu niedrig. Die 3. Linie sichert Gebiet, die 4. Linie bringt mehr Einfluss.'],
+  tasks:['Das 9×9-Brett ist leer. Wähle einen guten ersten Zug.'],
+  m:{ok:l=>`Guter Eröffnungszug auf der ${l}. Linie. Von hier lässt sich die Ecke gut einschließen.`,low:'Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet. Geh auf die 3. oder 4. Linie.',mid:'Die Mitte ist schwer zu sichern. Versuch es in einer Ecke.',side:'Die Seite ist okay, aber am Anfang ist die Ecke wertvoller.'}},
+ schneiden:{title:'Verbinden & Schneiden',sum:'Schnittpunkte erkennen',
+  body:['Verbundene Steine sind stark. Getrennte Gruppen müssen jede für sich überleben. Achte auf <b>Schnittpunkte</b>: leere Punkte, an denen der Gegner deine Steine trennen kann.','Faustregel: Verbinde deine eigenen Steine, schneide die des Gegners.'],
+  tasks:['Weiß droht, deine beiden Steine zu trennen. Verbinde sie.','Jetzt umgekehrt: Schneide die weißen Steine voneinander.'],
+  m:{a:'Verbunden. Gleichzeitig trennst du die weißen Steine.',b:'Deine Steine sind noch getrennt. Wo liegt der Punkt zwischen ihnen?',c:'Geschnitten. Merke: Der wichtige Punkt des Gegners ist oft auch deiner.',d:'Weiß kann sich noch verbinden. Nimm den Punkt zwischen den weißen Steinen.'}},
+ plan:{title:'Dein Denkplan',sum:'Checkliste für jeden Zug',
+  body:['Starke Spieler stellen sich vor jedem Zug dieselben Fragen. Geh sie in dieser Reihenfolge durch:'],
+  list:['Steht eine meiner Gruppen im Atari? Dann retten, oder bewusst aufgeben, wenn sie nicht mehr zu retten ist.','Kann ich etwas schlagen oder den Gegner ins Atari setzen?','Hat der letzte Zug des Gegners etwas bedroht? Wo will er hin?','Sind meine Gruppen verbunden? Gibt es gefährliche Schnittpunkte?','Wo ist der größte freie Bereich? Am Anfang: Ecken, dann Seiten.','Nie in das eigene Auge setzen.'],
+  after:'Im Spielmodus kommentiert der Trainer jeden deiner Züge. Mit „Tipp“ zeigt er dir eine starke Idee, mit „Zurück“ kannst du sie ausprobieren.'}
+},
+en:{
+ brett:{title:'The board',sum:'Intersections, turns, goal',
+  body:['Go is played on the <b>intersections</b> of the lines, not in the squares. Professionals use a 19×19 board. For learning, 9×9 or smaller is ideal.','Black moves first, then both players take turns placing one stone each. Stones are never moved once placed.','The goal: at the end, you have surrounded more of the board than your opponent.'],
+  tasks:['Place a stone on the marked point. The center of the board is called tengen.'],
+  m:{a:'Exactly. Every stone sits on an intersection.',b:'A valid point, but not the marked one. Try again.'}},
+ freiheiten:{title:'Liberties',sum:'How much air a stone has',
+  body:['Every stone needs air. The empty points directly next to it (above, below, left, right) are called <b>liberties</b>. Diagonal points do not count.','In the middle a stone has 4 liberties, on the edge 3, in the corner only 2. The blue dots show them to you.'],
+  tasks:['Take a liberty away from the white stone by playing directly next to it.','This stone sits in the corner and has only 2 liberties. Take one of them away.'],
+  m:{a:'Correct. It now has only 3 liberties.',b:'Diagonal or further away does not take a liberty. Play directly on a blue dot.',c:'Exactly. Now it has only one liberty left. We say: it is in atari.',d:'Play directly next to the stone in the corner.'}},
+ schlagen:{title:'Capturing',sum:'Taking the last liberty',
+  body:['If you take a stone’s <b>last</b> liberty, it is captured. It is removed from the board and counts as a prisoner.','When a stone has only one liberty left, it is in <b>atari</b>. That is the most important warning in the whole game. In play mode, a red ring marks such stones.'],
+  tasks:['The white stone is in atari. Capture it.','On the edge too: capture the white stone.'],
+  m:{a:'Captured! The stone is gone and counts for you.',b:'The white stone still has a liberty. Find the empty point right next to it.',c:'Correct. On the edge, fewer stones are needed to capture.',d:'On the edge, the bottom side is missing. Which liberty does it still have?'}},
+ gruppen:{title:'Groups',sum:'Connected stones share liberties',
+  body:['Stones of the same color that touch horizontally or vertically form a <b>group</b>. They share their liberties and can only be captured together.','Diagonal stones are not connected. Larger groups are usually harder to capture because they have more liberties.'],
+  tasks:['The two white stones are one group with only one liberty. Capture both.'],
+  m:{a:'Both captured at once. That is how groups work.',b:'Look for the last shared liberty of the two white stones.'}},
+ retten:{title:'Atari: escaping',sum:'Extend or capture back',
+  body:['If one of your groups is in atari, you usually have to react right away. There are two ways:','<b>Extend:</b> play next to your group so it gains new liberties. <b>Capture back:</b> capture an attacking stone that is itself in atari.'],
+  tasks:['Your stone is in atari. Save it by extending.','Atari again. This time extending does not help. Find the rescue.'],
+  m:{a:'Saved. Your group now has 3 liberties.',b:'Your stone is still in atari. Where does it get new liberties?',c:'Strong. You capture the attacker and your stone gets new air.',d:'Look at the white stone below yours. How many liberties does it have?'}},
+ verboten:{title:'Forbidden points',sum:'Suicide and the exception',
+  body:['You may not play a stone where it (together with its group) would immediately have no liberty. That would be <b>suicide</b>.','<b>Exception:</b> if your move captures opposing stones, it is allowed. Capturing creates new liberties.'],
+  tasks:['One empty corner is forbidden for you, the other is not. Find the allowed move that captures.'],
+  m:{a:'Correct. Without capturing, the point would be forbidden. Because you capture, it is allowed.',b:'That captures nothing. Look for the empty point where White itself has no air left.'}},
+ ko:{title:'Ko',sum:'No immediate recapture',
+  body:['Sometimes both players could endlessly take turns recapturing a single stone. The <b>ko rule</b> forbids this: after such a capture, the opponent may not recapture right away.','They must play elsewhere first, ideally a threat you have to answer. Only then may they recapture.'],
+  tasks:['Capture the white stone in the middle.','White has just captured your stone with the marked stone. Try to recapture, then play elsewhere.'],
+  m:{a:'Captured. White may not recapture right away, even though it looks possible. That is ko.',b:'The white stone in the middle has only one liberty. Where?',c:'Correct. After a move elsewhere you may take the ko again, unless White closes it first.'}},
+ augen:{title:'Two eyes',sum:'When a group lives',
+  body:['An <b>eye</b> is an empty point completely surrounded by your group. The opponent may not play there unless it captures.','If a group has <b>two separate eyes</b>, it can never be captured: the opponent would have to fill both at once. It lives forever.','With three empty points in a row, the middle one decides. Whoever takes it first decides life or death.'],
+  tasks:['Your group in the bottom left is surrounded. Make two eyes.','Now the other way round: kill the white group.'],
+  m:{a:'Two separate eyes. Your group lives; White can never capture it.',b:'Now only one eye is left. Try the middle point.',c:'If you do not react here, White plays in the middle and your group has only one eye.',d:'Hit. White can only make one eye now. The group is dead.',e:'White can now play in the middle and make two eyes. Take the key point.'}},
+ zaehlen:{title:'End of game & counting',sum:'Passing, territory, komi',
+  body:['The game ends when both players <b>pass</b> in a row because no move gains anything.','Counting works like this: your stones on the board plus all empty points surrounded only by your stones. Groups that can no longer live are removed first.','Captured stones do not count extra. They still earn points: they are missing from your opponent on the board, and their space becomes your territory.','Because Black moves first, White receives compensation called <b>komi</b>. In this app it is 7.5 points. The half point prevents a draw.'],
+  tasks:['The border between the territories has a gap. Close it, or White will invade your territory.'],
+  m:{a:'Border closed. Black: 7 stones + 21 empty points = 28. White: 7 stones + 14 points = 21.',b:'The gap is on the border between Black and White.'}},
+ ecken:{title:'Corner, side, center',sum:'The first strategy',
+  body:['In the corner, two edges help you enclose. For the same area you need far fewer stones there than in the center.','So in the opening: <b>corners first, then sides, the center last.</b>','The 1st and 2nd lines from the edge are too low at the start. The 3rd line secures territory, the 4th line gives more influence.'],
+  tasks:['The 9×9 board is empty. Choose a good first move.'],
+  m:{ok:l=>`Good opening move on the ${l===3?'3rd':'4th'} line. From here the corner is easy to enclose.`,low:'Too close to the edge. The 1st and 2nd lines make hardly any territory. Go to the 3rd or 4th line.',mid:'The center is hard to secure. Try a corner.',side:'The side is okay, but at the start the corner is worth more.'}},
+ schneiden:{title:'Connecting & cutting',sum:'Spotting cutting points',
+  body:['Connected stones are strong. Separate groups each have to survive on their own. Watch for <b>cutting points</b>: empty points where the opponent can separate your stones.','Rule of thumb: connect your own stones, cut your opponent’s.'],
+  tasks:['White threatens to separate your two stones. Connect them.','Now the other way round: cut the white stones apart.'],
+  m:{a:'Connected. At the same time you separate the white stones.',b:'Your stones are still separated. Where is the point between them?',c:'Cut. Remember: your opponent’s key point is often yours too.',d:'White can still connect. Take the point between the white stones.'}},
+ plan:{title:'Your thinking plan',sum:'A checklist for every move',
+  body:['Strong players ask themselves the same questions before every move. Go through them in this order:'],
+  list:['Is one of my groups in atari? Then save it, or give it up on purpose if it can no longer be saved.','Can I capture something or put the opponent in atari?','Did the opponent’s last move threaten anything? Where do they want to go?','Are my groups connected? Are there dangerous cutting points?','Where is the largest open area? At the start: corners, then sides.','Never play inside your own eye.'],
+  after:'In play mode, the coach comments on each of your moves. “Hint” points you to a strong idea, and “Undo” lets you try it out.'}
+},
+nl:{
+ brett:{title:'Het bord',sum:'Snijpunten, beurten, doel',
+  body:['Go speel je op de <b>snijpunten</b> van de lijnen, niet in de vakjes. Profs gebruiken een bord van 19×19. Om te leren is 9×9 of kleiner ideaal.','Zwart begint, daarna zetten beide spelers om de beurt één steen. Geplaatste stenen worden nooit verschoven.','Het doel: aan het einde heb je meer van het bord omsloten dan je tegenstander.'],
+  tasks:['Zet een steen op het gemarkeerde punt. Het midden van het bord heet tengen.'],
+  m:{a:'Precies. Elke steen staat op een snijpunt.',b:'Geldig punt, maar niet het gemarkeerde. Probeer het nog eens.'}},
+ freiheiten:{title:'Vrijheden',sum:'Hoeveel lucht een steen heeft',
+  body:['Elke steen heeft lucht nodig. De lege punten direct ernaast (boven, onder, links, rechts) heten <b>vrijheden</b>. Diagonale punten tellen niet.','In het midden heeft een steen 4 vrijheden, aan de rand 3, in de hoek maar 2. De blauwe punten laten ze zien.'],
+  tasks:['Neem de witte steen een vrijheid af door er direct naast te zetten.','Deze steen staat in de hoek en heeft maar 2 vrijheden. Neem er één van af.'],
+  m:{a:'Goed. Hij heeft nu nog maar 3 vrijheden.',b:'Diagonaal of verder weg neemt geen vrijheid af. Zet direct op een blauw punt.',c:'Precies. Nu heeft hij nog maar één vrijheid. Je zegt: hij staat in atari.',d:'Zet direct naast de steen in de hoek.'}},
+ schlagen:{title:'Slaan',sum:'De laatste vrijheid afnemen',
+  body:['Neem je een steen zijn <b>laatste</b> vrijheid af, dan is hij geslagen. Hij gaat van het bord en telt als gevangene.','Heeft een steen nog maar één vrijheid, dan staat hij in <b>atari</b>. Dat is de belangrijkste waarschuwing in het hele spel. In de speelmodus markeert een rode ring zulke stenen.'],
+  tasks:['De witte steen staat in atari. Sla hem.','Ook aan de rand: sla de witte steen.'],
+  m:{a:'Geslagen! De steen is weg en telt voor jou.',b:'De witte steen heeft nog een vrijheid. Zoek het lege punt direct ernaast.',c:'Goed. Aan de rand heb je minder stenen nodig om te slaan.',d:'Aan de rand ontbreekt de onderkant. Welke vrijheid heeft hij nog?'}},
+ gruppen:{title:'Groepen',sum:'Verbonden stenen delen vrijheden',
+  body:['Stenen van dezelfde kleur die horizontaal of verticaal naast elkaar liggen, vormen een <b>groep</b>. Ze delen hun vrijheden en worden alleen samen geslagen.','Diagonaal liggende stenen zijn niet verbonden. Grotere groepen zijn meestal moeilijker te vangen, omdat ze meer vrijheden hebben.'],
+  tasks:['De twee witte stenen zijn één groep met maar één vrijheid. Sla ze allebei.'],
+  m:{a:'Allebei in één keer geslagen. Zo werken groepen.',b:'Zoek de laatste gezamenlijke vrijheid van de twee witte stenen.'}},
+ retten:{title:'Atari: redden',sum:'Verlengen of terugslaan',
+  body:['Staat een van je groepen in atari, dan moet je meestal meteen reageren. Er zijn twee manieren:','<b>Verlengen:</b> zet aan je groep, zodat hij nieuwe vrijheden krijgt. <b>Terugslaan:</b> sla een aanvallende steen die zelf in atari staat.'],
+  tasks:['Je steen staat in atari. Red hem door te verlengen.','Weer atari. Deze keer helpt verlengen niet. Vind de redding.'],
+  m:{a:'Gered. Je groep heeft nu 3 vrijheden.',b:'Je steen staat nog steeds in atari. Waar krijgt hij nieuwe vrijheden?',c:'Sterk. Je slaat de aanvaller en je steen krijgt nieuwe lucht.',d:'Kijk naar de witte steen onder de jouwe. Hoeveel vrijheden heeft hij?'}},
+ verboten:{title:'Verboden punten',sum:'Zelfmoord en de uitzondering',
+  body:['Je mag geen steen zetten waar hij (samen met zijn groep) meteen geen vrijheid zou hebben. Dat is <b>zelfmoord</b>.','<b>Uitzondering:</b> slaat je zet daarbij stenen van de tegenstander, dan mag het wel. Door het slaan ontstaan nieuwe vrijheden.'],
+  tasks:['Eén lege hoek is voor jou verboden, de andere niet. Vind de toegestane zet die slaat.'],
+  m:{a:'Goed. Zonder te slaan was het punt verboden. Omdat je slaat, mag het.',b:'Dat slaat niets. Zoek het lege punt waar Wit zelf geen lucht meer heeft.'}},
+ ko:{title:'Ko',sum:'Niet meteen terugslaan',
+  body:['Soms zouden beide spelers eindeloos om de beurt één steen kunnen terugslaan. De <b>ko-regel</b> verbiedt dat: na zo’n slag mag de tegenstander niet meteen terugslaan.','Hij moet eerst ergens anders spelen, het liefst een dreiging waarop jij moet antwoorden. Pas daarna mag hij terugslaan.'],
+  tasks:['Sla de witte steen in het midden.','Wit heeft net met de gemarkeerde steen jouw steen geslagen. Probeer terug te slaan en speel daarna ergens anders.'],
+  m:{a:'Geslagen. Wit mag nu niet meteen terugslaan, ook al lijkt het zo. Dat is ko.',b:'De witte steen in het midden heeft maar één vrijheid. Waar?',c:'Goed. Na een zet elders mag je de ko weer slaan, als Wit hem niet eerst dichtmaakt.'}},
+ augen:{title:'Twee ogen',sum:'Wanneer een groep leeft',
+  body:['Een <b>oog</b> is een leeg punt dat helemaal door je groep is omsloten. De tegenstander mag daar niet zetten, tenzij hij daarmee slaat.','Heeft een groep <b>twee gescheiden ogen</b>, dan kan hij nooit geslagen worden: de tegenstander zou beide tegelijk moeten vullen. Hij leeft voor altijd.','Bij drie lege punten op een rij beslist het middelste. Wie het eerst bezet, beslist over leven of dood.'],
+  tasks:['Je groep linksonder is ingesloten. Zorg voor twee ogen.','Nu andersom: dood de witte groep.'],
+  m:{a:'Twee gescheiden ogen. Je groep leeft, Wit kan hem nooit slaan.',b:'Nu blijft er maar één oog over. Probeer het middelste punt.',c:'Als je hier niet reageert, zet Wit in het midden en heeft je groep nog maar één oog.',d:'Raak. Wit kan nog maar één oog maken. De groep is dood.',e:'Wit kan nu in het midden zetten en twee ogen maken. Neem het sleutelpunt.'}},
+ zaehlen:{title:'Einde & tellen',sum:'Passen, gebied, komi',
+  body:['De partij eindigt als beide spelers na elkaar <b>passen</b>, omdat geen zet nog iets oplevert.','Zo wordt geteld: je stenen op het bord plus alle lege punten die alleen door jouw stenen worden omsloten. Groepen die niet meer kunnen leven, worden eerst verwijderd.','Geslagen stenen tellen niet extra. Ze leveren toch punten op: ze ontbreken bij de tegenstander op het bord, en hun plek wordt jouw gebied.','Omdat Zwart begint, krijgt Wit een compensatie, de <b>komi</b>. In deze app is dat 7,5 punten. Het halve punt voorkomt gelijkspel.'],
+  tasks:['De grens tussen de gebieden heeft een gat. Sluit het, anders dringt Wit je gebied binnen.'],
+  m:{a:'Grens dicht. Zwart: 7 stenen + 21 lege punten = 28. Wit: 7 stenen + 14 punten = 21.',b:'Het gat ligt op de grens tussen Zwart en Wit.'}},
+ ecken:{title:'Hoek, zijkant, midden',sum:'De eerste strategie',
+  body:['In de hoek helpen twee randen je bij het omsluiten. Voor hetzelfde gebied heb je daar veel minder stenen nodig dan in het midden.','Daarom geldt in de opening: <b>eerst hoeken, dan zijkanten, als laatste het midden.</b>','De 1e en 2e lijn vanaf de rand zijn in het begin te laag. De 3e lijn verzekert gebied, de 4e lijn geeft meer invloed.'],
+  tasks:['Het 9×9-bord is leeg. Kies een goede eerste zet.'],
+  m:{ok:l=>`Goede openingszet op de ${l}e lijn. Vanaf hier kun je de hoek goed omsluiten.`,low:'Te dicht bij de rand. Op de 1e en 2e lijn ontstaat nauwelijks gebied. Ga naar de 3e of 4e lijn.',mid:'Het midden is moeilijk vast te houden. Probeer een hoek.',side:'De zijkant is oké, maar in het begin is de hoek meer waard.'}},
+ schneiden:{title:'Verbinden & snijden',sum:'Snijpunten herkennen',
+  body:['Verbonden stenen zijn sterk. Gescheiden groepen moeten elk apart overleven. Let op <b>snijpunten</b>: lege punten waar de tegenstander je stenen kan scheiden.','Vuistregel: verbind je eigen stenen, snijd die van de tegenstander.'],
+  tasks:['Wit dreigt je twee stenen te scheiden. Verbind ze.','Nu andersom: snijd de witte stenen van elkaar.'],
+  m:{a:'Verbonden. Tegelijk scheid je de witte stenen.',b:'Je stenen zijn nog gescheiden. Waar ligt het punt ertussen?',c:'Gesneden. Onthoud: het belangrijke punt van de tegenstander is vaak ook het jouwe.',d:'Wit kan zich nog verbinden. Neem het punt tussen de witte stenen.'}},
+ plan:{title:'Je denkplan',sum:'Checklist voor elke zet',
+  body:['Sterke spelers stellen zich voor elke zet dezelfde vragen. Loop ze in deze volgorde door:'],
+  list:['Staat een van mijn groepen in atari? Dan redden, of bewust opgeven als hij niet meer te redden is.','Kan ik iets slaan of de tegenstander in atari zetten?','Heeft de laatste zet van de tegenstander iets bedreigd? Waar wil hij heen?','Zijn mijn groepen verbonden? Zijn er gevaarlijke snijpunten?','Waar is het grootste vrije gebied? In het begin: hoeken, dan zijkanten.','Zet nooit in je eigen oog.'],
+  after:'In de speelmodus geeft de trainer commentaar op elke zet. Met „Tip” wijst hij je een sterk idee aan, met „Terug” kun je het uitproberen.'}
+}};
+let LANG='de';
+function T(k,...a){const d=I18N[LANG]||I18N.de;let v=k in d?d[k]:I18N.de[k];return typeof v==='function'?v(...a):v}
+const LT=L=>(LTXT[LANG]&&LTXT[LANG][L.id])||LTXT.de[L.id];
+const CNm=()=>({1:T('black'),2:T('white')});
+const ADJm=()=>({1:T('adj_b'),2:T('adj_w')});
+function RS(rs){if(!rs)return'';const v=T('r_'+rs.t,rs.n);return v}
+function applyI18n(){document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{e.textContent=T(e.dataset.i18n)});
+  document.querySelectorAll('[data-i18n-html]').forEach(e=>{e.innerHTML=T(e.dataset.i18nHtml)});
+  document.querySelectorAll('[data-i18n-aria]').forEach(e=>{e.setAttribute('aria-label',T(e.dataset.i18nAria))});
+  document.querySelectorAll('.lang-seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===LANG)))}
+/* ---------- Ende Sprachen ---------- */
 
 const $=s=>document.querySelector(s);
 const LET='ABCDEFGHJKLMNOPQRST';
 const coord=(i,n)=>LET[i%n]+(n-Math.floor(i/n));
-const fmt=v=>String(v).replace('.',',');
+const fmt=v=>LANG==='en'?String(v):String(v).replace('.',',');
 const icon=id=>`<svg class="ic"><use href="#i-${id}"/></svg>`;
 // Haptik: Android über die Vibrations-Schnittstelle, iPhone (ab iOS 18) über einen kurz eingefügten System-Schalter
 function hapticKind(){try{if(typeof navigator.vibrate==='function')return'android'}catch(e){}
@@ -763,7 +1147,7 @@ function buzz(strong,force){if(!force&&typeof store!=='undefined'&&store.setting
   try{if(typeof navigator.vibrate==='function'){navigator.vibrate(strong?[12,50,12]:10);return}}catch(e){}
   // iPhone: Haptik kommt vom Schalter unter dem Brett (echte Berührung), hier nichts zu tun
 }
-const ERR={occupied:'Dort liegt schon ein Stein.',suicide:'Verboten: Dein Stein hätte dort keine einzige Freiheit. Das wäre Selbstmord.',ko:'Ko! Du darfst nicht sofort zurückschlagen. Spiele zuerst woanders.'};
+const ERR=new Proxy({},{get:(o,k)=>T('err_'+String(k))});
 
 /* ---------- Speicher ---------- */
 const KEY='go-schule-v1';
@@ -771,6 +1155,7 @@ function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.settin
   return{done:{},settings:{size:9,level:'leicht',libs:false},stats:{win:0,loss:0},tab:'learn',game:null}}
 let store=load();
 store.train=store.train||{};
+{const nl=(navigator.language||'').slice(0,2);LANG=['de','en','nl'].includes(store.settings.lang)?store.settings.lang:(nl==='nl'?'nl':nl==='de'?'de':'en')}
 function save(){try{store.game=G;localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 
 /* ---------- Brett zeichnen ---------- */
@@ -835,91 +1220,24 @@ const LIFE=['.......','.......','.......','.......','OOOOO..','XXXXO..','...XO..
 const KO=['.......','.......','...XO..','..XO.O.','...XO..','.......','.......'];
 const CUT=['.......','.......','...O...','..X.X..','...O...','.......','.......'];
 const LESSONS=[
- {id:'brett',title:'Das Brett',sum:'Schnittpunkte, Zugfolge, Ziel',
-  body:['Go spielt man auf den <b>Schnittpunkten</b> der Linien, nicht in den Feldern. Profis nutzen ein 19×19-Brett. Zum Lernen sind 9×9 oder kleiner ideal.',
-        'Schwarz beginnt, danach setzen beide abwechselnd je einen Stein. Gesetzte Steine werden nie verschoben.',
-        'Das Ziel: Am Ende hast du mehr Fläche des Bretts umschlossen als dein Gegner.'],
-  puzzles:[{task:'Setze einen Stein auf den markierten Punkt. Die Mitte des Bretts heißt Tengen.',rows:E7,marks:[[3,3]],
-    check:c=>c.x===3&&c.y===3?ok('Genau. Jeder Stein steht auf einem Schnittpunkt.'):bad('Gültiger Punkt, aber nicht der markierte. Versuch es nochmal.')}]},
- {id:'freiheiten',title:'Freiheiten',sum:'Wie viel Luft ein Stein hat',
-  body:['Jeder Stein braucht Luft. Die leeren Punkte direkt neben ihm (oben, unten, links, rechts) heißen <b>Freiheiten</b>. Diagonale Punkte zählen nicht.',
-        'In der Mitte hat ein Stein 4 Freiheiten, am Rand 3, in der Ecke nur 2. Die blauen Punkte zeigen sie dir.'],
-  puzzles:[{task:'Nimm dem weißen Stein eine Freiheit, indem du direkt neben ihn setzt.',rows:['.......','.......','.......','...O...','.......','.......','.......'],libDots:2,
-    check:c=>c.libsAt(3,3)===3?ok('Richtig. Er hat jetzt nur noch 3 Freiheiten.'):bad('Diagonal oder weiter weg nimmt ihm keine Freiheit. Setze direkt auf einen blauen Punkt.')},
-   {task:'Dieser Stein steht in der Ecke und hat nur 2 Freiheiten. Nimm ihm eine davon.',rows:['.......','.......','.......','.......','.......','.......','O......'],libDots:2,
-    check:c=>c.libsAt(0,6)===1?ok('Genau. Jetzt hat er nur noch eine Freiheit. Man sagt: Er steht im Atari.'):bad('Setze direkt neben den Stein in der Ecke.')}]},
- {id:'schlagen',title:'Schlagen',sum:'Die letzte Freiheit nehmen',
-  body:['Nimmst du einem Stein seine <b>letzte</b> Freiheit, ist er geschlagen. Er wird vom Brett genommen und zählt als Gefangener.',
-        'Hat ein Stein nur noch eine Freiheit, steht er im <b>Atari</b>. Das ist die wichtigste Warnung im ganzen Spiel. Im Spielmodus markiert ein roter Ring solche Steine.'],
-  puzzles:[{task:'Der weiße Stein steht im Atari. Schlage ihn.',rows:['.......','.......','...X...','..XO...','...X...','.......','.......'],
-    check:c=>c.captured?ok('Geschlagen! Der Stein ist weg und zählt für dich.'):bad('Der weiße Stein hat noch eine Freiheit. Finde den leeren Punkt direkt neben ihm.')},
-   {task:'Auch am Rand: Schlage den weißen Stein.',rows:['.......','.......','.......','.......','.......','..X....','..OX...'],
-    check:c=>c.captured?ok('Richtig. Am Rand reichen weniger Steine zum Schlagen.'):bad('Am Rand fehlt die untere Seite. Welche Freiheit bleibt ihm noch?')}]},
- {id:'gruppen',title:'Gruppen',sum:'Verbundene Steine teilen Freiheiten',
-  body:['Steine gleicher Farbe, die waagerecht oder senkrecht nebeneinander liegen, bilden eine <b>Gruppe</b>. Sie teilen sich ihre Freiheiten und werden nur gemeinsam geschlagen.',
-        'Diagonal liegende Steine sind nicht verbunden. Größere Gruppen sind meist schwerer zu fangen, weil sie mehr Freiheiten haben.'],
-  puzzles:[{task:'Die zwei weißen Steine sind eine Gruppe mit nur einer Freiheit. Schlage beide.',rows:['.......','.......','...XX..','..XOOX.','...X...','.......','.......'],
-    check:c=>c.captured>=2?ok('Beide auf einmal geschlagen. So funktionieren Gruppen.'):bad('Suche die letzte gemeinsame Freiheit der beiden weißen Steine.')}]},
- {id:'retten',title:'Atari: Retten',sum:'Verlängern oder zurückschlagen',
-  body:['Steht eine deiner Gruppen im Atari, musst du meist sofort reagieren. Es gibt zwei Wege:',
-        '<b>Verlängern:</b> Setze an deine Gruppe an, damit sie neue Freiheiten bekommt. <b>Zurückschlagen:</b> Schlage einen angreifenden Stein, der selbst im Atari steht.'],
-  puzzles:[{task:'Dein Stein steht im Atari. Rette ihn durch Verlängern.',rows:['.......','.......','...O...','..OXO..','.......','.......','.......'],
-    check:c=>c.colorAt(3,3)===1&&c.libsAt(3,3)>=2?ok('Gerettet. Deine Gruppe hat jetzt 3 Freiheiten.'):bad('Dein Stein steht immer noch im Atari. Wo bekommt er neue Freiheiten?')},
-   {task:'Wieder Atari. Diesmal hilft Verlängern nicht. Finde die Rettung.',rows:['.......','...O...','..O.O..','..OXO..','..XOX..','.......','.......'],
-    check:c=>c.captured&&c.libsAt(3,3)>=2?ok('Stark. Du schlägst den Angreifer und dein Stein bekommt neue Luft.'):bad('Schau dir den weißen Stein unter deinem an. Wie viele Freiheiten hat er?')}]},
- {id:'verboten',title:'Verbotene Punkte',sum:'Selbstmord und die Ausnahme',
-  body:['Du darfst keinen Stein dorthin setzen, wo er (samt seiner Gruppe) sofort keine Freiheit hätte. Das wäre <b>Selbstmord</b>.',
-        '<b>Ausnahme:</b> Schlägt dein Zug dabei gegnerische Steine, ist er erlaubt. Durch das Schlagen entstehen neue Freiheiten.'],
-  puzzles:[{task:'Eine leere Ecke ist für dich verboten, die andere nicht. Finde den erlaubten Zug, der schlägt.',rows:['.O.....','O......','.......','.......','......X','.....XO','....XO.'],
-    check:c=>c.captured>=2?ok('Richtig. Ohne Schlagen wäre der Punkt verboten. Weil du schlägst, ist er erlaubt.'):bad('Das schlägt nichts. Suche den leeren Punkt, an dem Weiß selbst keine Luft mehr hat.')}]},
- {id:'ko',title:'Ko',sum:'Kein sofortiges Zurückschlagen',
-  body:['Manchmal könnten beide endlos abwechselnd einen einzelnen Stein zurückschlagen. Die <b>Ko-Regel</b> verbietet das: Nach so einem Schlag darf der Gegner nicht sofort zurückschlagen.',
-        'Er muss zuerst woanders spielen, am besten eine Drohung, auf die du antworten musst. Erst danach darf er zurückschlagen.'],
-  puzzles:[{task:'Schlage den weißen Stein in der Mitte.',rows:KO,
-    check:c=>c.captured?ok('Geschlagen. Weiß dürfte jetzt nicht sofort zurückschlagen, obwohl es so aussieht. Das ist Ko.'):bad('Der weiße Stein in der Mitte hat nur eine Freiheit. Wo?')},
-   {task:'Weiß hat gerade mit dem markierten Stein deinen Stein geschlagen. Versuche zurückzuschlagen, dann spiele woanders.',rows:KO,ko:[4,3],last:[3,3],
-    check:c=>ok('Richtig. Nach einem Zug woanders darfst du den Ko wieder schlagen, falls Weiß ihn nicht vorher schließt.')}]},
- {id:'augen',title:'Zwei Augen',sum:'Wann eine Gruppe lebt',
-  body:['Ein <b>Auge</b> ist ein leerer Punkt, der ganz von deiner Gruppe umschlossen ist. Der Gegner darf dort nicht setzen, außer er schlägt damit.',
-        'Hat eine Gruppe <b>zwei getrennte Augen</b>, kann sie nie geschlagen werden: Der Gegner müsste beide gleichzeitig füllen. Sie lebt für immer.',
-        'Bei drei leeren Punkten in einer Reihe entscheidet der mittlere. Wer ihn zuerst besetzt, entscheidet über Leben oder Tod.'],
-  puzzles:[{task:'Deine Gruppe unten links ist eingeschlossen. Sorge für zwei Augen.',rows:LIFE,
-    check:c=>c.x===1&&c.y===6?ok('Zwei getrennte Augen. Deine Gruppe lebt, Weiß kann sie nie schlagen.'):(c.y===6&&c.x<3?bad('Jetzt bleibt nur ein Auge übrig. Probier den mittleren Punkt.'):bad('Wenn du hier nicht reagierst, setzt Weiß in die Mitte und deine Gruppe hat nur noch ein Auge.'))},
-   {task:'Jetzt umgekehrt: Töte die weiße Gruppe.',rows:swap(LIFE),
-    check:c=>c.x===1&&c.y===6?ok('Getroffen. Weiß kann nur noch ein Auge bilden. Die Gruppe ist tot.'):bad('Weiß kann jetzt in die Mitte setzen und zwei Augen bilden. Nimm den Schlüsselpunkt.')}]},
- {id:'zaehlen',title:'Spielende & Zählen',sum:'Passen, Gebiet, Komi',
-  body:['Das Spiel endet, wenn beide nacheinander <b>passen</b>, weil kein Zug mehr etwas bringt.',
-        'Gezählt wird so: deine Steine auf dem Brett plus alle leeren Punkte, die nur deine Steine umschließen. Gruppen, die nicht mehr leben können, werden vorher entfernt.',
-        'Geschlagene Steine zählen dabei nicht extra. Sie bringen trotzdem Punkte: Sie fehlen dem Gegner auf dem Brett, und ihr Platz wird dein Gebiet.',
-        'Weil Schwarz anfängt, bekommt Weiß einen Ausgleich, das <b>Komi</b>. In dieser App sind es 7,5 Punkte. Der halbe Punkt verhindert ein Unentschieden.'],
-  puzzles:[{task:'Die Grenze zwischen den Gebieten hat eine Lücke. Schließe sie, sonst dringt Weiß in dein Gebiet ein.',rows:['...XO..','...XO..','...XO..','....O..','...XO..','...XO..','...XO..'],
-    check:c=>c.x===3&&c.y===3?ok('Grenze dicht. Schwarz: 7 Steine + 21 leere Punkte = 28. Weiß: 7 Steine + 14 Punkte = 21.'):bad('Die Lücke liegt auf der Grenze zwischen Schwarz und Weiß.')}]},
- {id:'ecken',title:'Ecke, Seite, Mitte',sum:'Die erste Strategie',
-  body:['In der Ecke helfen dir zwei Ränder beim Einschließen. Für dieselbe Fläche brauchst du dort viel weniger Steine als in der Mitte.',
-        'Darum gilt in der Eröffnung: <b>erst Ecken, dann Seiten, zuletzt die Mitte.</b>',
-        'Die 1. und 2. Linie vom Rand sind am Anfang zu niedrig. Die 3. Linie sichert Gebiet, die 4. Linie bringt mehr Einfluss.'],
-  puzzles:[{task:'Das 9×9-Brett ist leer. Wähle einen guten ersten Zug.',rows:Array(9).fill('.........'),
-    check:c=>{const dx=Math.min(c.x,8-c.x),dy=Math.min(c.y,8-c.y);
-      if((dx===2||dx===3)&&(dy===2||dy===3))return ok(`Guter Eröffnungszug auf der ${Math.min(dx,dy)+1}. Linie. Von hier lässt sich die Ecke gut einschließen.`);
-      if(dx<=1||dy<=1)return bad('Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet. Geh auf die 3. oder 4. Linie.');
-      if(dx===4&&dy===4)return bad('Die Mitte ist schwer zu sichern. Versuch es in einer Ecke.');
-      return bad('Die Seite ist okay, aber am Anfang ist die Ecke wertvoller.')}}]},
- {id:'schneiden',title:'Verbinden & Schneiden',sum:'Schnittpunkte erkennen',
-  body:['Verbundene Steine sind stark. Getrennte Gruppen müssen jede für sich überleben. Achte auf <b>Schnittpunkte</b>: leere Punkte, an denen der Gegner deine Steine trennen kann.',
-        'Faustregel: Verbinde deine eigenen Steine, schneide die des Gegners.'],
-  puzzles:[{task:'Weiß droht, deine beiden Steine zu trennen. Verbinde sie.',rows:CUT,
-    check:c=>c.x===3&&c.y===3?ok('Verbunden. Gleichzeitig trennst du die weißen Steine.'):bad('Deine Steine sind noch getrennt. Wo liegt der Punkt zwischen ihnen?')},
-   {task:'Jetzt umgekehrt: Schneide die weißen Steine voneinander.',rows:swap(CUT),
-    check:c=>c.x===3&&c.y===3?ok('Geschnitten. Merke: Der wichtige Punkt des Gegners ist oft auch deiner.'):bad('Weiß kann sich noch verbinden. Nimm den Punkt zwischen den weißen Steinen.')}]},
- {id:'plan',title:'Dein Denkplan',sum:'Checkliste für jeden Zug',
-  body:['Starke Spieler stellen sich vor jedem Zug dieselben Fragen. Geh sie in dieser Reihenfolge durch:'],
-  list:['Steht eine meiner Gruppen im Atari? Dann retten, oder bewusst aufgeben, wenn sie nicht mehr zu retten ist.',
-        'Kann ich etwas schlagen oder den Gegner ins Atari setzen?',
-        'Hat der letzte Zug des Gegners etwas bedroht? Wo will er hin?',
-        'Sind meine Gruppen verbunden? Gibt es gefährliche Schnittpunkte?',
-        'Wo ist der größte freie Bereich? Am Anfang: Ecken, dann Seiten.',
-        'Nie in das eigene Auge setzen.'],
-  after:'Im Spielmodus kommentiert der Trainer jeden deiner Züge. Mit „Tipp“ zeigt er dir einen starken Zug, mit „Zurück“ kannst du ihn ausprobieren.'}
+ {id:'brett',puzzles:[{rows:E7,marks:[[3,3]],check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)}]},
+ {id:'freiheiten',puzzles:[{rows:['.......','.......','.......','...O...','.......','.......','.......'],libDots:2,check:(c,m)=>c.libsAt(3,3)===3?ok(m.a):bad(m.b)},
+   {rows:['.......','.......','.......','.......','.......','.......','O......'],libDots:2,check:(c,m)=>c.libsAt(0,6)===1?ok(m.c):bad(m.d)}]},
+ {id:'schlagen',puzzles:[{rows:['.......','.......','...X...','..XO...','...X...','.......','.......'],check:(c,m)=>c.captured?ok(m.a):bad(m.b)},
+   {rows:['.......','.......','.......','.......','.......','..X....','..OX...'],check:(c,m)=>c.captured?ok(m.c):bad(m.d)}]},
+ {id:'gruppen',puzzles:[{rows:['.......','.......','...XX..','..XOOX.','...X...','.......','.......'],check:(c,m)=>c.captured>=2?ok(m.a):bad(m.b)}]},
+ {id:'retten',puzzles:[{rows:['.......','.......','...O...','..OXO..','.......','.......','.......'],check:(c,m)=>c.colorAt(3,3)===1&&c.libsAt(3,3)>=2?ok(m.a):bad(m.b)},
+   {rows:['.......','...O...','..O.O..','..OXO..','..XOX..','.......','.......'],check:(c,m)=>c.captured&&c.libsAt(3,3)>=2?ok(m.c):bad(m.d)}]},
+ {id:'verboten',puzzles:[{rows:['.O.....','O......','.......','.......','......X','.....XO','....XO.'],check:(c,m)=>c.captured>=2?ok(m.a):bad(m.b)}]},
+ {id:'ko',puzzles:[{rows:KO,check:(c,m)=>c.captured?ok(m.a):bad(m.b)},{rows:KO,ko:[4,3],last:[3,3],check:(c,m)=>ok(m.c)}]},
+ {id:'augen',puzzles:[{rows:LIFE,check:(c,m)=>c.x===1&&c.y===6?ok(m.a):(c.y===6&&c.x<3?bad(m.b):bad(m.c))},
+   {rows:swap(LIFE),check:(c,m)=>c.x===1&&c.y===6?ok(m.d):bad(m.e)}]},
+ {id:'zaehlen',puzzles:[{rows:['...XO..','...XO..','...XO..','....O..','...XO..','...XO..','...XO..'],check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)}]},
+ {id:'ecken',puzzles:[{rows:Array(9).fill('.........'),check:(c,m)=>{const dx=Math.min(c.x,8-c.x),dy=Math.min(c.y,8-c.y);
+      if((dx===2||dx===3)&&(dy===2||dy===3))return ok(m.ok(Math.min(dx,dy)+1));
+      if(dx<=1||dy<=1)return bad(m.low);if(dx===4&&dy===4)return bad(m.mid);return bad(m.side)}}]},
+ {id:'schneiden',puzzles:[{rows:CUT,check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)},{rows:swap(CUT),check:(c,m)=>c.x===3&&c.y===3?ok(m.c):bad(m.d)}]},
+ {id:'plan'}
 ];
 function parse(rows){const n=rows.length,b=new Array(n*n).fill(0);rows.forEach((r,y)=>[...r].forEach((ch,x)=>{b[y*n+x]=ch==='X'?1:ch==='O'?2:0}));return{n,b}}
 
@@ -934,28 +1252,28 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
   buzz(r.captured.length>0);playStone('me',r.captured.length);const n=LS.n;LS.board=r.board;LS.last=i;
   const ctx={x:i%n,y:(i/n)|0,captured:r.captured.length,
     colorAt:(x,y)=>r.board[y*n+x],libsAt:(x,y)=>r.board[y*n+x]?groupAt(r.board,y*n+x,n).libs.size:0};
-  const res=p.check(ctx);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
+  const res=p.check(ctx,LT(L).m);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
   if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){store.done[L.id]=true;save()}}else LS.failed=true;
   renderLesson()}
-function fbHTML(state,msg){const tag=state==='ok'?'<b class="fb-tag ok">Richtig</b>':state==='bad'?'<b class="fb-tag bad">Nicht ganz</b>':'';
-  return tag+(state?String(msg).replace(/^(Richtig|Genau|Nicht ganz)[.,!]?\s*/,''):msg)}
+function fbHTML(state,msg){const tag=state==='ok'?`<b class="fb-tag ok">${T('tag_ok')}</b>`:state==='bad'?`<b class="fb-tag bad">${T('tag_bad')}</b>`:'';
+  return tag+(state?String(msg).replace(/^(Richtig|Genau|Nicht ganz|Correct|Exactly|Not quite|Goed|Precies|Niet helemaal)[.,!]?\s*/,''):msg)}
 function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi],task=LS.stage==='task'&&!!p;
   if(!$('#view-lesson').hidden)document.documentElement.classList.toggle('fit',task);
-  $('#ls-eyebrow').textContent=`Lektion ${LS.li+1} von ${LESSONS.length}`;$('#ls-title').textContent=L.title;
+  const X=LT(L);$('#ls-eyebrow').textContent=T('lesson_of',LS.li+1,LESSONS.length);$('#ls-title').textContent=X.title;
   const cnt=p?L.puzzles.length:0;
   $('#ls-steps').innerHTML=task&&cnt>1?L.puzzles.map((_,k)=>`<i class="${k<LS.pi||(k===LS.pi&&LS.solved)?'on':''}"></i>`).join(''):'';
   $('#ls-read').hidden=task;$('#ls-host').hidden=!task;$('#ls-fb').hidden=!task;
-  if(!task){let body=L.body.map(t=>`<p>${t}</p>`).join('');
-    if(L.list)body+='<ol>'+L.list.map(t=>`<li>${t}</li>`).join('')+'</ol>';
-    if(L.after)body+=`<p>${L.after}</p>`;
+  if(!task){let body=X.body.map(t=>`<p>${t}</p>`).join('');
+    if(X.list)body+='<ol>'+X.list.map(t=>`<li>${t}</li>`).join('')+'</ol>';
+    if(X.after)body+=`<p>${X.after}</p>`;
     $('#ls-body').innerHTML=body;
-    $('#ls-start').textContent=p?(LS.pi>0||LS.last>=0?'Zurück zur Aufgabe':(cnt>1?`${cnt} Aufgaben lösen`:'Aufgabe lösen')):(LS.li<LESSONS.length-1?'Abschließen und weiter':'Abschließen und spielen');
+    $('#ls-start').textContent=p?(LS.pi>0||LS.last>=0?T('ls_back_task'):(cnt>1?T('ls_solve_n',cnt):T('ls_solve1'))):(LS.li<LESSONS.length-1?T('ls_finish_next'):T('ls_finish_play'));
     $('#ls-controls').hidden=true;$('#ls-next').hidden=true;return}
   drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
   const fb=$('#ls-fb');fb.dataset.state=LS.state||'';fb.classList.remove('open');
-  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${LS.msg?fbHTML(LS.state,LS.msg):p.task}</span></span>`;
+  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${LS.msg?fbHTML(LS.state,LS.msg):X.tasks[LS.pi]}</span></span>`;
   $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed;
-  $('#ls-next').textContent=LS.pi<cnt-1?'Nächste Aufgabe':(LS.li<LESSONS.length-1?'Nächste Lektion':'Jetzt spielen')}
+  $('#ls-next').textContent=LS.pi<cnt-1?T('next_task'):(LS.li<LESSONS.length-1?T('next_lesson'):T('play_now'))}
 function lessonAdvance(){const L=LESSONS[LS.li];
   if(L.puzzles&&LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1)openLesson(LS.li+1);else show('play')}
 $('#ls-start').onclick=()=>{const L=LESSONS[LS.li];
@@ -968,22 +1286,22 @@ $('#ls-next').onclick=lessonAdvance;
 $('#ls-back').onclick=()=>{if(LS&&LS.stage==='task'){LS.stage='read';renderLesson();window.scrollTo(0,0)}else show('learn')};
 
 function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
-  $('#prog-num').innerHTML=`${done}<small>von ${LESSONS.length} Lektionen</small>`;
+  $('#prog-num').innerHTML=`${done}<small>${T('of_lessons',LESSONS.length)}</small>`;
   $('#prog-bar').style.width=(done/LESSONS.length*100)+'%';
   const nextIdx=LESSONS.findIndex(l=>!store.done[l.id]);
-  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="erledigt"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
-    return`<li><button class="lesson-row" data-li="${i}"${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${l.title}</span><span class="d">${l.sum}</span></span>${st}</button></li>`}).join('');
+  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="${T('done')}"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
+    return`<li><button class="lesson-row" data-li="${i}"${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
   document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>openLesson(+b.dataset.li))}
 let resetArmed=false;
-$('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent='Wirklich alles zurücksetzen? Nochmal tippen.';setTimeout(()=>{resetArmed=false;t.textContent='Fortschritt zurücksetzen'},3500);return}
-  store.done={};resetArmed=false;t.textContent='Fortschritt zurücksetzen';save();renderLearn()};
+$('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent=T('reset_confirm');setTimeout(()=>{resetArmed=false;t.textContent=T('reset')},3500);return}
+  store.done={};resetArmed=false;t.textContent=T('reset');save();renderLearn()};
 $('#cta-play').onclick=()=>show('play');
 
 /* ---------- Spiel ---------- */
-const CN={1:'Schwarz',2:'Weiß'},ADJ={1:'schwarze',2:'weiße'};
+const CN=new Proxy({},{get:(o,k)=>+k===1?T('black'):T('white')}),ADJ=new Proxy({},{get:(o,k)=>+k===1?T('adj_b'):T('adj_w')});
 function newGame(){const n=store.settings.size,user=store.settings.color===2?2:1;
   return{n,user,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:store.settings.level,
-    coach:[{who:'trainer',t:user===1?'Du spielst Schwarz und beginnst. Starte in einer Ecke, auf der 3. oder 4. Linie vom Rand.':`Du spielst Weiß. Der Computer beginnt mit Schwarz, dafür bekommst du ${fmt(KOMI)} Punkte Komi. Antworte in einer freien Ecke.`}]}}
+    coach:[{who:'trainer',t:user===1?T('intro_black'):T('intro_white',fmt(KOMI))}]}}
 const U=()=>G.user||1,A=()=>3-(G.user||1);
 function startGame(){aiReq++;stopThinking();G=newGame();busy=false;save();renderPlay();if(G.turn===A())aiMove()}
 let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*store.game.n)?store.game:newGame();
@@ -994,19 +1312,19 @@ function restore(s){G.pending=-1;G.board=[...s.b].map(Number);G.turn=s.turn;G.ca
 function applyMove(r,i,c){G.pending=-1;G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko;G.last=i;G.passes=0;G.moves++;G.turn=3-c}
 
 function commentUser(i,r,mine,best){const n=G.n,parts=[],k=r.captured.length;
-  if(k)parts.push(k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`);
-  if(r.group.libs.size===1)parts.push('Vorsicht: Dein Stein steht jetzt selbst im Atari.');
-  else if(mine&&mine.trap)parts.push(`Vorsicht: ${CN[A()]} kann diese Steine jetzt fangen, zum Beispiel in einer Leiter.`);
-  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===A()&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push(`Atari! ${CN[A()]} muss reagieren.`)}
+  if(k)parts.push(T('you_cap',k));
+  if(r.group.libs.size===1)parts.push(T('self_atari'));
+  else if(mine&&mine.trap)parts.push(T('trap',CN[A()]));
+  else{let at=false;for(const j of nbrs(i,n))if(r.board[j]===A()&&groupAt(r.board,j,n).libs.size===1)at=true;if(at)parts.push(T('atari_them',CN[A()]))}
   const diff=best&&mine?best.s-mine.s:0;
-  if(best&&best.i!==i&&diff>5){const rs=best.why[0];parts.push(`Stärker wäre ${coord(best.i,n)} gewesen${rs?', denn der Zug '+rs.t:''}.`)}
-  else if(diff<=1.5){if(!k){const rs=mine&&mine.why[0];parts.push(rs?`Guter Zug. Er ${rs.t}.`:'Solider Zug.')}}
-  else if(best&&!parts.length)parts.push(`Spielbar. ${coord(best.i,n)} wäre etwas besser gewesen.`);
+  if(best&&best.i!==i&&diff>5)parts.push(T('stronger',coord(best.i,n),RS(best.why[0])));
+  else if(diff<=1.5){if(!k){const rs=mine&&mine.why[0];parts.push(rs?T('good',RS(rs)):T('solid'))}}
+  else if(best&&!parts.length)parts.push(T('playable',coord(best.i,n)));
   const x=i%n,y=(i/n)|0,d=Math.min(x,y,n-1-x,n-1-y);
-  if(G.moves<=n*1.3&&d<=1&&diff>3)parts.push('In der Eröffnung sind die 1. und 2. Linie zu niedrig.');
+  if(G.moves<=n*1.3&&d<=1&&diff>3)parts.push(T('too_low'));
   return`${coord(i,n)}: `+parts.join(' ')}
 function warnAtari(){const g=atariGroups(G.board,G.n,U());
-  if(g.length)coachAdd('trainer',g.length===1?`Achtung: Deine Gruppe bei ${coord(g[0].stones[0],G.n)} steht im Atari (roter Ring). Rette sie oder gib sie bewusst auf.`:`Achtung: ${g.length} deiner Gruppen stehen im Atari (rote Ringe).`)}
+  if(g.length)coachAdd('trainer',g.length===1?T('warn1',coord(g[0].stones[0],G.n)):T('warnN',g.length))}
 
 function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const r=tryPlay(G.board,i,U(),G.n,G.ko);
@@ -1019,7 +1337,7 @@ function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   const list=analyze(G.board,G.n,U(),G.ko,G.moves),mine=list.find(e=>e.i===i),best=list[0];
   pushHist();applyMove(r,i,U());G.hint=-1;
   let cm=commentUser(i,r,mine,best);
-  if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=(good?'Gefunden! ':'Nicht ganz das, was der Tipp meinte. ')+cm}
+  if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=(good?T('found'):T('notquite_hint'))+cm}
   G.hintLevel=0;coachPeek=false;
   coachAdd('du',cm);
   save();renderPlay();aiMove()}
@@ -1030,7 +1348,7 @@ function getWorker(){if(worker||workerFailed)return worker;
 function localSearch(msg){if(!mctsLocal)mctsLocal=new Function($('#mcts-src').textContent+';return search;')();return mctsLocal(msg)}
 function startThinking(){clearTimeout(thinkTimer);thinkTimer=setTimeout(()=>document.body.classList.add('thinking'),1000)}
 function stopThinking(){clearTimeout(thinkTimer);document.body.classList.remove('thinking')}
-function aiPass(extra){G.passes++;G.turn=U();G.last=-1;G.ko=-1;coachAdd('weiss',CN[A()]+' passt.'+(extra||'')+' Wenn du auch passt, endet das Spiel und es wird gezählt.');if(G.passes>=2)enterScore()}
+function aiPass(extra){G.passes++;G.turn=U();G.last=-1;G.ko=-1;coachAdd('weiss',T('ai_pass',CN[A()],extra||''));if(G.passes>=2)enterScore()}
 function aiMove(){if(G.phase!=='play'||G.turn!==A())return;const AC=A();busy=true;const id=++aiReq;renderPlay();startThinking();
   if(G.level==='stark'){
     setTimeout(()=>{if(id!==aiReq)return;
@@ -1048,58 +1366,46 @@ function aiMove(){if(G.phase!=='play'||G.turn!==A())return;const AC=A();busy=tru
       if(pick.s<thr)pick=list[0]}
     stopThinking();pushHist();
     if(!pick)aiPass();
-    else{applyMove(pick.r,pick.i,AC);playStone('ai',pick.r.captured.length);const rs=pick.why[0];coachAdd('weiss',`${CN[AC]} spielt ${coord(pick.i,G.n)}${rs?'. Der Zug '+rs.t:''}.`);warnAtari()}
+    else{applyMove(pick.r,pick.i,AC);playStone('ai',pick.r.captured.length);coachAdd('weiss',T('ai_plays',CN[AC],coord(pick.i,G.n),RS(pick.why[0])));warnAtari()}
     busy=false;save();renderPlay()},450)}
 function finishStark(r,list){stopThinking();pushHist();
   const AC=A();let m=r.move,rr=m>=0?tryPlay(G.board,m,AC,G.n,G.ko):null;
   if(rr&&rr.err){rr=null;m=-1;if(list[0]&&list[0].s>0.8){m=list[0].i;rr=list[0].r}}
   const pct=Math.round(r.winrate*100);
   const settled=r.settled>0.96||(G.passes>0&&r.winrate>0.85);
-  if(m<0||settled)aiPass(` ${CN[AC]} schätzt seine Gewinnchance auf ${pct} %.`);
-  else{applyMove(rr,m,AC);playStone('ai',rr.captured.length);const e=list.find(x=>x.i===m),rs=e&&e.why[0];
-    coachAdd('weiss',`${CN[AC]} spielt ${coord(m,G.n)}${rs?'. Der Zug '+rs.t:''}. Gewinnchance für ${CN[AC]}: ${pct} %.`);warnAtari()}
+  if(m<0||settled)aiPass(T('winchance_pass',CN[AC],pct));
+  else{applyMove(rr,m,AC);playStone('ai',rr.captured.length);const e=list.find(x=>x.i===m);
+    coachAdd('weiss',T('ai_plays',CN[AC],coord(m,G.n),RS(e&&e.why[0]))+T('winchance',CN[AC],pct));warnAtari()}
   busy=false;save();renderPlay()}
-function userPass(){if(G.phase!=='play'||G.turn!==U()||busy)return;pushHist();G.passes++;G.turn=A();G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du','Du passt.');
+function userPass(){if(G.phase!=='play'||G.turn!==U()||busy)return;pushHist();G.passes++;G.turn=A();G.last=-1;G.ko=-1;G.hint=-1;coachAdd('du',T('you_pass'));
   if(G.passes>=2){enterScore();save();renderPlay()}else{save();renderPlay();aiMove()}}
 function enterScore(){G.phase='score';G.dead=[];const seen=new Uint8Array(G.n*G.n);
   for(let i=0;i<G.n*G.n;i++)if(G.board[i]&&!seen[i]){const g=groupAt(G.board,i,G.n);g.stones.forEach(s=>seen[s]=1);if(g.libs.size<=1)G.dead.push(...g.stones)}
-  coachAdd('trainer','Beide haben gepasst. Tippe auf Gruppen, die nicht mehr leben können: Sie werden entfernt. Die kleinen Quadrate zeigen, wem welches Gebiet gehört.')}
+  coachAdd('trainer',T('score_start'))}
 function toggleDead(i){if(!G.board[i])return;const g=groupAt(G.board,i,G.n).stones,ds=new Set(G.dead);
   if(g.every(s=>ds.has(s)))g.forEach(s=>ds.delete(s));else g.forEach(s=>ds.add(s));G.dead=[...ds];buzz();save();renderPlay()}
-const IDEA=[
- [/^schlägt/,'{G} hat Steine mit nur einer Freiheit. Findest du sie?'],
- [/rettet/,'Eine deiner Gruppen hat nur noch eine Freiheit. Wie bekommt sie wieder Luft?'],
- [/fängt gegnerische/,'Einige {g} Steine lassen sich fangen, wenn du von der richtigen Seite Atari gibst.'],
- [/ins Atari/,'Einige {g} Steine haben nur noch zwei Freiheiten. Kannst du Druck machen?'],
- [/trennt/,'Zwei {g} Gruppen hängen nur lose zusammen. Wo könntest du sie trennen?'],
- [/verbindet/,'Zwei deiner Gruppen sind getrennt. Ein Zug könnte sie verbinden.'],
- [/freie Ecke/,'Es gibt noch eine freie Ecke. Ecken sind am Anfang am wertvollsten.'],
- [/eigene Gebiet/,'Gerade droht nichts. Wo kannst du dein Gebiet vergrößern?'],
- [/gegnerische Gebiet/,'Schau dir das {g} Gebiet an. Wo kannst du es verkleinern?']];
-function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;
-  const R=[['oben links','am oberen Rand','oben rechts'],['am linken Rand','in der Mitte','am rechten Rand'],['unten links','am unteren Rand','unten rechts']];
-  return R[cy][cx]}
+function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;return T('regions')[cy][cx]}
 function hint(){if(G.phase!=='play'||G.turn!==U()||busy)return;coachPeek=true;const list=analyze(G.board,G.n,U(),G.ko,G.moves);
-  if(!list.length||list[0].s<0.8){coachAdd('trainer','Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.');save();renderPlay();return}
-  const b=list[0],rs=b.why[0],idea=(rs&&IDEA.find(([re])=>re.test(rs.t)))||null;
+  if(!list.length||list[0].s<0.8){coachAdd('trainer',T('nothing_left'));save();renderPlay();return}
+  const b=list[0],rs=b.why[0];
   G.hintLevel=(G.hintLevel||0)+1;
-  const base=idea?idea[1].replace('{G}',CN[A()]).replace('{g}',ADJ[A()]):'Geh deinen Denkplan durch: Atari? Schlagen? Verbinden? Wo ist die größte freie Fläche?';
+  const base=rs?T('idea_'+rs.t,CN[A()],ADJ[A()]):T('plan_hint');
   if(G.hintLevel===1)coachAdd('trainer',base);
-  else coachAdd('trainer',`Schau mal ${region(b.i,G.n)}. ${base}`);
+  else coachAdd('trainer',T('look_at',region(b.i,G.n),base));
   save();renderPlay()}
 function undo(){if(busy||G.phase==='over'||!G.history.length)return;let s=null;
   while(G.history.length){s=G.history.pop();if(s.turn===U())break}
-  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer','Zug zurückgenommen. Probier etwas anderes.');save();renderPlay();if(G.turn===A())aiMove()}
+  restore(s);G.phase='play';G.dead=[];G.hint=-1;coachAdd('trainer',T('undo_msg'));save();renderPlay();if(G.turn===A())aiMove()}
 let newArmed=false;
 function newGameClick(){const lab=$('#btn-new span');
-  if(G.moves>0&&G.phase!=='over'&&!newArmed){newArmed=true;lab.textContent='Sicher?';setTimeout(()=>{newArmed=false;lab.textContent='Neu'},3000);return}
-  newArmed=false;lab.textContent='Neu';startGame()}
+  if(G.moves>0&&G.phase!=='over'&&!newArmed){newArmed=true;lab.textContent=T('sure');setTimeout(()=>{newArmed=false;lab.textContent=T('new')},3000);return}
+  newArmed=false;lab.textContent=T('new');startGame()}
 function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white,um=U()===1?m:-m;G.phase='over';
   G.result={black:sc.black,white:sc.white,m,um};if(um>0)store.stats.win++;else store.stats.loss++;
-  coachAdd('trainer',`Schwarz: ${sc.black} Punkte (Steine + Gebiet). Weiß: ${fmt(sc.white)} Punkte inklusive ${fmt(KOMI)} Komi. ${um>0?'Du gewinnst mit '+fmt(um)+' Punkten. Glückwunsch!':CN[A()]+' gewinnt mit '+fmt(-um)+' Punkten. Mit „Neu“ startest du die nächste Partie.'}`);
+  coachAdd('trainer',T('final',sc.black,fmt(sc.white),fmt(KOMI),um>0,CN[A()],fmt(Math.abs(um))));
   save();renderPlay()}
 $('#btn-hint').onclick=hint;$('#btn-undo').onclick=undo;$('#btn-pass').onclick=userPass;$('#btn-new').onclick=newGameClick;
-function resumeGame(){G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer','Weiter geht es. Du bist am Zug.');save();renderPlay()}
+function resumeGame(){G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer',T('resume_msg'));save();renderPlay()}
 $('#score-actions').onclick=e=>{const a=e.target.closest('button');if(!a)return;const k=a.dataset.act;
   if(k==='resume')resumeGame();else if(k==='confirm')confirmScore();else if(k==='review'){G.reviewing=true;save();renderPlay()}else if(k==='again')startGame()};
 document.querySelectorAll('#seg-confirm button').forEach(b=>b.onclick=()=>{store.settings.confirm=b.dataset.v;G.pending=-1;save();renderPlay()});
@@ -1107,10 +1413,10 @@ function tally(board,n,dead){const sc=scoreArea(board,n,dead);let bs=0,ws=0;cons
   for(let i=0;i<n*n;i++){if(d.has(i))continue;if(board[i]===1)bs++;else if(board[i]===2)ws++}
   return{sc,bs,ws,bt:sc.black-bs,wt:sc.white-KOMI-ws}}
 document.querySelectorAll('#seg-size button').forEach(b=>b.onclick=()=>{store.settings.size=+b.dataset.v;
-  if(G.moves===0||G.phase==='over')startGame();else{coachAdd('trainer',`Die Brettgröße ${b.dataset.v}×${b.dataset.v} gilt ab dem nächsten Spiel („Neu“).`);save();renderPlay()}});
+  if(G.moves===0||G.phase==='over')startGame();else{coachAdd('trainer',T('size_later',b.dataset.v));save();renderPlay()}});
 document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.settings.color=+b.dataset.v;
   if(G.moves===0&&G.user===store.settings.color){renderPlay();return}
-  if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',`Du spielst ab der nächsten Partie ${CN[store.settings.color]} („Neu“).`);save();renderPlay()}});
+  if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',T('color_later',CN[store.settings.color]));save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 $('#opt-coach').onchange=e=>{store.settings.coach=e.target.checked;save();renderPlay()};
@@ -1121,8 +1427,7 @@ function syncHaptic(){const on=hapticKind()!=='android'&&store.settings.haptic!=
   document.querySelectorAll('.hsw').forEach(i=>{i.disabled=!on})}
 syncHaptic();
 
-const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
-const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
+const whoLabel=w=>w==='weiss'?CN[A()]:T(w==='du'?'who_du':'who_trainer');
 let coachOpen=false,coachPeek=false; // coachPeek: bei ausgeblendetem Trainer zeigt „Tipp“ die Karte bis zum nächsten Zug
 $('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
 const sheet=$('#sheet');
@@ -1134,27 +1439,27 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)close
 function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scoreArea(G.board,n,G.dead):null;
   drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,pending:G.phase==='play'&&G.pending>=0?G.pending:-1,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
     ghost:!scoring&&G.turn===U()&&!busy,ghostColor:U(),onPlay:i=>{if(G.phase==='score')toggleDead(i);else if(G.phase==='play')userMove(i)}});
-  let t;const lvl={leicht:'Leicht',mittel:'Mittel',stark:'Stark'}[G.level]||'';
+  let t;const lvl=T('lvl_'+G.level)||'';
   const pill=(c,name,sub,on,extra)=>`<span class="pl${on?' on':''}"><span class="${c===1?'dot':'dot w'}"></span>${name}${sub?`<span class="pl-s">${sub}</span>`:''}${extra||''}</span>`;
   const um=G.result?(G.result.um!=null?G.result.um:G.result.m):0;
-  if(G.phase==='over')t=`<span class="turn">${um>0?'Du gewinnst mit '+fmt(um):CN[A()]+' gewinnt mit '+fmt(-um)}</span>`;
-  else if(G.phase==='score')t='<span class="turn">Partie zählen</span>';
+  if(G.phase==='over')t=`<span class="turn">${um>0?T('you_win',fmt(um)):T('they_win',CN[A()],fmt(-um))}</span>`;
+  else if(G.phase==='score')t=`<span class="turn">${T('counting')}</span>`;
   else{const mine=G.turn===U()&&!busy;
-    t=pill(U(),'Du',G.pending>=0?'Bestätigen':'',mine)+pill(A(),'Computer',G.pending>=0?'':(G.passes&&mine?'hat gepasst':lvl),!mine,'<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>')}
+    t=pill(U(),T('you'),G.pending>=0?T('confirm_pill'):'',mine)+pill(A(),T('computer'),G.pending>=0?'':(G.passes&&mine?T('passed'):lvl),!mine,'<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>')}
   $('#turn').innerHTML=t;
   const box=$('#scorebox'),showBox=scoring&&!(G.phase==='over'&&G.reviewing);box.hidden=!showBox;
-  if(showBox){const T=tally(G.board,n,G.dead),you=c=>c===U()?' (du)':'';
-    const lines=`Schwarz${you(1)}: ${T.bs} Steine + ${T.bt} Gebiet = ${T.sc.black}<br>Weiß${you(2)}: ${T.ws} Steine + ${T.wt} Gebiet + ${fmt(KOMI)} Komi = ${fmt(T.sc.white)}`;
-    if(G.phase==='score'){$('#score-nums').textContent=`Schwarz ${T.sc.black} · Weiß ${fmt(T.sc.white)}`;
-      $('#score-note').innerHTML='Tippe Gruppen an, die nicht mehr leben können. Die Quadrate zeigen, wem das Gebiet gehört.';
-      $('#score-actions').innerHTML='<button class="btn" data-act="resume">Weiterspielen</button><button class="btn primary" data-act="confirm">Bestätigen</button>'}
-    else{$('#score-nums').innerHTML=`<span class="eyebrow">Ergebnis</span><h2>${um>0?'Du gewinnst mit '+fmt(um)+' Punkten':CN[A()]+' gewinnt mit '+fmt(-um)+' Punkten'}</h2>`;
+  if(showBox){const TT=tally(G.board,n,G.dead),you=c=>c===U()?T('you_tag'):'';
+    const lines=T('line_b',you(1),TT.bs,TT.bt,TT.sc.black)+'<br>'+T('line_w',you(2),TT.ws,TT.wt,fmt(KOMI),fmt(TT.sc.white));
+    if(G.phase==='score'){$('#score-nums').textContent=T('score_nums',TT.sc.black,fmt(TT.sc.white));
+      $('#score-note').innerHTML=T('score_note');
+      $('#score-actions').innerHTML=`<button class="btn" data-act="resume">${T('resume')}</button><button class="btn primary" data-act="confirm">${T('confirm')}</button>`}
+    else{$('#score-nums').innerHTML=`<span class="eyebrow">${T('result')}</span><h2>${um>0?T('you_win_pts',fmt(um)):T('they_win_pts',CN[A()],fmt(-um))}</h2>`;
       $('#score-note').innerHTML=`<span class="result-line">${lines}</span>`;
-      $('#score-actions').innerHTML='<button class="btn" data-act="review">Partie ansehen</button><button class="btn primary" data-act="again">Neue Partie</button>'}}
+      $('#score-actions').innerHTML=`<button class="btn" data-act="review">${T('review')}</button><button class="btn primary" data-act="again">${T('again')}</button>`}}
   $('#controls').hidden=showBox;
   const play=G.phase==='play'&&G.turn===U()&&!busy;
   {const off=hapticKind()==='android'||store.settings.haptic===false||!(play||G.phase==='score');setTimeout(()=>{const i=$('#play-host .hsw');if(i)i.disabled=off},0)}
-  $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?'Genauer':'Tipp';$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
+  $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?T('more'):T('hint');$('#btn-new span').textContent=newArmed?T('sure'):T('new');$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${c.t}</span>`).join('');
@@ -1165,7 +1470,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
   $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;$('#opt-sound').checked=store.settings.sound!==false;$('#opt-coach').checked=store.settings.coach!==false;
   const w=store.stats.win,l=store.stats.loss;
-  $('#record').textContent=(w||l)?`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`:''}
+  $('#record').textContent=(w||l)?T('record',w,l):''}
 
 /* ---------- Training ---------- */
 const GLYPH={ // kleine Brettausschnitte als Symbol: [schwarz],[weiß]
@@ -1176,21 +1481,9 @@ function glyph(id){const[bs,ws]=GLYPH[id];let h='<svg viewBox="0 0 32 32">';
   for(const[x,y]of bs)h+=`<circle cx="${6+x*10}" cy="${6+y*10}" r="4.6" style="fill:var(--stone-b2)"/>`;
   for(const[x,y]of ws)h+=`<circle cx="${6+x*10}" cy="${6+y*10}" r="4.3" style="fill:var(--stone-w1);stroke:var(--stone-edge);stroke-width:.8"/>`;
   return h+'</svg>'}
-const TCATS=[
- {id:'schlagen',title:'Schlagen',sum:'Den größten Fang finden',gen:genSchlagen,goal:'Schlage so viele Steine wie möglich.',
-  tip:'Schau vor jedem Zug nach weißen Gruppen mit nur einer Freiheit.'},
- {id:'retten',title:'Retten',sum:'Eigene Gruppe aus dem Atari holen',gen:genRetten,goal:'Eine deiner Gruppen hat nur noch eine Freiheit. Rette sie.',
-  tip:'Verlängere dorthin, wo deine Gruppe die meisten neuen Freiheiten bekommt, oder schlage einen Angreifer.'},
- {id:'doppel',title:'Doppel-Atari',sum:'Zwei Gruppen auf einmal bedrohen',gen:genDoppel,goal:'Bedrohe zwei weiße Gruppen mit einem Zug.',
-  tip:'Ein Doppel-Atari bedroht zwei Gruppen gleichzeitig. Weiß kann nur eine davon retten.'},
- {id:'fangen',title:'Fangen',sum:'Fluchtwege abschneiden',set:'fangen',goal:'Fange die Steine mit ▲. Weiß wehrt sich.',
-  tip:'Gib Atari von der Seite, auf der Weiß danach am wenigsten Freiheiten hat.'},
- {id:'leiter',title:'Leiter',sum:'Fangen im Zickzack über das Brett',set:'leiter',goal:'Fange die Steine mit ▲. Weiß wehrt sich.',
-  tip:'Bei der Leiter hat Weiß nach jedem Verlängern wieder nur 2 Freiheiten. Ein weißer Stein im Weg bricht die Leiter.'},
- {id:'zaehlen',title:'Zählen',sum:'Punkte am Spielende ausrechnen',gen:genZaehlen,goal:'',
-  tip:'Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'},
- {id:'punkte',title:'Große Punkte',sum:'Der wertvollste Zug der Eröffnung',gen:genPunkte,goal:'Spiele den größten Zug auf dem Brett.',
-  tip:'Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.'}];
+const TCATS=[{id:'schlagen',gen:genSchlagen},{id:'retten',gen:genRetten},{id:'doppel',gen:genDoppel},{id:'fangen',set:'fangen'},
+ {id:'leiter',set:'leiter'},{id:'zaehlen',gen:genZaehlen},{id:'punkte',gen:genPunkte}];
+TCATS.forEach(c=>['title','sum','goal','tip'].forEach((k,j)=>Object.defineProperty(c,k,{get:()=>T('cat')[c.id][j]})));
 const TC=id=>TCATS.find(c=>c.id===id);
 const tstat=id=>store.train[id]||(store.train[id]={ok:0,tries:0,streak:0,best:0,last:-1});
 function symIdx(i,n,k){let x=i%n,y=(i/n)|0;if(k&1)x=n-1-x;if(k&2)y=n-1-y;if(k&4){const t=x;x=y;y=t}return y*n+x}
@@ -1204,13 +1497,13 @@ function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);to
   $('#ts-solved').textContent=tot;$('#ts-best').textContent=best;
   const fresh=TCATS.every(c=>!tstat(c.id).tries);$('#ts-empty').hidden=!fresh;$('#ts-stats').hidden=fresh;
   $('#train-list').innerHTML=TCATS.map(c=>{const s=tstat(c.id);
-    const chip=s.streak>1?`<span class="chip hot">Serie ${s.streak}</span>`:(s.ok?`<span class="chip">${s.ok} gelöst</span>`:`<span class="chip">${c.set?TSET[c.set].length+' Aufgaben':'Endlos'}</span>`);
+    const chip=s.streak>1?`<span class="chip hot">${T('streak',s.streak)}</span>`:(s.ok?`<span class="chip">${T('solved_n',s.ok)}</span>`:`<span class="chip">${c.set?T('tasks_n',TSET[c.set].length):T('endless')}</span>`);
     return`<button class="train-row" data-id="${c.id}"><span class="tglyph">${glyph(c.id)}</span><span class="lt"><span class="t">${c.title}</span><span class="d">${c.sum}</span></span>${chip}</button>`}).join('');
   document.querySelectorAll('.train-row').forEach(b=>b.onclick=()=>openDrill(b.dataset.id))}
 $('#ts-start').onclick=()=>openDrill('schlagen');
 function openDrill(id){D={cat:id};newDrill();show('drill')}
 function newDrill(){const c=TC(D.cat);const p=c.set?fromSet(c.set):c.gen();
-  if(!p){D.msg='Keine Aufgabe gefunden. Tippe auf „Weiter“.';D.state='';D.sub='';renderDrill();return}
+  if(!p){D.msg=T('nodrill');D.state='';D.sub='';renderDrill();return}
   Object.assign(D,{quiz:null,answered:-1},p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,whyOpen:false,msg:p.quiz?p.quiz.q:c.goal,state:'',sub:p.quiz?p.quiz.note:''});
   renderDrill()}
 function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:'',whyOpen:false});renderDrill()}
@@ -1225,35 +1518,35 @@ function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat
   const r=tryPlay(D.b,i,1,n,-1);if(r.err){D.msg=ERR[r.err==='ko'?'occupied':r.err];D.state='bad';D.sub='';renderDrill();return}
   buzz(r.captured.length>0);playStone('me',r.captured.length);const k=r.captured.length,before=D.b;D.b=r.board;D.last=i;
   if(c==='schlagen'){
-    if(D.ans.has(i))return drillSolved(k===1?'Richtig. Du schlägst einen Stein.':`Richtig. Du schlägst ${k} Steine.`);
-    return drillFailed(k?`Das schlägt nur ${k===1?'einen Stein':k+' Steine'}. Es gibt einen größeren Fang.`:'Das schlägt keinen Stein.')}
+    if(D.ans.has(i))return drillSolved(T('you_cap',k));
+    return drillFailed(k?T('d_only',k):T('d_none'))}
   if(c==='doppel'){
-    if(D.ans.has(i))return drillSolved('Doppel-Atari! Weiß kann nur eine Gruppe retten.');
+    if(D.ans.has(i))return drillSolved(T('d_double_ok'));
     let at=0;const seen=new Set();for(const j of nbrs(i,n))if(r.board[j]===2&&!seen.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(s=>seen.add(s));if(g.libs.size===1)at++}
-    return drillFailed(at===1?'Das ist nur ein einfaches Atari. Weiß rettet die Gruppe.':(r.group.libs.size<2?'Dein Stein steht so selbst im Atari.':'Dieser Zug bedroht keine weiße Gruppe.'))}
+    return drillFailed(at===1?T('d_single'):(r.group.libs.size<2?T('d_selfatari'):T('d_nothreat')))}
   if(c==='punkte'){
-    if(D.ans.has(i))return drillSolved('Richtig. Eine freie Ecke ist der größte Punkt.');
+    if(D.ans.has(i))return drillSolved(T('d_corner_ok'));
     const x=i%n,y=(i/n)|0,d=Math.min(x,y,n-1-x,n-1-y);
     const hx=x<=5?0:x>=n-6?1:-1,hy=y<=5?0:y>=n-6?2:-1,cornerOf=(hx>=0&&hy>=0)?(hx|hy):-1;
-    return drillFailed(d<=1?'Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet.':(cornerOf>=0&&!D.emptyCorners.includes(cornerOf)?'In dieser Ecke liegt schon ein Stein. Eine ganz freie Ecke ist größer.':'Seite und Mitte sind weniger wert. Es gibt noch eine freie Ecke.'))}
+    return drillFailed(d<=1?T('d_low'):(cornerOf>=0&&!D.emptyCorners.includes(cornerOf)?T('d_taken'):T('d_side')))}
   if(c==='retten'){
-    if(D.ans.has(i)){const L=groupAt(D.b,D.t,n).libs.size;return drillSolved(k?`Gerettet. Du schlägst den Angreifer und deine Gruppe hat wieder ${L} Freiheiten.`:`Gerettet. Deine Gruppe hat jetzt ${L} Freiheiten und Weiß kann sie nicht mehr fangen.`)}
+    if(D.ans.has(i)){const L=groupAt(D.b,D.t,n).libs.size;return drillSolved(k?T('d_saved_cap',L):T('d_saved',L))}
     const km=D.b[D.t]?rdKillMove(D.b,D.t,n,2):-1;
     if(km>=0){const rk=tryPlay(D.b,km,2,n,-1);D.b=rk.board;D.last=km;setTimeout(()=>playStone('ai',rk.captured.length),260)}
-    return drillFailed(km>=0?`Weiß antwortet mit ${coord(km,n)}${D.b[D.t]?'. Deine Gruppe ist nicht mehr zu retten.':' und schlägt deine Gruppe.'}`:'Das rettet die Gruppe nicht.')}
+    return drillFailed(km>=0?(D.b[D.t]?T('d_lost',coord(km,n)):T('d_lost_cap',coord(km,n))):T('d_not_saved'))}
   // Fangen / Leiter: Weiß wehrt sich
-  const t=D.t;if(!D.b[t])return drillSolved(`Gefangen! ${coord(i,n)} schlägt die Steine.`);
+  const t=D.t;if(!D.b[t])return drillSolved(T('d_caught',coord(i,n)));
   const okMove=D.first?D.ans.has(i):(RD.nodes=0,!rdLive(D.b,t,n,1,24));
   D.first=false;
   const w=rdReply(D.b,t,n,1);if(w>=0){const rw=tryPlay(D.b,w,2,n,-1);D.b=rw.board;D.last=w;setTimeout(()=>playStone('ai',rw.captured.length),260)}
-  if(!okMove)return drillFailed(w>=0?`Weiß entkommt mit ${coord(w,n)}.`:'Weiß entkommt.');
-  if(w<0)D.msg='Weiß gibt auf. Schlage die Steine.';
-  else D.msg=`Gut. Weiß antwortet mit ${coord(w,n)}. Mach weiter.`;
+  if(!okMove)return drillFailed(T('d_escape',w>=0?coord(w,n):''));
+  if(w<0)D.msg=T('d_gives_up');
+  else D.msg=T('d_continue',coord(w,n));
   D.state='';D.sub='';renderDrill()}
 function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
-  $('#dr-cat').textContent='Training';
+  $('#dr-cat').textContent=T('train_title');
   $('#dr-turn').textContent=c.title;
-  $('#dr-streak').textContent=`Serie ${s.streak} · ${s.ok} gelöst`;$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
+  $('#dr-streak').textContent=T('drill_chip',s.streak,s.ok);$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
   if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
     const done=D.quiz&&D.phase!=='play';
     drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play'&&!D.quiz,onPlay:drillMove,dead:done?D.quiz.dead:[],own:done?D.quiz.own:null})}
@@ -1262,7 +1555,7 @@ function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
   ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;
   if(asking){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
   const fb=$('#dr-fb'),open=!!(D.quiz||D.whyOpen);fb.dataset.state=D.state||'';fb.classList.toggle('open',open);
-  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbHTML(D.state,D.msg||'')}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?'<button class="why" id="dr-why">Warum?</button>':'');
+  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbHTML(D.state,D.msg||'')}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?`<button class="why" id="dr-why">${T('why')}</button>`:'');
   const why=$('#dr-why');if(why)why.onclick=()=>{D.whyOpen=true;renderDrill()};
   $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
 $('#dr-back').onclick=()=>show('train');
@@ -1271,7 +1564,7 @@ $('#dr-nextbar').onclick=()=>newDrill();
 $('#dr-retry').onclick=()=>resetDrill();
 $('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=>[i%D.n,(i/D.n)|0]);
   Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,state:'',sub:'',
-    msg:D.ans.size>1?'Die markierten Punkte sind richtig. Probier es aus.':'Der markierte Punkt ist richtig. Probier es aus.'});renderDrill()};
+    msg:T('d_marked',D.ans.size)});renderDrill()};
 
 /* ---------- Navigation ---------- */
 function show(v){['learn','lesson','train','drill','play'].forEach(k=>$('#view-'+k).hidden=k!==v);
@@ -1282,6 +1575,13 @@ function show(v){['learn','lesson','train','drill','play'].forEach(k=>$('#view-'
   store.tab=tab;save();window.scrollTo(0,0);
   if(v==='learn')renderLearn();if(v==='train')renderTrain();
   if(v==='play'){renderPlay();if(G.phase==='play'&&G.turn===A()&&!busy)aiMove()}}
+function setLang(l){if(!['de','en','nl'].includes(l))return;LANG=l;store.settings.lang=l;save();applyI18n();
+  if(D&&D.phase==='play'&&!D.state&&!D.quiz)D.msg=TC(D.cat).goal;
+  const v=['learn','lesson','train','drill','play'].find(k=>!$('#view-'+k).hidden);
+  if(v==='learn')renderLearn();else if(v==='lesson')renderLesson();else if(v==='train')renderTrain();else if(v==='drill')renderDrill();
+  if(G)renderPlay()}
+document.querySelectorAll('.lang-seg button').forEach(b=>b.onclick=()=>setLang(b.dataset.v));
+applyI18n();
 $('#tab-learn').onclick=()=>show('learn');$('#tab-play').onclick=()=>show('play');$('#tab-train').onclick=()=>show('train');
 show(store.tab==='play'?'play':store.tab==='train'?'train':'learn');
 if('serviceWorker'in navigator&&window.GO_PWA){navigator.serviceWorker.register('sw.js').catch(()=>{})}
