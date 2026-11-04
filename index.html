@@ -340,7 +340,8 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 @keyframes celeRing{0%{transform:scale(.6);opacity:1}100%{transform:scale(2.6);opacity:0}}
 .cele-dot{position:absolute;left:50%;top:50%;width:var(--sz);height:var(--sz);margin:calc(var(--sz) / -2) 0 0 calc(var(--sz) / -2);border-radius:50%;opacity:0;animation:celeBurst .9s var(--d) cubic-bezier(.15,.8,.3,1) both}
 .cele-dot.b{background:radial-gradient(circle at 36% 30%,var(--stone-b1),var(--stone-b2))}
-.cele-dot.w{background:radial-gradient(circle at 36% 30%,var(--stone-w1),var(--stone-w2));box-shadow:inset 0 0 0 1px var(--stone-edge)}
+.cele-dot.w{background:radial-gradient(circle at 36% 30%,var(--stone-w1),var(--stone-w2));box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.cele-dot.b{box-shadow:0 1px 3px rgba(0,0,0,.18)}
 .cele-dot.a{background:var(--accent)}
 @keyframes celeBurst{0%{transform:translate(0,0) scale(.3);opacity:0}15%{opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
 .cele-txt{display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%;animation:celeUp .4s .38s ease-out both}
@@ -349,7 +350,9 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 .cele-txt h2{margin:0;font-size:calc(var(--u)*32);line-height:calc(var(--u)*40);font-weight:700;letter-spacing:-.01em}
 .cele-bar{width:100%;height:4px;border-radius:2px;background:var(--key);overflow:hidden;margin-top:var(--s2)}
 .cele-bar span{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .7s .65s cubic-bezier(.3,.9,.3,1)}
-.cele-meta{display:flex;justify-content:space-between;width:100%;font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+#cele-prog{white-space:nowrap}
+#cele-sub{text-align:left}
+.cele-meta{display:flex;justify-content:space-between;gap:var(--s2);width:100%;font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion: reduce){.cele,.cele *{animation-duration:.01s!important;animation-delay:0s!important;transition:none!important}.cele-dot,.cele-ring{display:none}.cele-check{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.vanish{display:none}}
 .title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2)}
@@ -1534,7 +1537,7 @@ function chime(){if(store.settings.sound===false)return;const ac=audio();if(!ac|
   [[784,0],[1175,0.11],[1568,0.22]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;
     g.gain.setValueAtTime(0.0001,t0+d);g.gain.exponentialRampToValueAtTime(0.16,t0+d+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+d+0.5);o.connect(g).connect(ac.destination);o.start(t0+d);o.stop(t0+d+0.55)})}
 function celebrate(li,first){const L=LESSONS[li],N=LESSONS.length,d=LESSONS.filter(l=>store.done[l.id]).length;
-  let dots='';for(let k=0;k<14;k++){const a=k/14*Math.PI*2+(Math.random()-0.5)*0.4,r=76+Math.random()*44,sz=[8,12,16][k%3];
+  let dots='';for(let k=0;k<14;k++){const a=Math.PI*(0.92+k/13*1.16)+(Math.random()-0.5)*0.2,r=72+Math.random()*40,sz=[8,12,16][k%3];
     dots+=`<i class="cele-dot ${k%7===3?'a':k%2?'w':'b'}" style="--dx:${(Math.cos(a)*r).toFixed(0)}px;--dy:${(Math.sin(a)*r).toFixed(0)}px;--sz:${sz}px;--d:${(0.18+Math.random()*0.12).toFixed(2)}s"></i>`}
   $('#cele-mark').innerHTML=`<span class="cele-ring"></span><span class="cele-ring r2"></span>${dots}<svg class="cele-stone" viewBox="0 0 96 96" aria-hidden="true"><defs><radialGradient id="cele-g" cx="36%" cy="30%" r="72%"><stop offset="0" style="stop-color:var(--stone-b1)"/><stop offset="1" style="stop-color:var(--stone-b2)"/></radialGradient></defs><circle cx="48" cy="48" r="44" fill="url(#cele-g)"/><path class="cele-check" d="M31 49l12 12 23-25" style="fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-linejoin:round"/></svg>`;
   $('#cele-eb').textContent=T('cele_eb',li+1);$('#cele-t').textContent=LT(L).title;
@@ -1574,8 +1577,10 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
 function fbHTML(state,msg){const tag=state==='ok'?`<b class="fb-tag ok">${T('tag_ok')}</b>`:state==='bad'?`<b class="fb-tag bad">${T('tag_bad')}</b>`:'';
   return tag+(state?String(msg).replace(/^(Richtig|Genau|Nicht ganz|Correct|Exactly|Not quite|Goed|Precies|Niet helemaal)[.,!]?\s*/,''):msg)}
 // Rückmeldung aufklappen, wenn der Text nicht in zwei Zeilen passt
+function clamped(m,lines){const st=m.style,d=st.display,c=st.webkitLineClamp;st.display='block';st.webkitLineClamp='none';
+  const h=m.getBoundingClientRect().height,lh=parseFloat(getComputedStyle(m).lineHeight)||24;st.display=d;st.webkitLineClamp=c;return h>lh*lines+2}
 function fbMore(el,open,toggle){const m=el.querySelector('.fb-main');if(!m)return;
-  const over=open||m.scrollHeight>m.clientHeight+1;el.classList.toggle('more',over);
+  const over=open||clamped(m,2);el.classList.toggle('more',over);
   if(over){if(!el.querySelector('.fb-chev'))el.insertAdjacentHTML('beforeend','<span class="fb-chev" aria-hidden="true"><svg class="ic"><use href="#i-down"/></svg></span>');
     el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-expanded',String(!!open));
     el.onclick=e=>{if(e.target.closest('button'))return;toggle()};el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}}}
@@ -1877,7 +1882,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join('');
   const cc=$('#coach-card');cc.hidden=showBox||anOn||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);
   // Aufklappen nur anbieten, wenn es mehr zu sehen gibt: ältere Meldungen oder abgeschnittener Text
-  {const nw=$('#coach-now'),more=G.coach.length>1||coachOpen||(!cc.hidden&&nw.scrollHeight>nw.clientHeight+1);
+  {const nw=$('#coach-now'),more=G.coach.length>1||coachOpen||(!cc.hidden&&clamped(nw,2));
    if(!more)coachOpen=false;cc.classList.toggle('can',more);cc.disabled=false;
    if(more)cc.setAttribute('aria-expanded',String(coachOpen));else cc.removeAttribute('aria-expanded')}
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
