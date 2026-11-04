@@ -26,21 +26,21 @@
   --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:40px; --s6:48px; --s7:56px; --s8:64px;
   --r:8px; --r2:16px;
   --bg:#EDEDEA; --surface:#F7F7F5; --raised:#FFFFFF; --key:#E1E1DD; --key-down:#D3D3CE;
-  --ink:#1D1D1C; --muted:#6C6C67; --rule:#D5D5D0;
-  --accent:#E0531C; --accent-ink:#FFFFFF; --accent-soft:#F7DED2;
+  --ink:#1D1D1C; --muted:#5F5F5A; --rule:#D5D5D0;
+  --accent:#BD4315; --accent-ink:#FFFFFF; --accent-soft:#FBECE4; --danger:#B3001B;
   --board:#D8B57A; --grid:#4A3A20; --coord:#6E5734;
   --good:#3A7A4C; --good-soft:#DDEBDF; --warn:#B23A2C; --warn-soft:#F4DEDA;
   --stone-b1:#4E5056; --stone-b2:#141416; --stone-w1:#FFFFFF; --stone-w2:#D8D8D2; --stone-edge:#8E8A78;
   --scrim:rgba(20,20,18,.4);
   --f-mark:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
-  --f-display:"Helvetica Neue",Helvetica,Arial,sans-serif;
-  --f-body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#151514; --surface:#1E1E1D; --raised:#262625; --key:#2C2C2A; --key-down:#363633;
     --ink:#ECECE8; --muted:#9C9C96; --rule:#30302E;
-    --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216;
+    --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216; --danger:#FF6961;
     --board:#B8975F; --grid:#33260F; --coord:#3D2E15;
     --good:#7DC492; --good-soft:#1D2E22; --warn:#F08070; --warn-soft:#3A1F1B;
     --scrim:rgba(0,0,0,.55);
@@ -50,7 +50,7 @@
 :root[data-theme="dark"]{
   --bg:#151514; --surface:#1E1E1D; --raised:#262625; --key:#2C2C2A; --key-down:#363633;
   --ink:#ECECE8; --muted:#9C9C96; --rule:#30302E;
-  --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216;
+  --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216; --danger:#FF6961;
   --board:#B8975F; --grid:#33260F; --coord:#3D2E15;
   --good:#7DC492; --good-soft:#1D2E22; --warn:#F08070; --warn-soft:#3A1F1B;
   --scrim:rgba(0,0,0,.55);
@@ -58,60 +58,71 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:24px;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:calc(var(--u)*16);line-height:calc(var(--u)*24);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{max-width:576px;margin:0 auto;padding-left:max(var(--s2),env(safe-area-inset-left,0px));padding-right:max(var(--s2),env(safe-area-inset-right,0px));padding-block:var(--s6) calc(var(--s8) + var(--s4));display:flex;flex-direction:column;gap:var(--s3)}
+:root{--u:1px}
+@supports (font:-apple-system-body){html{font:-apple-system-body}:root{--u:min(calc(1rem / 17),1.75px)}}
+.app{max-width:576px;margin:0 auto;padding-left:max(var(--s2),env(safe-area-inset-left,0px));padding-right:max(var(--s2),env(safe-area-inset-right,0px));padding-block:var(--s6) calc(var(--s7) + var(--s4));display:flex;flex-direction:column;gap:var(--s3)}
 
 /* Typografie */
-h1{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0;letter-spacing:-.01em}
-h2{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:32px;margin:0;text-wrap:balance;letter-spacing:-.01em}
-.sub{margin:0;color:var(--muted);font-size:16px;line-height:24px}
-.eyebrow,.lab,.badge{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+h1{font-family:var(--f-display);font-weight:700;font-size:calc(var(--u)*24);line-height:calc(var(--u)*32);margin:0;letter-spacing:-.01em}
+h2{font-family:var(--f-display);font-weight:700;font-size:calc(var(--u)*24);line-height:calc(var(--u)*32);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.sub{margin:0;color:var(--muted);font-size:calc(var(--u)*16);line-height:calc(var(--u)*24)}
+.eyebrow,.lab,.badge{font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .muted{color:var(--muted);margin:0}
 .view{display:flex;flex-direction:column;gap:var(--s3)}
 .stack{display:flex;flex-direction:column;gap:var(--s1)}
 
 /* Kopf */
 header.top{display:flex;align-items:center;gap:var(--s2);min-height:var(--s6)}
-.mark{width:var(--s6);height:var(--s6);border-radius:var(--r);background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-mark);font-size:24px;line-height:24px;font-weight:700;flex:none}
+.mark{width:var(--s6);height:var(--s6);border-radius:var(--r);background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-mark);font-size:calc(var(--u)*24);line-height:calc(var(--u)*24);font-weight:700;flex:none}
 
 /* Tab-Leiste: Signalpunkt über dem aktiven Bereich */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(var(--s2),env(safe-area-inset-left,0px));padding-right:max(var(--s2),env(safe-area-inset-right,0px))}
-.tabbar-in{max-width:544px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;height:var(--s8)}
-.tabbar button{appearance:none;border:0;background:none;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.04em;cursor:pointer}
+.tabbar-in{max-width:544px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;height:var(--s7)}
+.tabbar button{appearance:none;border:0;background:none;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:500;letter-spacing:.04em;cursor:pointer}
 .tabbar button::before{content:"";position:absolute;top:var(--s1);width:var(--s1);height:var(--s1);border-radius:50%;background:var(--accent);opacity:0;transition:opacity .2s}
-.tabbar button[aria-selected="true"]{color:var(--ink)}
-.tabbar button[aria-selected="true"]::before{opacity:1}
-.tabbar svg{width:24px;height:24px;margin-top:var(--s1)}
+.tabbar button[aria-selected="true"]{color:var(--accent)}
+.tabbar button::before{display:none}
+.tabbar svg{width:24px;height:24px;margin-bottom:2px}
 
 /* Icons */
 .ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 /* Tasten: matt, ohne Rahmen, wie Bedienelemente eines Geräts. Orange nur für die eine nächste Handlung. */
-.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:var(--s1);height:var(--s6);padding:0 var(--s3);border:0;background:var(--key);color:var(--ink);border-radius:var(--r);font-weight:500;font-size:16px;line-height:24px;cursor:pointer;transition:background .15s}
+.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:var(--s1);height:var(--s6);padding:0 var(--s3);border:0;background:var(--key);color:var(--ink);border-radius:var(--r);font-weight:500;font-size:calc(var(--u)*16);line-height:calc(var(--u)*24);cursor:pointer;transition:background .15s}
 .btn:active{background:var(--key-down)}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
 .btn.block{width:100%}
+.btn.danger{color:var(--danger);font-weight:700}
+.board{position:relative}
+.a11y{position:absolute;inset:0;pointer-events:none}
+.a11y span{position:absolute;width:var(--c);height:var(--c);transform:translate(-50%,-50%)}
+.grabber{width:36px;height:5px;border-radius:3px;background:var(--rule);align-self:center;flex:none;margin:calc(var(--s2) * -1) 0 calc(var(--s2) * -1)}
+.sheet{touch-action:pan-y;will-change:transform}
+.sheet.confirm{gap:var(--s2);text-align:center;padding-top:var(--s4)}
+.sheet.confirm h3{margin:0}
+.sheet.confirm .btn{height:var(--s7)}
 .btn:disabled{opacity:.4;cursor:default}
-.textbtn{appearance:none;background:none;border:0;color:var(--muted);font-size:16px;line-height:24px;cursor:pointer;padding:var(--s1) 0;display:inline-flex;align-items:center;gap:var(--s1);align-self:flex-start}
+.textbtn{appearance:none;background:none;border:0;color:var(--muted);font-size:calc(var(--u)*16);line-height:calc(var(--u)*24);cursor:pointer;padding:12px 0;display:inline-flex;align-items:center;gap:var(--s1);align-self:flex-start}
 @media (hover:hover){.btn:not(.primary):not(:disabled):hover,.ctl:not(.primary):not(:disabled):hover,.iconbtn:hover{background:var(--key-down)}.textbtn:hover{color:var(--ink)}}
 
 /* Lektionsliste */
 .progress{display:flex;flex-direction:column;gap:var(--s1)}
 .progress-row{display:flex;justify-content:space-between;align-items:baseline}
-.progress-num{font-family:var(--f-display);font-size:32px;line-height:40px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.progress-num small{font-family:var(--f-body);font-size:16px;font-weight:400;letter-spacing:0;color:var(--muted);margin-left:var(--s1)}
+.progress-num{font-family:var(--f-display);font-size:calc(var(--u)*32);line-height:calc(var(--u)*40);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.progress-num small{font-family:var(--f-body);font-size:calc(var(--u)*16);font-weight:400;letter-spacing:0;color:var(--muted);margin-left:var(--s1)}
 .bar{height:var(--s1);background:var(--key);border-radius:var(--r);overflow:hidden}
 .bar span{display:block;height:100%;background:var(--ink);border-radius:var(--r);transition:width .4s}
 .lessons{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
 .lesson-row,.train-row{appearance:none;width:100%;min-height:var(--s8);display:grid;grid-template-columns:var(--s5) 1fr auto;align-items:center;gap:var(--s2);padding:var(--s1) 0;background:none;border:0;border-bottom:1px solid var(--rule);text-align:left;cursor:pointer}
 @media (hover:hover){.lesson-row:hover .t,.train-row:hover .t{color:var(--accent)}}
-.num{font-size:16px;line-height:24px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.num{font-size:calc(var(--u)*16);line-height:calc(var(--u)*24);font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
 .lt{display:flex;flex-direction:column;min-width:0}
 .lt .t{font-weight:700}
 .lt .d{color:var(--muted)}
-.st{font-size:12px;line-height:16px;font-weight:500;white-space:nowrap}
+.st{font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:500;white-space:nowrap}
 .st.done{width:var(--s3);height:var(--s3);border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
 .st.next{color:var(--accent);display:inline-flex;align-items:center;gap:var(--s1);letter-spacing:.04em;text-transform:uppercase}
 .st.next::before{content:"";width:var(--s1);height:var(--s1);border-radius:50%;background:var(--accent)}
@@ -155,16 +166,16 @@ body.thinking .spark{opacity:1;animation:spark 1.6s cubic-bezier(.5,0,.5,1) infi
 .dot{width:var(--s2);height:var(--s2);border-radius:50%;background:var(--stone-b2);box-shadow:0 0 0 1px var(--stone-edge);display:inline-block;flex:none}
 .dot.w{background:var(--stone-w1);box-shadow:inset 0 0 0 1px var(--stone-edge)}
 .dot.sm{width:var(--s1);height:var(--s1)}
-.caps{display:flex;align-items:center;gap:var(--s2);font-size:16px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums}
+.caps{display:flex;align-items:center;gap:var(--s2);font-size:calc(var(--u)*16);line-height:calc(var(--u)*24);color:var(--muted);font-variant-numeric:tabular-nums}
 .caps span{display:inline-flex;align-items:center;gap:var(--s1)}
 .status-right{display:flex;align-items:center;gap:var(--s2)}
 .controls{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s1)}
-.ctl{appearance:none;height:var(--s5);display:flex;gap:var(--s1);align-items:center;justify-content:center;border:0;background:var(--key);border-radius:var(--r);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--ink);padding:0;transition:background .15s}
+.ctl{appearance:none;height:var(--s6);display:flex;gap:var(--s1);align-items:center;justify-content:center;border:0;background:var(--key);border-radius:var(--r);font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:500;cursor:pointer;color:var(--ink);padding:0;transition:background .15s}
 .ctl:active{background:var(--key-down)}
 .ctl .ic{width:16px;height:16px}
 .ctl:disabled{opacity:.4;cursor:default}
 .ctl.primary{background:var(--accent);color:var(--accent-ink)}
-.iconbtn{appearance:none;width:var(--s5);height:var(--s5);display:grid;place-items:center;border:0;background:var(--key);border-radius:50%;cursor:pointer;color:var(--ink);padding:0;transition:background .15s}
+.iconbtn{appearance:none;width:var(--s6);height:var(--s6);display:grid;place-items:center;border:0;background:var(--key);border-radius:50%;cursor:pointer;color:var(--ink);padding:0;transition:background .15s}
 .iconbtn:active{background:var(--key-down)}
 .iconbtn .ic{width:16px;height:16px}
 
@@ -184,7 +195,7 @@ button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inher
 .coach-old b{font-weight:500;color:var(--ink);margin-right:var(--s1)}
 .scorebox{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s2);border-radius:var(--r);background:var(--surface)}
 .scorebox p{margin:0;color:var(--muted)}
-.scorebox .nums{font-family:var(--f-display);font-size:24px;line-height:32px;font-weight:700;font-variant-numeric:tabular-nums}
+.scorebox .nums{font-family:var(--f-display);font-size:calc(var(--u)*24);line-height:calc(var(--u)*32);font-weight:700;font-variant-numeric:tabular-nums}
 .scorebox .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
 .scorebox .row .btn{padding:0 var(--s2);white-space:nowrap}
 
@@ -193,13 +204,13 @@ button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inher
 .sheet{width:100%;max-width:576px;background:var(--surface);border-radius:var(--r2) var(--r2) 0 0;padding:var(--s3) max(var(--s2),env(safe-area-inset-right,0px)) calc(var(--s3) + env(safe-area-inset-bottom,0px)) max(var(--s2),env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:var(--s3)}
 .sheet-head{display:flex;justify-content:space-between;align-items:center}
 .sheet{max-height:calc(100% - var(--s4));overflow-y:auto;overscroll-behavior:contain}
-.sheet h3{margin:0;font-family:var(--f-display);font-size:24px;line-height:32px;font-weight:700}
+.sheet h3{margin:0;font-family:var(--f-display);font-size:calc(var(--u)*24);line-height:calc(var(--u)*32);font-weight:700}
 .settings{display:flex;flex-direction:column;gap:var(--s2)}
 .field{display:flex;flex-direction:column;gap:var(--s1);min-width:0}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:var(--s1);padding:0;background:none}
-.seg button{appearance:none;border:0;background:var(--key);border-radius:var(--r);height:var(--s5);font-weight:500;font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:background .15s,color .15s}
+.seg button{appearance:none;border:0;background:var(--key);border-radius:var(--r);height:var(--s6);font-weight:500;font-size:calc(var(--u)*14);line-height:calc(var(--u)*16);color:var(--muted);cursor:pointer;transition:background .15s,color .15s}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.switch{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);cursor:pointer;min-height:var(--s5)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);cursor:pointer;min-height:var(--s6)}
 .switch input{appearance:none;width:var(--s6);height:var(--s3);border-radius:var(--r2);background:var(--key-down);position:relative;cursor:pointer;flex:none;margin:0;transition:background .2s}
 .switch input::after{content:"";position:absolute;top:0;left:0;width:var(--s3);height:var(--s3);border-radius:50%;background:var(--stone-w1);box-shadow:inset 0 0 0 2px var(--key-down);transition:transform .2s,box-shadow .2s}
 .switch input:checked{background:var(--accent)}
@@ -209,7 +220,7 @@ button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inher
 
 /* Spielansicht: genau ein Bildschirm, das Brett nimmt den Rest der Höhe */
 html.fit,html.fit body{height:100%;overflow:hidden;overscroll-behavior:none}
-html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s8) + var(--s2));gap:var(--s2)}
+html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s7) + var(--s2));gap:var(--s2)}
 html.fit header.top{display:none}
 html.fit main{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
 html.fit #view-play,html.fit #view-drill{flex:1 1 0;min-height:0;gap:var(--s2)}
@@ -231,50 +242,50 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .daily-eb{grid-column:1/-1;margin-bottom:calc(var(--s1) * -1)}
 .daily .d{color:var(--muted);font-variant-numeric:tabular-nums}
 .daily .d .acc{color:var(--accent)}
-.daily .btn{padding:0 var(--s2);height:var(--s5);font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase}
+.daily .btn{padding:0 var(--s2);height:var(--s6)}
 .rank-line{display:block;color:var(--ink);margin-top:var(--s1)}
 .an{display:flex;flex-direction:column;gap:var(--s1);flex:none}
 .an[hidden]{display:none}
 .an-graph{display:block;width:100%;height:var(--s8);border-radius:var(--r);background:var(--surface);cursor:pointer;touch-action:none}
 .an-text{margin:0;min-height:var(--s6);padding:0 var(--s1);font-variant-numeric:tabular-nums}
-.an-text small{display:block;color:var(--muted);font-size:16px;line-height:24px}
+.an-text small{display:block;color:var(--muted);font-size:calc(var(--u)*16);line-height:calc(var(--u)*24)}
 .an-text .acc{color:var(--accent);font-weight:700}
 .stat{background:var(--surface);border-radius:var(--r);padding:var(--s2);display:flex;flex-direction:column}
-.stat b{font-family:var(--f-display);font-size:32px;line-height:40px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.stat span{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.stat b{font-family:var(--f-display);font-size:calc(var(--u)*32);line-height:calc(var(--u)*40);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat span{font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .tglyph{width:var(--s5);height:var(--s5);border-radius:var(--r);background:var(--board);display:grid;place-items:center}
 .tglyph svg{width:var(--s4);height:var(--s4)}
-.chip{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.04em;padding:var(--s1) var(--s2);border-radius:var(--r2);background:var(--key);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip{font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:500;letter-spacing:.04em;padding:var(--s1) var(--s2);border-radius:var(--r2);background:var(--key);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 .chip.hot{background:var(--accent-soft);color:var(--accent)}
 .drill-title{flex:1;min-width:0;display:flex;flex-direction:column}
-.drill-title .turn{font-size:16px;line-height:24px}
+.drill-title .turn{font-size:calc(var(--u)*16);line-height:calc(var(--u)*24)}
 .controls.three{grid-template-columns:repeat(3,1fr)}
 /* Bedientasten unter dem Brett: runde Taste mit Symbol, Beschriftung darunter – wie an einem Braun-Gerät */
-.controls .ctl{flex-direction:column;height:auto;gap:var(--s1);background:none;color:var(--muted);letter-spacing:.08em}
+.controls .ctl{flex-direction:column;height:auto;gap:var(--s1);background:none;color:var(--muted)}
 .controls .ctl .ic{display:block;width:var(--s5);height:var(--s5);padding:var(--s1);stroke-width:1.5;border-radius:50%;background:var(--key);color:var(--ink);transition:background .15s}
 .controls .ctl:active .ic{background:var(--key-down)}
 @media (hover:hover){.controls .ctl:not(:disabled):hover{background:none;color:var(--ink)}.controls .ctl:not(:disabled):not(.primary):hover .ic{background:var(--key-down)}}
 .controls .ctl.primary{background:none;color:var(--accent)}
 .controls .ctl.primary .ic{background:var(--accent);color:var(--accent-ink)}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
-.choices .ctl{height:var(--s6);font-size:16px;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+.choices .ctl{height:var(--s6);font-size:calc(var(--u)*16);letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
 .dr-fb{background:var(--surface);border-radius:var(--r);padding:var(--s1) var(--s2);display:flex;gap:var(--s1);align-items:flex-start;min-height:var(--s8);flex:none}
 .dr-fb .ic{width:24px;height:24px}
 /* Rückmeldung: neutrale Fläche, der Zustand steht als Kontrollleuchte mit Etikett am Satzanfang */
-.fb-tag{display:inline-flex;align-items:center;gap:var(--s1);margin-right:var(--s1);font-size:12px;line-height:16px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:1px}
+.fb-tag{display:inline-flex;align-items:center;gap:var(--s1);margin-right:var(--s1);font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:1px}
 .fb-tag::before{content:"";width:var(--s1);height:var(--s1);border-radius:50%;background:currentColor}
 .fb-tag.ok{color:var(--good)}
 .fb-tag.bad{color:var(--warn)}
-.dr-fb small{display:block;color:var(--muted);font-size:16px;line-height:24px}
+.dr-fb small{display:block;color:var(--muted);font-size:calc(var(--u)*16);line-height:calc(var(--u)*24)}
 
 /* Spielerleiste: wer am Zug ist, ist hervorgehoben */
 .players{display:flex;align-items:center;gap:var(--s1);min-width:0;flex:1;overflow:hidden}
 .pl{display:inline-flex;align-items:center;gap:var(--s1);height:var(--s5);padding:0 var(--s2);border-radius:var(--s3);color:var(--muted);white-space:nowrap;min-width:0;transition:background .2s,color .2s}
 .pl.on{background:var(--key);color:var(--ink);font-weight:700}
-.pl-s{font-size:12px;line-height:16px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;color:var(--muted)}
+.pl-s{font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);letter-spacing:.06em;text-transform:uppercase;font-weight:500;color:var(--muted)}
 .pl .spark{margin-left:calc(var(--s1) * -1)}
-.result-line{font-size:16px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums}
-.scorebox h2{font-size:24px;line-height:32px}
+.result-line{font-size:calc(var(--u)*16);line-height:calc(var(--u)*24);color:var(--muted);font-variant-numeric:tabular-nums}
+.scorebox h2{font-size:calc(var(--u)*24);line-height:calc(var(--u)*32)}
 /* Lektionsliste: nächste Lektion an der orangen Nummer erkennbar */
 .num.next{color:var(--accent);font-weight:700}
 /* Rückmeldung: feste Höhe, Begründung auf Wunsch */
@@ -282,7 +293,7 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .dr-fb .fb-text{flex:1;min-width:0}
 .dr-fb .fb-main{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .dr-fb.open .fb-main{display:block}
-.why{appearance:none;border:0;background:none;color:inherit;font-size:12px;line-height:16px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:var(--s1) 0 var(--s1) var(--s1);cursor:pointer;text-decoration:underline;text-underline-offset:4px;flex:none}
+.why{appearance:none;border:0;background:none;color:inherit;font-size:calc(var(--u)*14);line-height:calc(var(--u)*24);font-weight:700;padding:12px 0 12px var(--s1);cursor:pointer;text-decoration:underline;text-underline-offset:4px;flex:none}
 html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 #view-lesson .statusbar{gap:var(--s2)}
 /* Geschlagene Steine blenden aus, Vorschau-Stein beim Bestätigen */
@@ -318,10 +329,10 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 .cele-txt{display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%;animation:celeUp .4s .38s ease-out both}
 @keyframes celeUp{from{opacity:0;transform:translateY(var(--s2))}}
 .cele-txt .eyebrow{color:var(--accent)}
-.cele-txt h2{margin:0;font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.01em}
+.cele-txt h2{margin:0;font-size:calc(var(--u)*32);line-height:calc(var(--u)*40);font-weight:700;letter-spacing:-.01em}
 .cele-bar{width:100%;height:4px;border-radius:2px;background:var(--key);overflow:hidden;margin-top:var(--s2)}
 .cele-bar span{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .7s .65s cubic-bezier(.3,.9,.3,1)}
-.cele-meta{display:flex;justify-content:space-between;width:100%;font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.cele-meta{display:flex;justify-content:space-between;width:100%;font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion: reduce){.cele,.cele *{animation-duration:.01s!important;animation-delay:0s!important;transition:none!important}.cele-dot,.cele-ring{display:none}.cele-check{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.vanish{display:none}}
 .title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2)}
@@ -471,8 +482,16 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
   </div>
 </div>
 
+<div class="sheet-backdrop" id="confirm" hidden>
+  <div class="sheet confirm" role="alertdialog" aria-modal="true" aria-labelledby="cf-t" aria-describedby="cf-m">
+    <h3 id="cf-t"></h3><p class="muted" id="cf-m"></p>
+    <button class="btn block danger" id="cf-yes"></button><button class="btn block" id="cf-no"></button>
+  </div>
+</div>
+
 <div class="sheet-backdrop" id="sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="grabber" aria-hidden="true"></div>
     <div class="sheet-head"><h3 id="sheet-title" data-i18n="settings">Einstellungen</h3><button class="iconbtn" id="sheet-close" data-i18n-aria="close" aria-label="Schließen"><svg class="ic"><use href="#i-close"/></svg></button></div>
     <div class="settings">
       <div class="field play-only"><span class="lab" data-i18n="s_board">Brett</span>
@@ -820,7 +839,7 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{ cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
+de:{ a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
  daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
  daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
  share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
@@ -899,7 +918,7 @@ de:{ cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freige
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{ cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
+en:{ a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
  daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
  daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
  share_ok:'Solved on the first try',share_x:'Not solved',
@@ -978,7 +997,7 @@ en:{ cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{ cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
+nl:{ a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
  daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
  daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
  share_ok:'In één keer opgelost',share_x:'Niet opgelost',
@@ -1378,7 +1397,7 @@ function hoshi(n){if(n===9)return[[2,2],[6,2],[2,6],[6,6],[4,4]];if(n===13)retur
 function drawBoard(el,o){
   const n=o.n,S=2*M+(n-1)*CELL,P=k=>M+k*CELL,R=CELL*0.47,id=el.id,b=o.board,dead=new Set(o.dead||[]);
   const anim=o.last>=0&&(el._prevLast!==o.last||el._prevN!==n);el._prevLast=o.last;el._prevN=n;
-  let h=`<svg viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Go-Brett ${n} mal ${n}">`;
+  let h=`<svg viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`;
   h+=`<defs><radialGradient id="${id}-b" cx="36%" cy="30%" r="70%"><stop offset="0" style="stop-color:var(--stone-b1)"/><stop offset="1" style="stop-color:var(--stone-b2)"/></radialGradient>`+
      `<radialGradient id="${id}-w" cx="36%" cy="30%" r="74%"><stop offset="0" style="stop-color:var(--stone-w1)"/><stop offset="1" style="stop-color:var(--stone-w2)"/></radialGradient></defs>`;
   h+=`<rect width="${S}" height="${S}" rx="8" style="fill:var(--board)"/>`;
@@ -1414,12 +1433,20 @@ function drawBoard(el,o){
   for(const[x,y]of(o.marks||[])){const q=CELL*0.2;h+=`<rect x="${P(x)-q}" y="${P(y)-q}" width="${q*2}" height="${q*2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3"/>`}
   if(o.hint>=0&&!b[o.hint])h+=`<circle cx="${P(o.hint%n)}" cy="${P((o.hint/n)|0)}" r="${R-2}" class="pulse" style="fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5"/>`;
   h+=`<circle class="ghost" cx="-100" cy="-100" r="${R}" opacity="0" style="fill:var(${o.ghostColor===2?'--stone-w1':'--stone-b2'});stroke:var(--stone-edge);stroke-width:${o.ghostColor===2?1:0};pointer-events:none"/>`;
-  h+='</svg>';el.innerHTML=h;el._o=o;
+  h+='</svg>';
+  {const mk=new Set((o.marks||[]).map(([x,y])=>y*n+x)),tr=new Set(o.tri||[]);
+   h+=`<div class="a11y" role="group" aria-label="${T('a11y_board',n)}" style="--c:${(CELL/S*100).toFixed(2)}%">`;
+   for(let i=0;i<n*n;i++){const x=i%n,y=(i/n)|0;let t=b[i]===1?T('a11y_b'):b[i]===2?T('a11y_w'):T('a11y_e');
+     if(i===o.last)t+=', '+T('a11y_last');if(libs&&o.atari&&b[i]&&libs[i]===1&&!dead.has(i))t+=', Atari';if(dead.has(i))t+=', '+T('a11y_dead');
+     if(mk.has(i))t+=', '+T('a11y_mark');if(tr.has(i))t+=', '+T('a11y_target');if(o.hint===i)t+=', '+T('a11y_hint');
+     h+=`<span role="button" data-i="${i}" aria-label="${LET[x]}${n-y}, ${t}" style="left:${((M+x*CELL)/S*100).toFixed(2)}%;top:${((M+y*CELL)/S*100).toFixed(2)}%"></span>`}
+   h+='</div>'}
+  el.innerHTML=h;el._o=o;
   if(!el._bound){el._bound=true;
     const pick=e=>{const svg=el.querySelector('svg'),o=el._o;if(!svg||!o)return-1;const rc=svg.getBoundingClientRect(),n=o.n,S=2*M+(n-1)*CELL;
       const x=Math.round(((e.clientX-rc.left)/rc.width*S-M)/CELL),y=Math.round(((e.clientY-rc.top)/rc.height*S-M)/CELL);
       return(x<0||y<0||x>=n||y>=n)?-1:y*n+x};
-    el.addEventListener('click',e=>{const i=pick(e);if(i>=0&&el._o.onPlay)el._o.onPlay(i)});
+    el.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest('[data-i]');const i=d?+d.dataset.i:pick(e);if(i>=0&&el._o.onPlay)el._o.onPlay(i)});
     el.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const g=el.querySelector('.ghost');if(!g)return;const o=el._o,i=pick(e);
       if(i<0||o.board[i]||!o.ghost){g.setAttribute('opacity','0');return}
       g.setAttribute('cx',M+(i%o.n)*CELL);g.setAttribute('cy',M+Math.floor(i/o.n)*CELL);g.setAttribute('opacity','0.4')});
@@ -1566,9 +1593,9 @@ function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
     if(unlocked(i)){openLesson(i);return}
     buzz();b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');
     const d=b.querySelector('.d');if(d&&!b._lk){b._lk=d.textContent;d.textContent=T('locked');setTimeout(()=>{d.textContent=b._lk;b._lk=null},2200)}})}
-let resetArmed=false;
-$('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent=T('reset_confirm');setTimeout(()=>{resetArmed=false;t.textContent=T('reset')},3500);return}
-  store.done={};resetArmed=false;t.textContent=T('reset');save();renderLearn()};
+function openConfirm(title,msg,yes,fn){const c=$('#confirm');$('#cf-t').textContent=title;$('#cf-m').textContent=msg;$('#cf-yes').textContent=yes;$('#cf-no').textContent=T('cancel');
+  const close=()=>{c.hidden=true};$('#cf-yes').onclick=()=>{close();fn()};$('#cf-no').onclick=close;c.onclick=e=>{if(e.target===c)close()};c.hidden=false;$('#cf-no').focus()}
+$('#reset-progress').onclick=()=>openConfirm(T('reset_q'),T('reset_msg'),T('reset_yes'),()=>{store.done={};save();renderLearn()});
 $('#cta-play').onclick=()=>show('play');
 
 /* ---------- Spiel ---------- */
@@ -1768,9 +1795,21 @@ $('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
 const sheet=$('#sheet');
 document.querySelectorAll('.settings-btn').forEach(b=>b.onclick=()=>{$('.sheet').dataset.scope=$('#view-play').hidden?'app':'play';renderPlay();sheet.hidden=false;$('#sheet-close').focus()});
 const closeSheet=()=>{sheet.hidden=true};
+{const sh=$('#sheet .sheet');let y0=null,dy=0,t0=0;
+ sh.addEventListener('touchstart',e=>{if(sh.scrollTop>0)return;y0=e.touches[0].clientY;dy=0;t0=Date.now();sh.style.transition='none'},{passive:true});
+ sh.addEventListener('touchmove',e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);sh.style.transform=dy>4?`translateY(${dy}px)`:''},{passive:true});
+ sh.addEventListener('touchend',()=>{if(y0==null)return;y0=null;const v=dy/Math.max(1,Date.now()-t0);sh.style.transition='transform .24s cubic-bezier(.3,.8,.3,1)';
+   if(dy>120||(v>0.6&&dy>40)){sh.style.transform='translateY(100%)';setTimeout(()=>{closeSheet();sh.style.transition='';sh.style.transform=''},220)}else sh.style.transform=''})}
+{let sx=null,sy=0,dx=0,t0=0,vw=null;
+ document.addEventListener('touchstart',e=>{const t=e.touches[0];if(t.clientX>20||!sheet.hidden||!$('#confirm').hidden)return;
+   vw=!$('#view-lesson').hidden?$('#view-lesson'):!$('#view-drill').hidden?$('#view-drill'):null;if(!vw)return;sx=t.clientX;sy=t.clientY;dx=0;t0=Date.now();vw.style.transition='none'},{passive:true});
+ document.addEventListener('touchmove',e=>{if(sx==null)return;const t=e.touches[0];dx=t.clientX-sx;
+   if(dx<16&&Math.abs(t.clientY-sy)>Math.abs(dx)){sx=null;vw.style.transform='';return}vw.style.transform=`translateX(${Math.max(0,dx)}px)`},{passive:true});
+ document.addEventListener('touchend',()=>{if(sx==null)return;sx=null;const v=dx/Math.max(1,Date.now()-t0),w=vw;w.style.transition='transform .22s cubic-bezier(.3,.8,.3,1)';
+   if(dx>100||(v>0.5&&dx>40)){w.style.transform='translateX(100%)';setTimeout(()=>{w.style.transition='none';w.style.transform='';(w.id==='view-lesson'?$('#ls-back'):$('#dr-back')).click()},210)}else w.style.transform=''})}
 $('#sheet-close').onclick=closeSheet;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#confirm').hidden)$('#confirm').hidden=true;else if(!sheet.hidden)closeSheet()}});
 function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scoreArea(G.board,n,G.dead):null;
   const anOn=G.phase==='over'&&G.reviewing&&!!G.an;$('#an').hidden=!anOn;
   if(!anOn)drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,pending:G.phase==='play'&&G.pending>=0?G.pending:-1,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
