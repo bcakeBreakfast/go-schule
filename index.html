@@ -234,7 +234,7 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .controls.three{grid-template-columns:repeat(3,1fr)}
 /* Bedientasten unter dem Brett: runde Taste mit Symbol, Beschriftung darunter – wie an einem Braun-Gerät */
 .controls .ctl{flex-direction:column;height:auto;gap:var(--s1);background:none;color:var(--muted);letter-spacing:.08em}
-.controls .ctl .ic{width:var(--s5);height:var(--s5);padding:var(--s1);stroke-width:1.5;border-radius:50%;background:var(--key);color:var(--ink);transition:background .15s}
+.controls .ctl .ic{display:block;width:var(--s5);height:var(--s5);padding:var(--s1);stroke-width:1.5;border-radius:50%;background:var(--key);color:var(--ink);transition:background .15s}
 .controls .ctl:active .ic{background:var(--key-down)}
 @media (hover:hover){.controls .ctl:not(:disabled):hover{background:none;color:var(--ink)}.controls .ctl:not(:disabled):not(.primary):hover .ic{background:var(--key-down)}}
 .controls .ctl.primary{background:none;color:var(--accent)}
@@ -253,16 +253,16 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5C4.7 20 4 19.3 4 18.5z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5c.8 0 1.5-.7 1.5-1.5z"/></symbol>
   <symbol id="i-stone" viewBox="0 0 24 24"><circle cx="9" cy="10" r="5"/><circle cx="15" cy="15" r="5"/></symbol>
-  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
-  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -4)"/></symbol>
-  <symbol id="i-pass" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></symbol>
-  <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-pass" viewBox="0 0 24 24"><path d="M5 22V3"/><path d="M5 3h13l-3 5 3 5H5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
-  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
   <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
@@ -375,6 +375,7 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
       <div class="field"><span class="lab">Gegner</span>
         <div class="seg" id="seg-level"><button data-v="leicht">Leicht</button><button data-v="mittel">Mittel</button><button data-v="stark">Stark</button></div></div>
       <label class="switch">Freiheiten auf den Steinen zeigen <input type="checkbox" id="opt-libs"></label>
+      <label class="switch">Trainer einblenden <input type="checkbox" id="opt-coach"></label>
       <label class="switch">Ton beim Setzen <input type="checkbox" id="opt-sound"></label>
       <label class="switch">Vibration beim Setzen <input type="checkbox" id="opt-haptic"></label>
         <p class="muted" id="haptic-active"></p>
@@ -975,7 +976,7 @@ function userMove(i){if(G.phase!=='play'||G.turn!==U()||busy)return;
   pushHist();applyMove(r,i,U());G.hint=-1;
   let cm=commentUser(i,r,mine,best);
   if(G.hintLevel&&best){const good=best.i===i||(mine&&best.s-mine.s<=1.5);cm=(good?'Gefunden! ':'Nicht ganz das, was der Tipp meinte. ')+cm}
-  G.hintLevel=0;
+  G.hintLevel=0;coachPeek=false;
   coachAdd('du',cm);
   save();renderPlay();aiMove()}
 let aiReq=0,thinkTimer=null,worker=null,workerFailed=false,mctsLocal=null;
@@ -1034,7 +1035,7 @@ const IDEA=[
 function region(i,n){const x=i%n,y=(i/n)|0,t=n/3,cx=x<t?0:x<2*t?1:2,cy=y<t?0:y<2*t?1:2;
   const R=[['oben links','am oberen Rand','oben rechts'],['am linken Rand','in der Mitte','am rechten Rand'],['unten links','am unteren Rand','unten rechts']];
   return R[cy][cx]}
-function hint(){if(G.phase!=='play'||G.turn!==U()||busy)return;const list=analyze(G.board,G.n,U(),G.ko,G.moves);
+function hint(){if(G.phase!=='play'||G.turn!==U()||busy)return;coachPeek=true;const list=analyze(G.board,G.n,U(),G.ko,G.moves);
   if(!list.length||list[0].s<0.8){coachAdd('trainer','Hier gibt es kaum noch etwas zu gewinnen. Du kannst passen.');save();renderPlay();return}
   const b=list[0],rs=b.why[0],idea=(rs&&IDEA.find(([re])=>re.test(rs.t)))||null;
   G.hintLevel=(G.hintLevel||0)+1;
@@ -1063,6 +1064,7 @@ document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.s
   if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',`Du spielst ab der nächsten Partie ${CN[store.settings.color]} („Neu“).`);save();renderPlay()}});
 document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
+$('#opt-coach').onchange=e=>{store.settings.coach=e.target.checked;save();renderPlay()};
 $('#opt-sound').onchange=e=>{store.settings.sound=e.target.checked;save();if(e.target.checked){audio();setTimeout(()=>playStone('me',0),30)}};
 $('#opt-haptic').onchange=e=>{store.settings.haptic=e.target.checked;save();syncHaptic();if(e.target.checked)buzz()};
 // iPhone: unsichtbare Schalter unter den Brettern nur aktiv, wenn Vibration an ist
@@ -1072,7 +1074,7 @@ syncHaptic();
 
 const WHO={du:'Dein Zug',weiss:'Weiß',trainer:'Trainer'};
 const whoLabel=w=>w==='weiss'?CN[A()]:WHO[w];
-let coachOpen=false;
+let coachOpen=false,coachPeek=false; // coachPeek: bei ausgeblendetem Trainer zeigt „Tipp“ die Karte bis zum nächsten Zug
 $('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
 const sheet=$('#sheet');
 $('#btn-settings').onclick=()=>{sheet.hidden=false;$('#sheet-close').focus()};
@@ -1102,11 +1104,11 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=now.t;
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${c.t}</span>`).join('');
-  const cc=$('#coach-card');cc.hidden=G.phase==='score';cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
+  const cc=$('#coach-card');cc.hidden=G.phase==='score'||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
   document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
-  $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;$('#opt-sound').checked=store.settings.sound!==false;
+  $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;$('#opt-sound').checked=store.settings.sound!==false;$('#opt-coach').checked=store.settings.coach!==false;
   const w=store.stats.win,l=store.stats.loss;
   $('#record').textContent=(w||l)?`Bilanz gegen den Computer: ${w} ${w===1?'Sieg':'Siege'} · ${l} ${l===1?'Niederlage':'Niederlagen'}`:''}
 
