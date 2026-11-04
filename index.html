@@ -761,7 +761,7 @@ function drawBoard(el,o){
   for(let k=0;k<n;k++){const w=(k===0||k===n-1)?1.7:1;
     h+=`<line x1="${P(0)}" y1="${P(k)}" x2="${P(n-1)}" y2="${P(k)}" style="stroke:var(--grid);stroke-width:${w}"/><line x1="${P(k)}" y1="${P(0)}" x2="${P(k)}" y2="${P(n-1)}" style="stroke:var(--grid);stroke-width:${w}"/>`}
   for(const[x,y]of hoshi(n))h+=`<circle cx="${P(x)}" cy="${P(y)}" r="3.6" style="fill:var(--grid)"/>`;
-  for(let k=0;k<n;k++)h+=`<text x="${P(k)}" y="${M-14}" class="co" text-anchor="middle">${LET[k]}</text><text x="${M-17}" y="${P(k)+4}" class="co" text-anchor="middle">${n-k}</text>`;
+  for(let k=0;k<n;k++)h+=`<text x="${P(k)}" y="${M/2}" class="co" text-anchor="middle" dominant-baseline="central">${LET[k]}</text><text x="${M/2}" y="${P(k)}" class="co" text-anchor="middle" dominant-baseline="central">${n-k}</text>`;
   let libs=null;
   if(o.atari||o.libNums){libs=new Int16Array(n*n);const seen=new Uint8Array(n*n);
     for(let i=0;i<n*n;i++)if(b[i]&&!seen[i]){const g=groupAt(b,i,n);g.stones.forEach(s=>{seen[s]=1;libs[s]=g.libs.size})}}
