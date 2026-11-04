@@ -772,7 +772,7 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{ chap:n=>n===1?'Kapitel 1 · Grundlagen':'Kapitel 2 · Fortgeschritten',
+de:{ chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
  daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
  daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
  share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
@@ -851,7 +851,7 @@ de:{ chap:n=>n===1?'Kapitel 1 · Grundlagen':'Kapitel 2 · Fortgeschritten',
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{ chap:n=>n===1?'Chapter 1 · Basics':'Chapter 2 · Advanced',
+en:{ chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
  daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
  daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
  share_ok:'Solved on the first try',share_x:'Not solved',
@@ -930,7 +930,7 @@ en:{ chap:n=>n===1?'Chapter 1 · Basics':'Chapter 2 · Advanced',
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{ chap:n=>n===1?'Hoofdstuk 1 · Basis':'Hoofdstuk 2 · Gevorderd',
+nl:{ chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
  daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
  daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
  share_ok:'In één keer opgelost',share_x:'Niet opgelost',
@@ -1077,7 +1077,25 @@ de:{
  endspiel:{title:'Endspiel',sum:'Grenzen schließen',
   body:['Gegen Ende sind die Gebiete fast fertig. Jetzt geht es um die letzten <b>Grenzen</b>. Eine Lücke in deiner Mauer kostet Punkte: Der Gegner setzt hinein und verkleinert dein Gebiet.','Die Reihenfolge: Zuerst Lücken schließen, die Punkte kosten. Neutrale Punkte zwischen den Mauern heißen <b>Dame</b>. Sie bringen niemandem etwas und kommen ganz zuletzt.'],
   tasks:['Es gibt eine Lücke in deiner Mauer und einen neutralen Punkt. Spiele den wertvollsten Zug.'],
-  m:{a:'Genau. C2 schließt deine Grenze. Sonst setzt Weiß dort hinein und nimmt dir Punkte.',b:'D5 ist neutral. Der Punkt bringt niemandem etwas. Suche die Lücke in deiner Mauer.',c:'Das blockt auch, kostet dich aber einen Punkt im eigenen Gebiet. Schließe die Lücke direkt in der Mauer.',d:'Dieser Zug bringt nichts. Suche die Lücke in deiner schwarzen Mauer.'}}
+  m:{a:'Genau. C2 schließt deine Grenze. Sonst setzt Weiß dort hinein und nimmt dir Punkte.',b:'D5 ist neutral. Der Punkt bringt niemandem etwas. Suche die Lücke in deiner Mauer.',c:'Das blockt auch, kostet dich aber einen Punkt im eigenen Gebiet. Schließe die Lücke direkt in der Mauer.',d:'Dieser Zug bringt nichts. Suche die Lücke in deiner schwarzen Mauer.'}},
+ tod:{title:'Leben und Tod',sum:'Augenformen und der Schlüsselpunkt',
+  body:['Ob eine Gruppe lebt, hängt an der Form ihres Innenraums. Fast jede Form hat einen <b>Schlüsselpunkt</b>: Wer ihn zuerst besetzt, entscheidet über Leben und Tod.','Drei Punkte in einer Reihe oder im Winkel: Der Schlüsselpunkt ist die Mitte bzw. der Knick. Vier in einer Reihe leben von selbst. Vier als Quadrat sind tot. Vier als Pyramide: Der Schlüsselpunkt ist die Spitze in der Mitte.'],
+  tasks:['Unten links: Deine Gruppe hat einen Raum im Winkel (A2, A1, B1). Mach zwei Augen.','Jetzt umgekehrt: Weiß hat eine Pyramide aus vier Punkten. Töte die Gruppe.'],
+  m:{a:'Lebt. A2 und B1 sind jetzt zwei getrennte Augen. Weiß kann in keins hineinsetzen.',b:'Damit bleibt nur ein Raum aus zwei Punkten, also ein Auge. Der Schlüsselpunkt ist der Knick in der Ecke.',c:'Weiß setzt jetzt auf A1 und deine Gruppe hat nur noch ein Auge. Besetze den Knick selbst.',
+   d:'Getötet. Nach C1 kann Weiß nur noch ein Auge bilden. Die Gruppe ist tot.',e:'Jetzt setzt Weiß auf C1 und bekommt zwei Augen. Der Schlüsselpunkt ist die Mitte der Pyramide.',f:'Von außen tötest du die Gruppe nicht. Setze in ihren Innenraum, auf den Schlüsselpunkt.'}},
+ kokampf:{title:'Ko-Kampf',sum:'Drohen, dann zurückschlagen',
+  body:['Im Ko darfst du nicht sofort zurückschlagen. Du brauchst zuerst eine <b>Ko-Drohung</b>: einen Zug woanders, auf den der Gegner antworten muss. Antwortet er, darfst du den Ko zurücknehmen.','Gute Drohungen sind Ataris auf Gruppen, deren Verlust weh tut. Wer mehr Drohungen hat, gewinnt den Ko.'],
+  tasks:['Weiß hat gerade den Ko bei D4 genommen. E4 ist für dich gesperrt. Spiele eine Ko-Drohung.','Weiß hat auf G5 verbunden. Jetzt ist der Ko wieder frei. Nimm ihn zurück.'],
+  m:{a:'Starke Drohung: zwei weiße Steine stehen im Atari. Weiß muss antworten.',b:'Darauf muss Weiß nicht antworten. Eine Drohung setzt eine Gruppe ins Atari. Schau oben rechts.',c:'Ko zurückgenommen. Jetzt braucht Weiß eine Drohung.',d:'Schlage den Stein auf D4 zurück. Spiele auf E4.'}},
+ eroeffnung:{title:'Eröffnung',sum:'Ecken, dann Seiten',
+  body:['In der Eröffnung verteilen beide ihre Steine über das Brett. Die Reihenfolge ist fast immer gleich: zuerst die <b>Ecken</b>, dann die <b>Seiten</b>, zuletzt die Mitte.','Zwischen deinen Steinen auf der Seite entsteht Gebiet. Zwischen deinem und einem gegnerischen Stein ist der Punkt für beide wertvoll.'],
+  tasks:['Schwarz hat C3, Weiß hat G7. Besetze eine freie Ecke.','Alle Ecken sind besetzt. Wo ist jetzt der größte Zug?'],
+  m:{a:'Richtig. Eine weitere Ecke ist der größte Zug.',b:'Diese Ecke ist schon besetzt. Such eine freie.',c:'Zu nah am Rand. Auf der 1. und 2. Linie entsteht kaum Gebiet.',d:'Erst die Ecken. Zwei sind noch frei.',
+   e:'Gut. Du verbindest deine beiden Ecken und baust Gebiet an der linken Seite.',f:'Mutig: Du steigst zwischen die weißen Ecken ein. Das stört Weiß, aber deine Steine dort sind allein.',g:'Sehr gut. Der Punkt zwischen dir und Weiß ist für beide wichtig.',h:'Die Mitte ist zu offen. Erst die Seiten.',i:'Das liegt zu nah an einer Ecke, die schon besetzt ist. Die Mitte einer Seite ist größer.'}},
+ opfern:{title:'Steine opfern',sum:'Nicht jeden Stein retten',
+  body:['Nicht jeder Stein lohnt die Rettung. Ein einzelner Stein tief im Gebiet des Gegners ist oft verloren. Läufst du damit weiter, schenkst du dem Gegner Züge, und am Ende fängt er ihn trotzdem.','Frag dich vor dem Retten: Ist der Stein wichtig? Kann er überhaupt entkommen? Wenn nicht, spiele lieber den größten Zug woanders.'],
+  tasks:['Dein Stein auf H2 steht im Atari, tief im weißen Gebiet. Oben rechts ist eine Ecke frei. Was spielst du?'],
+  m:{a:'Richtig. Die freie Ecke ist viel mehr wert als ein Stein, der nicht entkommen kann.',b:'Nach H1 hat deine Gruppe zwei Freiheiten am Rand. Weiß fängt sie trotzdem. Opfere den Stein und nimm die Ecke.',c:'Das ist klein. Oben rechts ist noch eine ganze Ecke frei.'}}
 },
 en:{
  brett:{title:'The board',sum:'Intersections, turns, goal',
@@ -1144,7 +1162,25 @@ en:{
  endspiel:{title:'Endgame',sum:'Closing borders',
   body:['Towards the end the territories are almost finished. Now it is about the last <b>borders</b>. A gap in your wall costs points: the opponent plays inside and shrinks your territory.','The order: first close gaps that cost points. Neutral points between the walls are called <b>dame</b>. They are worth nothing to anyone and come last.'],
   tasks:['There is a gap in your wall and a neutral point. Play the most valuable move.'],
-  m:{a:'Exactly. C2 closes your border. Otherwise White plays there and takes points from you.',b:'D5 is neutral. It is worth nothing to anyone. Look for the gap in your wall.',c:'That blocks too, but costs you a point inside your own territory. Close the gap right in the wall.',d:'This move gains nothing. Look for the gap in your black wall.'}}
+  m:{a:'Exactly. C2 closes your border. Otherwise White plays there and takes points from you.',b:'D5 is neutral. It is worth nothing to anyone. Look for the gap in your wall.',c:'That blocks too, but costs you a point inside your own territory. Close the gap right in the wall.',d:'This move gains nothing. Look for the gap in your black wall.'}},
+ tod:{title:'Life and death',sum:'Eye shapes and the vital point',
+  body:['Whether a group lives depends on the shape of its inside space. Almost every shape has a <b>vital point</b>: whoever takes it first decides life or death.','Three points in a row or bent: the vital point is the middle or the bend. Four in a row live by themselves. Four as a square are dead. Four as a pyramid: the vital point is the centre.'],
+  tasks:['Bottom left: your group has a bent space (A2, A1, B1). Make two eyes.','Now the other way round: White has a pyramid of four points. Kill the group.'],
+  m:{a:'Alive. A2 and B1 are now two separate eyes. White cannot play in either.',b:'That leaves only a two-point space, which is one eye. The vital point is the bend in the corner.',c:'Now White plays A1 and your group has only one eye. Take the bend yourself.',
+   d:'Killed. After C1, White can only make one eye. The group is dead.',e:'Now White plays C1 and gets two eyes. The vital point is the centre of the pyramid.',f:'You cannot kill the group from outside. Play inside its space, on the vital point.'}},
+ kokampf:{title:'Ko fight',sum:'Threaten, then retake',
+  body:['In a ko you may not retake at once. First you need a <b>ko threat</b>: a move elsewhere that the opponent has to answer. If they answer, you may retake the ko.','Good threats are ataris on groups whose loss would hurt. Whoever has more threats wins the ko.'],
+  tasks:['White has just taken the ko at D4. E4 is forbidden for you. Play a ko threat.','White connected at G5. The ko is open again. Retake it.'],
+  m:{a:'Strong threat: two white stones are in atari. White has to answer.',b:'White does not need to answer that. A threat puts a group in atari. Look at the top right.',c:'Ko retaken. Now White needs a threat.',d:'Capture the stone at D4 back. Play E4.'}},
+ eroeffnung:{title:'Opening',sum:'Corners, then sides',
+  body:['In the opening both players spread their stones across the board. The order is almost always the same: first the <b>corners</b>, then the <b>sides</b>, the centre last.','Territory forms between your stones on a side. Between your stone and an opponent stone, the point is valuable for both.'],
+  tasks:['Black has C3, White has G7. Take a free corner.','All corners are taken. Where is the biggest move now?'],
+  m:{a:'Correct. Another corner is the biggest move.',b:'This corner is already taken. Find a free one.',c:'Too close to the edge. The 1st and 2nd lines make hardly any territory.',d:'Corners first. Two are still free.',
+   e:'Good. You connect your two corners and build territory on the left side.',f:'Bold: you jump in between the white corners. That bothers White, but your stones there are alone.',g:'Very good. The point between you and White matters to both.',h:'The centre is too open. Sides first.',i:'That is too close to a corner that is already taken. The middle of a side is bigger.'}},
+ opfern:{title:'Sacrificing stones',sum:'Not every stone needs saving',
+  body:['Not every stone is worth saving. A single stone deep in the opponent’s area is often lost. If you keep running with it, you hand the opponent free moves and they capture it anyway.','Before saving, ask yourself: is the stone important? Can it escape at all? If not, play the biggest move elsewhere.'],
+  tasks:['Your stone at H2 is in atari, deep in White’s area. A corner is still free at the top right. What do you play?'],
+  m:{a:'Correct. The free corner is worth much more than a stone that cannot escape.',b:'After H1 your group has two liberties on the edge. White captures it anyway. Sacrifice the stone and take the corner.',c:'That is small. A whole corner is still free at the top right.'}}
 },
 nl:{
  brett:{title:'Het bord',sum:'Snijpunten, beurten, doel',
@@ -1211,7 +1247,25 @@ nl:{
  endspiel:{title:'Eindspel',sum:'Grenzen sluiten',
   body:['Tegen het einde zijn de gebieden bijna klaar. Nu gaat het om de laatste <b>grenzen</b>. Een gat in je muur kost punten: de tegenstander zet erin en verkleint je gebied.','De volgorde: eerst gaten sluiten die punten kosten. Neutrale punten tussen de muren heten <b>dame</b>. Ze leveren niemand iets op en komen als laatste.'],
   tasks:['Er is een gat in je muur en een neutraal punt. Speel de waardevolste zet.'],
-  m:{a:'Precies. C2 sluit je grens. Anders zet wit daar en neemt je punten af.',b:'D5 is neutraal. Het levert niemand iets op. Zoek het gat in je muur.',c:'Dat blokkeert ook, maar kost je een punt in je eigen gebied. Sluit het gat direct in de muur.',d:'Deze zet levert niets op. Zoek het gat in je zwarte muur.'}}
+  m:{a:'Precies. C2 sluit je grens. Anders zet wit daar en neemt je punten af.',b:'D5 is neutraal. Het levert niemand iets op. Zoek het gat in je muur.',c:'Dat blokkeert ook, maar kost je een punt in je eigen gebied. Sluit het gat direct in de muur.',d:'Deze zet levert niets op. Zoek het gat in je zwarte muur.'}},
+ tod:{title:'Leven en dood',sum:'Oogvormen en het sleutelpunt',
+  body:['Of een groep leeft, hangt af van de vorm van haar binnenruimte. Bijna elke vorm heeft een <b>sleutelpunt</b>: wie het als eerste bezet, beslist over leven en dood.','Drie punten op een rij of in een hoek: het sleutelpunt is het midden of de knik. Vier op een rij leven vanzelf. Vier als vierkant zijn dood. Vier als piramide: het sleutelpunt is het midden.'],
+  tasks:['Linksonder: je groep heeft een gebogen ruimte (A2, A1, B1). Maak twee ogen.','Nu andersom: wit heeft een piramide van vier punten. Dood de groep.'],
+  m:{a:'Leeft. A2 en B1 zijn nu twee aparte ogen. Wit kan in geen van beide zetten.',b:'Dan blijft er maar een ruimte van twee punten over, dus één oog. Het sleutelpunt is de knik in de hoek.',c:'Nu zet wit op A1 en heeft je groep nog maar één oog. Bezet de knik zelf.',
+   d:'Gedood. Na C1 kan wit nog maar één oog maken. De groep is dood.',e:'Nu zet wit op C1 en krijgt twee ogen. Het sleutelpunt is het midden van de piramide.',f:'Van buitenaf dood je de groep niet. Zet in haar binnenruimte, op het sleutelpunt.'}},
+ kokampf:{title:'Ko-gevecht',sum:'Dreigen, dan terugslaan',
+  body:['Bij ko mag je niet meteen terugslaan. Eerst heb je een <b>ko-dreiging</b> nodig: een zet elders waarop de tegenstander moet antwoorden. Antwoordt hij, dan mag je de ko terugnemen.','Goede dreigingen zijn atari’s op groepen waarvan het verlies pijn doet. Wie meer dreigingen heeft, wint de ko.'],
+  tasks:['Wit heeft net de ko op D4 genomen. E4 is voor jou verboden. Speel een ko-dreiging.','Wit heeft op G5 verbonden. De ko is weer vrij. Neem hem terug.'],
+  m:{a:'Sterke dreiging: twee witte stenen staan in atari. Wit moet antwoorden.',b:'Daarop hoeft wit niet te antwoorden. Een dreiging zet een groep in atari. Kijk rechtsboven.',c:'Ko teruggenomen. Nu heeft wit een dreiging nodig.',d:'Sla de steen op D4 terug. Speel E4.'}},
+ eroeffnung:{title:'Opening',sum:'Hoeken, dan zijkanten',
+  body:['In de opening verdelen beide spelers hun stenen over het bord. De volgorde is bijna altijd gelijk: eerst de <b>hoeken</b>, dan de <b>zijkanten</b>, het midden als laatste.','Tussen jouw stenen aan de zijkant ontstaat gebied. Tussen jouw steen en een steen van de tegenstander is het punt voor beiden waardevol.'],
+  tasks:['Zwart heeft C3, wit heeft G7. Bezet een vrije hoek.','Alle hoeken zijn bezet. Waar is nu de grootste zet?'],
+  m:{a:'Juist. Nog een hoek is de grootste zet.',b:'Deze hoek is al bezet. Zoek een vrije.',c:'Te dicht bij de rand. Op de 1e en 2e lijn ontstaat nauwelijks gebied.',d:'Eerst de hoeken. Er zijn er nog twee vrij.',
+   e:'Goed. Je verbindt je twee hoeken en bouwt gebied aan de linkerkant.',f:'Gedurfd: je springt tussen de witte hoeken in. Dat stoort wit, maar je stenen daar staan alleen.',g:'Heel goed. Het punt tussen jou en wit is voor beiden belangrijk.',h:'Het midden is te open. Eerst de zijkanten.',i:'Dat ligt te dicht bij een hoek die al bezet is. Het midden van een zijkant is groter.'}},
+ opfern:{title:'Stenen opofferen',sum:'Niet elke steen redden',
+  body:['Niet elke steen is het redden waard. Een losse steen diep in het gebied van de tegenstander is vaak verloren. Loop je ermee door, dan geef je de tegenstander gratis zetten en vangt hij hem toch.','Vraag je voor het redden af: is de steen belangrijk? Kan hij überhaupt ontsnappen? Zo niet, speel dan liever de grootste zet elders.'],
+  tasks:['Je steen op H2 staat in atari, diep in het witte gebied. Rechtsboven is een hoek vrij. Wat speel je?'],
+  m:{a:'Juist. De vrije hoek is veel meer waard dan een steen die niet kan ontsnappen.',b:'Na H1 heeft je groep twee vrijheden aan de rand. Wit vangt hem toch. Offer de steen en neem de hoek.',c:'Dat is klein. Rechtsboven is nog een hele hoek vrij.'}}
 }};
 let LANG='de';
 function T(k,...a){const d=I18N[LANG]||I18N.de;let v=k in d?d[k]:I18N.de[k];return typeof v==='function'?v(...a):v}
@@ -1333,6 +1387,12 @@ const KO=['.......','.......','...XO..','..XO.O.','...XO..','.......','.......']
 const CUT=['.......','.......','...O...','..X.X..','...O...','.......','.......'];
 const FORM1=['.......','.......','..O....','..XX...','.......','.......','.......'],FORM2=['.......','.......','.......','..X.X..','.......','...O...','.......'];
 const LAD=['.........','.........','.........','.........','...XO....','....XX...','.........','.........','.........'];
+const TOD1=['.......','.......','.......','OOO....','XXOO...','.XXO...','..XO...'],TOD2=['.......','.......','.......','XXXXX..','XOOOXX.','OO.OOX.','O...OX.'];
+const KOF1=['.....XO','......O','...XO..','..XO.O.','...XO..','.......','.......'],KOF2=['.....XO','.....XO','...XO.O','..XO.O.','...XO..','.......','.......'];
+const E9R=(m)=>Array.from({length:9},(_,y)=>Array.from({length:9},(_,x)=>m[x+','+y]||'.').join(''));
+const ERO1=E9R({'2,6':'X','6,2':'O'}),ERO2=E9R({'2,2':'X','2,6':'X','6,2':'O','6,6':'O'});
+const OPF=E9R({'2,2':'X','2,6':'X','6,6':'O','7,6':'O','6,7':'O','7,7':'X','8,7':'O'});
+const zone=c=>{const dx=Math.min(c.x,8-c.x),dy=Math.min(c.y,8-c.y);return(dx===2||dx===3)&&(dy===2||dy===3)};
 const SEKI=['.......','.......','.......','XXXX...','OOOX...','X.OX...','X.OX...'],ENDG=['..XO...','..XO...','..X.O..','..XO...','..XO...','...O...','..XO...'];
 const LESSONS=[
  {id:'brett',chap:1,puzzles:[{rows:E7,marks:[[3,3]],check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)}]},
@@ -1357,13 +1417,24 @@ const LESSONS=[
    {rows:FORM2,check:(c,m)=>c.x===3&&c.y===4?ok(m.d):c.x===3&&c.y===3?bad(m.e):bad(m.f)}]},
  {id:'leiter',puzzles:[{rows:LAD,chase:[4,4]}]},
  {id:'seki',puzzles:[{rows:SEKI,check:(c,m)=>c.x===1&&c.y>=5?bad(m.b):ok(m.a)}]},
- {id:'endspiel',puzzles:[{rows:ENDG,check:(c,m)=>c.x===2&&c.y===5?ok(m.a):c.x===3&&c.y===2?bad(m.b):c.x===1&&c.y===5?bad(m.c):bad(m.d)}]}
+ {id:'endspiel',puzzles:[{rows:ENDG,check:(c,m)=>c.x===2&&c.y===5?ok(m.a):c.x===3&&c.y===2?bad(m.b):c.x===1&&c.y===5?bad(m.c):bad(m.d)}]},
+ {id:'tod',chap:3,puzzles:[{rows:TOD1,check:(c,m)=>c.x===0&&c.y===6?ok(m.a):(c.x===0&&c.y===5)||(c.x===1&&c.y===6)?bad(m.b):bad(m.c)},
+   {rows:TOD2,check:(c,m)=>c.x===2&&c.y===6?ok(m.d):[[1,6],[3,6],[2,5]].some(([x,y])=>c.x===x&&c.y===y)?bad(m.e):bad(m.f)}]},
+ {id:'kokampf',puzzles:[{rows:KOF1,ko:[4,3],last:[3,3],check:(c,m)=>c.wAtari?ok(m.a):bad(m.b)},
+   {rows:KOF2,last:[6,2],check:(c,m)=>c.x===4&&c.y===3&&c.captured?ok(m.c):bad(m.d)}]},
+ {id:'eroeffnung',chap:4,puzzles:[{rows:ERO1,check:(c,m)=>{const dx=Math.min(c.x,8-c.x),dy=Math.min(c.y,8-c.y);
+      if(zone(c))return(c.x>4&&c.y<4)||(c.x<4&&c.y>4)?bad(m.b):ok(m.a);return dx<=1||dy<=1?bad(m.c):bad(m.d)}},
+   {rows:ERO2,check:(c,m)=>{const side=(c.x===4&&[2,3,5,6].includes(c.y))||(c.y===4&&[2,3,5,6].includes(c.x));
+      if(side)return c.x<4?ok(m.e):c.x>4?ok(m.f):ok(m.g);if(c.x===4&&c.y===4)return bad(m.h);
+      const dx=Math.min(c.x,8-c.x),dy=Math.min(c.y,8-c.y);return dx<=1||dy<=1?bad(m.c):bad(m.i)}}]},
+ {id:'opfern',puzzles:[{rows:OPF,check:(c,m)=>zone(c)&&c.x>4&&c.y<4?ok(m.a):c.x===7&&c.y===8?bad(m.b):bad(m.c)}]}
 ];
 function parse(rows){const n=rows.length,b=new Array(n*n).fill(0);rows.forEach((r,y)=>[...r].forEach((ch,x)=>{b[y*n+x]=ch==='X'?1:ch==='O'?2:0}));return{n,b}}
 
 let LS=null;
 function openLesson(li){LS={li,pi:0,stage:'read'};loadPuzzle();show('lesson');window.scrollTo(0,0)}
-function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
+const stillBoard=id=>{const e=$(id);if(e){e._pb=null;e._van=null}};
+function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];stillBoard('#ls-board');
   if(p){const{n,b}=parse(p.rows);Object.assign(LS,{n,board:b,ko:p.ko?p.ko[1]*n+p.ko[0]:-1,last:p.last?p.last[1]*n+p.last[0]:-1,solved:false,failed:false,chasing:false,msg:'',state:''})}
   renderLesson()}
 function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||LS.failed)return;
@@ -1373,7 +1444,8 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
   const x=i%n,y=(i/n)|0,M_=LT(L).m;let tri=false;
   for(const[dx,dy]of[[0,0],[-1,0],[0,-1],[-1,-1]]){const x0=x+dx,y0=y+dy;if(x0<0||y0<0||x0>n-2||y0>n-2)continue;
     const q=[y0*n+x0,y0*n+x0+1,(y0+1)*n+x0,(y0+1)*n+x0+1].map(j=>r.board[j]);if(q.filter(v=>v===1).length===3&&q.includes(0))tri=true}
-  const ctx={x,y,captured:r.captured.length,tri,touch:[...nbrs(i,n)].some(j=>prev[j]===1),
+  let wAtari=0;{const seen=new Set();for(let j=0;j<n*n;j++)if(r.board[j]===2&&!seen.has(j)){const g=groupAt(r.board,j,n);g.stones.forEach(q=>seen.add(q));if(g.libs.size===1&&g.stones.length>=2)wAtari++}}
+  const ctx={x,y,captured:r.captured.length,tri,wAtari,touch:[...nbrs(i,n)].some(j=>prev[j]===1),
     colorAt:(x,y)=>r.board[y*n+x],libsAt:(x,y)=>r.board[y*n+x]?groupAt(r.board,y*n+x,n).libs.size:0};
   let res;
   if(p.chase){const t=p.chase[1]*n+p.chase[0];
@@ -1730,11 +1802,11 @@ function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);to
 $('#ts-start').onclick=()=>openDrill('schlagen');
 function openDrill(id){D={cat:id};newDrill();show('drill')}
 function newDrill(pp){if(D.daily&&!pp){const q=dailyPuzzle(D.daily);pp=q.p}
-  const c=TC(D.cat);const p=pp||(c.set?fromSet(c.set):c.gen());
+  stillBoard('#dr-board');const c=TC(D.cat);const p=pp||(c.set?fromSet(c.set):c.gen());
   if(!p){D.msg=T('nodrill');D.state='';D.sub='';renderDrill();return}
   Object.assign(D,{quiz:null,answered:-1},p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,whyOpen:false,msg:p.quiz?p.quiz.q:c.goal,state:'',sub:p.quiz?p.quiz.note:''});
   renderDrill()}
-function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:'',whyOpen:false});renderDrill()}
+function resetDrill(){stillBoard('#dr-board');Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:'',whyOpen:false});renderDrill()}
 function drillSolved(msg){const s=tstat(D.cat);D.phase='solved';D.state='ok';
   if(!D.counted){D.counted=true;
     if(D.daily)dailyRecord(!D.fails&&!D.shown);
