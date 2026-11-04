@@ -221,7 +221,7 @@ button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inher
 
 /* Spielansicht: genau ein Bildschirm, das Brett nimmt den Rest der Höhe */
 html.fit,html.fit body{height:100%;overflow:hidden;overscroll-behavior:none}
-html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s7) + var(--s2));gap:var(--s2)}
+html.fit .app{height:100%;padding-block:var(--s6) calc(var(--s7) + var(--s2));gap:var(--s2)}
 html.fit header.top{display:none}
 html.fit main{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
 html.fit #view-play,html.fit #view-drill{flex:1 1 0;min-height:0;gap:var(--s2)}
@@ -240,7 +240,16 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .chap:first-child{padding-top:var(--s1)}
 .daily{display:grid;grid-template-columns:var(--s5) 1fr auto;align-items:center;gap:var(--s2);padding:var(--s2);border-radius:var(--r);background:var(--surface)}
 .daily .lt .t{font-weight:700}
-.daily-eb{grid-column:1/-1;margin-bottom:calc(var(--s1) * -1)}
+.drill-title>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:var(--s2);margin-bottom:calc(var(--s1) * -1)}
+.daily-head .acc{color:var(--accent);font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:700;letter-spacing:.04em}
+.week{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:var(--s1);padding-top:var(--s2);border-top:1px solid var(--rule)}
+.week i{display:flex;flex-direction:column;align-items:center;gap:var(--s1);font-style:normal;font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);color:var(--muted);font-weight:500}
+.week b{width:var(--s3);height:var(--s3);border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--rule)}
+.week b.ok{background:radial-gradient(circle at 36% 30%,var(--stone-b1),var(--stone-b2));box-shadow:none}
+.week b.x{background:radial-gradient(circle,var(--muted) 0 3px,transparent 3.5px)}
+.week b.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.week i.now{color:var(--ink);font-weight:700}
 .daily .d{color:var(--muted);font-variant-numeric:tabular-nums}
 .daily .d .acc{color:var(--accent)}
 .daily .btn{padding:0 var(--s2);height:var(--s6)}
@@ -848,7 +857,7 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{ s_theme:'Erscheinungsbild',th_auto:'Auto',th_light:'Hell',th_dark:'Dunkel', a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
+de:{ daily_short:'Täglich', daily_more:c=>`Weiter mit ${c}`, s_theme:'Erscheinungsbild',th_auto:'Auto',th_light:'Hell',th_dark:'Dunkel', a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
  daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
  daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
  share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
@@ -927,7 +936,7 @@ de:{ s_theme:'Erscheinungsbild',th_auto:'Auto',th_light:'Hell',th_dark:'Dunkel',
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{ s_theme:'Appearance',th_auto:'Auto',th_light:'Light',th_dark:'Dark', a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
+en:{ daily_short:'Daily', daily_more:c=>`More ${c}`, s_theme:'Appearance',th_auto:'Auto',th_light:'Light',th_dark:'Dark', a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
  daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
  daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
  share_ok:'Solved on the first try',share_x:'Not solved',
@@ -1006,7 +1015,7 @@ en:{ s_theme:'Appearance',th_auto:'Auto',th_light:'Light',th_dark:'Dark', a11y_b
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{ s_theme:'Weergave',th_auto:'Auto',th_light:'Licht',th_dark:'Donker', a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
+nl:{ daily_short:'Dagelijks', daily_more:c=>`Verder met ${c}`, s_theme:'Weergave',th_auto:'Auto',th_light:'Licht',th_dark:'Donker', a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
  daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
  daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
  share_ok:'In één keer opgelost',share_x:'Niet opgelost',
@@ -1922,9 +1931,12 @@ function shareDaily(btn){const txt=shareText();
 let dailyDay=0;
 function renderDaily(){const no=dayNo(),s=dst(),r=s.res[no],id=DCATS[no%DCATS.length],stk=dstreak();dailyDay=no;
   const st=r?`<span class="${r==='ok'?'acc':''}">${r==='ok'?'●':'○'} ${T(r==='ok'?'daily_ok':'daily_x')}</span> · `:'';
-  $('#daily').innerHTML=`<span class="eyebrow daily-eb">${T('daily_title')} · ${T('daily_no',no)}</span><span class="tglyph">${glyph(id)}</span><span class="lt"><span class="t">${TC(id).title}${stk?` · ${T('streak',stk)}`:''}</span><span class="d">${r?st+`<span id="daily-cd">${T('daily_next',untilMidnight())}</span>`:T('daily_once')}</span></span>`+
-    (r?`<button class="btn" id="daily-share">${T('share')}</button>`:`<button class="btn primary" id="daily-go">${T('daily_solve')}</button>`);
-  const g=$('#daily-go');if(g)g.onclick=openDaily;const sh=$('#daily-share');if(sh)sh.onclick=e=>{e.stopPropagation();shareDaily(sh)}}
+  let wk='';const wd=new Intl.DateTimeFormat(LANG,{weekday:'narrow'});
+  for(let k=6;k>=0;k--){const q=no-k,rr=s.res[q],d=new Date();d.setDate(d.getDate()-k);
+    wk+=`<i class="${k?'':'now'}"><b class="${rr==='ok'?'ok':rr==='x'?'x':!k?'today':''}"></b>${wd.format(d)}</i>`}
+  $('#daily').innerHTML=`<div class="daily-head"><span class="eyebrow">${T('daily_title')} · ${T('daily_no',no)}</span>${stk?`<span class="acc">${T('streak',stk)}</span>`:''}</div><span class="tglyph">${glyph(id)}</span><span class="lt"><span class="t">${TC(id).title}</span><span class="d">${r?st+`<span id="daily-cd">${T('daily_next',untilMidnight())}</span>`:T('daily_once')}</span></span>`+
+    (r?'<span></span>':`<button class="btn primary" id="daily-go">${T('daily_solve')}</button>`)+`<div class="week" aria-hidden="true">${wk}</div>`;
+  const g=$('#daily-go');if(g)g.onclick=openDaily}
 setInterval(()=>{if($('#view-train').hidden)return;if(dayNo()!==dailyDay){renderDaily();return}const c=$('#daily-cd');if(c)c.textContent=T('daily_next',untilMidnight())},1000);
 function openDaily(){const no=dayNo(),{id,p}=dailyPuzzle(no);D={cat:id,daily:no};newDrill(p);if(dst().res[no])D.counted=true;show('drill')}
 function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);tot+=s.ok;best=Math.max(best,s.best)});
@@ -1981,16 +1993,17 @@ function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat
   else D.msg=T('d_continue',coord(w,n));
   D.state='';D.sub='';renderDrill()}
 function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
-  $('#dr-cat').textContent=D.daily?T('daily_title'):T('train_title');
-  $('#dr-turn').textContent=D.daily?c.title+' · '+T('daily_no',D.daily):c.title;
-  if(D.daily){const k=dstreak();$('#dr-streak').textContent=T('streak',k);$('#dr-streak').className='chip'+(k>1?' hot':'')}
+  $('#dr-cat').textContent=D.daily?T('daily_short')+' · '+T('daily_no',D.daily):T('train_title');
+  $('#dr-turn').textContent=c.title;
+  $('#dr-streak').hidden=!!D.daily;
+  if(D.daily){}
   else{$('#dr-streak').textContent=T('drill_chip',s.streak,s.ok);$('#dr-streak').className='chip'+(s.streak>1?' hot':'')}
   if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
     const done=D.quiz&&D.phase!=='play';
     drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play'&&!D.quiz,onPlay:drillMove,dead:done?D.quiz.dead:[],own:done?D.quiz.own:null})}
   const ch=$('#dr-choices'),ctr=$('#dr-controls'),nb=$('#dr-nextbar');
   const asking=!!(D.quiz&&D.phase==='play'),finished=D.phase==='solved'||(D.quiz&&D.phase!=='play');
-  ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;nb.textContent=D.daily?T('share'):T('next');$('#dr-next').disabled=!!D.daily;
+  ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;nb.textContent=D.daily?T('daily_more',c.title):T('next');$('#dr-next').disabled=!!D.daily;
   if(asking){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
   const fb=$('#dr-fb'),open=!!(D.quiz||D.whyOpen);fb.dataset.state=D.state||'';fb.classList.toggle('open',open);
   fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbHTML(D.state,D.msg||'')}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?`<button class="why" id="dr-why">${T('why')}</button>`:'');
@@ -2000,7 +2013,7 @@ function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
   $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
 $('#dr-back').onclick=()=>{if(D)D.daily=0;show('train')};
 $('#dr-next').onclick=()=>newDrill();
-$('#dr-nextbar').onclick=e=>{if(D.daily)shareDaily(e.currentTarget);else newDrill()};
+$('#dr-nextbar').onclick=()=>{if(D.daily)D.daily=0;newDrill()};
 $('#dr-retry').onclick=()=>resetDrill();
 $('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=>[i%D.n,(i/D.n)|0]);
   Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,state:'',sub:'',
