@@ -185,6 +185,8 @@ body.thinking .spark{opacity:1;animation:spark 1.6s cubic-bezier(.5,0,.5,1) infi
 button.coach-card{appearance:none;border:0;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;flex:none}
 .coach-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s1)}
 .coach-head .ic{width:16px;height:16px;color:var(--muted);transition:transform .2s}
+.coach-card:not(.can) .coach-head .ic{visibility:hidden}
+button.coach-card:not(.can){cursor:default}
 .coach-card.open .coach-head .ic{transform:rotate(180deg)}
 .badge.trainer{color:var(--accent)}
 .coach-now{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}
@@ -1825,7 +1827,7 @@ $('#an-close').onclick=()=>{G.reviewing=false;save();renderPlay()};
   g.addEventListener('pointerdown',e=>{seek(e);g.setPointerCapture(e.pointerId)});g.addEventListener('pointermove',e=>{if(e.buttons)seek(e)})}
 const whoLabel=w=>w==='weiss'?CN[A()]:T(w==='du'?'who_du':'who_trainer');
 let coachOpen=false,coachPeek=false; // coachPeek: bei ausgeblendetem Trainer zeigt „Tipp“ die Karte bis zum nächsten Zug
-$('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
+$('#coach-card').onclick=()=>{if(!$('#coach-card').classList.contains('can'))return;coachOpen=!coachOpen;renderPlay()};
 const sheet=$('#sheet');
 document.querySelectorAll('.settings-btn').forEach(b=>b.onclick=()=>{$('.sheet').dataset.scope=$('#view-play').hidden?'app':'play';renderPlay();sheet.hidden=false;$('#sheet-close').focus()});
 const closeSheet=()=>{sheet.hidden=true};
@@ -1873,7 +1875,11 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=Rm(now.t);
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join('');
-  const cc=$('#coach-card');cc.hidden=showBox||anOn||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
+  const cc=$('#coach-card');cc.hidden=showBox||anOn||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);
+  // Aufklappen nur anbieten, wenn es mehr zu sehen gibt: ältere Meldungen oder abgeschnittener Text
+  {const nw=$('#coach-now'),more=G.coach.length>1||coachOpen||(!cc.hidden&&nw.scrollHeight>nw.clientHeight+1);
+   if(!more)coachOpen=false;cc.classList.toggle('can',more);cc.disabled=false;
+   if(more)cc.setAttribute('aria-expanded',String(coachOpen));else cc.removeAttribute('aria-expanded')}
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
   document.querySelectorAll('#seg-confirm button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(store.settings.confirm||'13'))));
