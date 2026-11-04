@@ -152,7 +152,7 @@ header.top{display:flex;align-items:center;gap:var(--s2);min-height:var(--s6)}
 body.thinking .spark{opacity:1;animation:spark 1.6s cubic-bezier(.5,0,.5,1) infinite}
 @keyframes spark{0%{transform:rotate(0) scale(.85)}50%{transform:rotate(90deg) scale(1.1)}100%{transform:rotate(180deg) scale(.85)}}
 @media (prefers-reduced-motion: reduce){body.thinking .spark{animation:none}}
-.dot{width:var(--s2);height:var(--s2);border-radius:50%;background:var(--stone-b2);box-shadow:0 0 0 1px var(--rule);display:inline-block;flex:none}
+.dot{width:var(--s2);height:var(--s2);border-radius:50%;background:var(--stone-b2);box-shadow:0 0 0 1px var(--stone-edge);display:inline-block;flex:none}
 .dot.w{background:var(--stone-w1);box-shadow:inset 0 0 0 1px var(--stone-edge)}
 .dot.sm{width:var(--s1);height:var(--s1)}
 .caps{display:flex;align-items:center;gap:var(--s2);font-size:16px;line-height:24px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -210,7 +210,8 @@ html.fit,html.fit body{height:100%;overflow:hidden;overscroll-behavior:none}
 html.fit .app{height:100%;padding-block:var(--s2) calc(var(--s8) + var(--s2));gap:var(--s2)}
 html.fit header.top{display:none}
 html.fit main{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
-html.fit #view-play,html.fit #view-drill{flex:1 1 0;min-height:0;gap:var(--s1)}
+html.fit #view-play,html.fit #view-drill{flex:1 1 0;min-height:0;gap:var(--s2)}
+html.fit .board-wrap{place-items:center}
 html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .board-wrap{flex:1 1 0;min-height:0;container-type:size;display:grid;place-items:center}
 .haptic-host{position:relative;display:block;-webkit-tap-highlight-color:transparent}
@@ -231,6 +232,13 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .drill-title{flex:1;min-width:0;display:flex;flex-direction:column}
 .drill-title .turn{font-size:16px;line-height:24px}
 .controls.three{grid-template-columns:repeat(3,1fr)}
+/* Bedientasten unter dem Brett: runde Taste mit Symbol, Beschriftung darunter – wie an einem Braun-Gerät */
+.controls .ctl{flex-direction:column;height:auto;gap:var(--s1);background:none;color:var(--muted);letter-spacing:.08em}
+.controls .ctl .ic{width:var(--s5);height:var(--s5);padding:var(--s1);stroke-width:1.5;border-radius:50%;background:var(--key);color:var(--ink);transition:background .15s}
+.controls .ctl:active .ic{background:var(--key-down)}
+@media (hover:hover){.controls .ctl:not(:disabled):hover{background:none;color:var(--ink)}.controls .ctl:not(:disabled):not(.primary):hover .ic{background:var(--key-down)}}
+.controls .ctl.primary{background:none;color:var(--accent)}
+.controls .ctl.primary .ic{background:var(--accent);color:var(--accent-ink)}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
 .choices .ctl{height:var(--s6);font-size:16px;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
 .dr-fb{background:var(--surface);border-radius:var(--r);padding:var(--s1) var(--s2);display:flex;gap:var(--s1);align-items:flex-start;min-height:var(--s8);flex:none}
