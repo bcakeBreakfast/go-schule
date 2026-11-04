@@ -223,7 +223,22 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 @supports not (width:1cqw){.board-wrap .board{width:auto;height:100%;max-width:100%;aspect-ratio:1}}
 
 /* Training */
-.train-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--s1)}
+.train-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--s1)}
+.chap{padding:var(--s4) 0 var(--s1);border-bottom:1px solid var(--rule)}
+.chap:first-child{padding-top:var(--s1)}
+.daily{display:grid;grid-template-columns:var(--s5) 1fr auto;align-items:center;gap:var(--s2);padding:var(--s2);border-radius:var(--r);background:var(--surface)}
+.daily .lt .t{font-weight:700}
+.daily-eb{grid-column:1/-1;margin-bottom:calc(var(--s1) * -1)}
+.daily .d{color:var(--muted);font-variant-numeric:tabular-nums}
+.daily .d .acc{color:var(--accent)}
+.daily .btn{padding:0 var(--s2);height:var(--s5);font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase}
+.rank-line{display:block;color:var(--ink);margin-top:var(--s1)}
+.an{display:flex;flex-direction:column;gap:var(--s1);flex:none}
+.an[hidden]{display:none}
+.an-graph{display:block;width:100%;height:var(--s8);border-radius:var(--r);background:var(--surface);cursor:pointer;touch-action:none}
+.an-text{margin:0;min-height:var(--s6);padding:0 var(--s1);font-variant-numeric:tabular-nums}
+.an-text small{display:block;color:var(--muted);font-size:16px;line-height:24px}
+.an-text .acc{color:var(--accent);font-weight:700}
 .stat{background:var(--surface);border-radius:var(--r);padding:var(--s2);display:flex;flex-direction:column}
 .stat b{font-family:var(--f-display);font-size:32px;line-height:40px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .stat span{font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
@@ -341,6 +356,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
     <section id="view-train" class="view" hidden>
       <div class="title-row"><div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="train_title">Training</h1></div><button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button></div>
       <p class="muted" data-i18n="train_intro"></p>
+      <div class="daily" id="daily"></div>
       <div class="cta" id="ts-empty" hidden>
         <p data-i18n-html="ts_empty_html"></p>
         <button class="btn primary block" id="ts-start" data-i18n="ts_start">Mit Schlagen anfangen</button>
@@ -348,6 +364,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
       <div class="train-stats" id="ts-stats">
         <div class="stat"><b id="ts-solved">0</b><span data-i18n="solved">Gelöst</span></div>
         <div class="stat"><b id="ts-best">0</b><span data-i18n="best_streak">Längste Serie</span></div>
+        <div class="stat"><b id="ts-rank">30k</b><span data-i18n="rank">Rang</span></div>
       </div>
       <div class="lessons" id="train-list"></div>
     </section>
@@ -387,6 +404,16 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <button class="ctl" id="btn-pass"><svg class="ic"><use href="#i-pass"/></svg><span data-i18n="pass">Passen</span></button>
         <button class="ctl" id="btn-new"><svg class="ic"><use href="#i-plus"/></svg><span>Neu</span></button>
       </div>
+      <div class="an" id="an" hidden>
+        <svg class="an-graph" id="an-graph" aria-hidden="true"></svg>
+        <p class="an-text" id="an-text" aria-live="polite"></p>
+        <div class="controls">
+          <button class="ctl" id="an-prev"><svg class="ic"><use href="#i-back"/></svg><span data-i18n="an_prev">Zurück</span></button>
+          <button class="ctl" id="an-next"><svg class="ic"><use href="#i-next"/></svg><span data-i18n="an_next">Vor</span></button>
+          <button class="ctl" id="an-err"><svg class="ic"><use href="#i-alert"/></svg><span data-i18n="an_mistake">Fehler</span></button>
+          <button class="ctl" id="an-close"><svg class="ic"><use href="#i-close"/></svg><span data-i18n="an_close">Fertig</span></button>
+        </div>
+      </div>
       <button class="coach-card" id="coach-card" aria-expanded="false" aria-live="polite">
         <span class="coach-head"><span class="badge" id="coach-who"></span><svg class="ic"><use href="#i-down"/></svg></span>
         <span class="coach-now" id="coach-now"></span>
@@ -405,7 +432,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
       <div class="field play-only"><span class="lab" data-i18n="s_color">Deine Farbe</span>
         <div class="seg" id="seg-color"><button data-v="1" data-i18n="black">Schwarz</button><button data-v="2" data-i18n="white">Weiß</button></div></div>
       <div class="field play-only"><span class="lab" data-i18n="s_opp">Gegner</span>
-        <div class="seg" id="seg-level"><button data-v="leicht" data-i18n="lvl_leicht">Leicht</button><button data-v="mittel" data-i18n="lvl_mittel">Mittel</button><button data-v="stark" data-i18n="lvl_stark">Stark</button></div></div>
+        <div class="seg" id="seg-level"><button data-v="leicht" data-i18n="lvl_leicht">Leicht</button><button data-v="mittel" data-i18n="lvl_mittel">Mittel</button><button data-v="stark" data-i18n="lvl_stark">Stark</button><button data-v="auto" data-i18n="lvl_auto">Auto</button></div></div>
       <div class="field play-only"><span class="lab" data-i18n="s_confirm">Zug bestätigen (zweimal tippen)</span>
         <div class="seg" id="seg-confirm"><button data-v="never" data-i18n="c_never">Nie</button><button data-v="13" data-i18n="c_13">Auf 13×13</button><button data-v="always" data-i18n="c_always">Immer</button></div></div>
       <label class="switch play-only"><span data-i18n="s_libs">Freiheiten auf den Steinen zeigen</span> <input type="checkbox" id="opt-libs"></label>
@@ -745,7 +772,16 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{
+de:{ chap:n=>n===1?'Kapitel 1 · Grundlagen':'Kapitel 2 · Fortgeschritten',
+ daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
+ daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
+ share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
+ rank:'Rang',kyu:n=>`${n} Kyu`,dan:n=>`${n} Dan`,rank_line:(r,d)=>`Rang: ${r}${d?` (${d>0?'+':'−'}${Math.abs(d)} Punkte)`:''}`,lvl_auto:'Auto',
+ an_title:'Analyse',an_move:(m,N)=>`Zug ${m} von ${N}`,an_start:'Startstellung. Tippe auf die Kurve oder blättere Zug für Zug.',
+ analyzing:p=>`Analysiere … ${p} %`,an_chance:'Deine Gewinnchance',an_better:c=>`Besser war ${c}.`,an_good:'Guter Zug.',
+ an_summary:n=>n?`${n} ${n===1?'Fehler':'Fehler'} gefunden. Tippe auf „Fehler“, um ${n===1?'ihn':'sie'} anzusehen.`:'Keine großen Fehler. Stark gespielt.',
+ an_prev:'Zurück',an_next:'Vor',an_mistake:'Fehler',an_close:'Fertig',an_pass:'Passen',
+
  brand:'Go-Schule',tab_learn:'Lernen',tab_train:'Training',tab_play:'Spielen',learn_title:'Lernen',train_title:'Training',
  of_lessons:n=>`von ${n} Lektionen`,done:'erledigt',
  cta_html:'<strong>Lieber gleich ausprobieren?</strong>Spiele auf 9×9 gegen den Computer. Der Trainer erklärt jeden Zug.',cta_btn:'Partie starten',
@@ -767,7 +803,7 @@ de:{
  result:'Ergebnis',you_tag:' (du)',
  line_b:(y,s,t,tot)=>`Schwarz${y}: ${s} ${s===1?'Stein':'Steine'} + ${t} Gebiet = ${tot}`,line_w:(y,s,t,k,tot)=>`Weiß${y}: ${s} ${s===1?'Stein':'Steine'} + ${t} Gebiet + ${k} Komi = ${tot}`,
  score_nums:(b,w)=>`Schwarz ${b} · Weiß ${w}`,score_note:'Tippe Gruppen an, die nicht mehr leben können. Die Quadrate zeigen, wem das Gebiet gehört.',
- resume:'Weiterspielen',confirm:'Bestätigen',review:'Partie ansehen',again:'Neue Partie',who_du:'Dein Zug',who_trainer:'Trainer',
+ resume:'Weiterspielen',confirm:'Bestätigen',review:'Analyse',again:'Neue Partie',who_du:'Dein Zug',who_trainer:'Trainer',
  intro_black:'Du spielst Schwarz und beginnst. Starte in einer Ecke, auf der 3. oder 4. Linie vom Rand.',
  intro_white:k=>`Du spielst Weiß. Der Computer beginnt mit Schwarz, dafür bekommst du ${k} Punkte Komi. Antworte in einer freien Ecke.`,
  you_cap:k=>k===1?'Du schlägst einen Stein.':`Du schlägst ${k} Steine.`,self_atari:'Vorsicht: Dein Stein steht jetzt selbst im Atari.',
@@ -815,7 +851,16 @@ de:{
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{
+en:{ chap:n=>n===1?'Chapter 1 · Basics':'Chapter 2 · Advanced',
+ daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
+ daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
+ share_ok:'Solved on the first try',share_x:'Not solved',
+ rank:'Rank',kyu:n=>`${n} kyu`,dan:n=>`${n} dan`,rank_line:(r,d)=>`Rank: ${r}${d?` (${d>0?'+':'−'}${Math.abs(d)} pts)`:''}`,lvl_auto:'Auto',
+ an_title:'Analysis',an_move:(m,N)=>`Move ${m} of ${N}`,an_start:'Starting position. Tap the curve or step through move by move.',
+ analyzing:p=>`Analysing … ${p}%`,an_chance:'Your winning chance',an_better:c=>`${c} was better.`,an_good:'Good move.',
+ an_summary:n=>n?`Found ${n} ${n===1?'mistake':'mistakes'}. Tap “Mistake” to see ${n===1?'it':'them'}.`:'No big mistakes. Well played.',
+ an_prev:'Back',an_next:'Next',an_mistake:'Mistake',an_close:'Done',an_pass:'Pass',
+
  brand:'Go School',tab_learn:'Learn',tab_train:'Training',tab_play:'Play',learn_title:'Learn',train_title:'Training',
  of_lessons:n=>`of ${n} lessons`,done:'done',
  cta_html:'<strong>Want to try right away?</strong>Play 9×9 against the computer. The coach explains every move.',cta_btn:'Start a game',
@@ -837,7 +882,7 @@ en:{
  result:'Result',you_tag:' (you)',
  line_b:(y,s,t,tot)=>`Black${y}: ${s} ${s===1?'stone':'stones'} + ${t} territory = ${tot}`,line_w:(y,s,t,k,tot)=>`White${y}: ${s} ${s===1?'stone':'stones'} + ${t} territory + ${k} komi = ${tot}`,
  score_nums:(b,w)=>`Black ${b} · White ${w}`,score_note:'Tap groups that can no longer live. The squares show who owns the territory.',
- resume:'Keep playing',confirm:'Confirm',review:'View game',again:'New game',who_du:'Your move',who_trainer:'Coach',
+ resume:'Keep playing',confirm:'Confirm',review:'Analysis',again:'New game',who_du:'Your move',who_trainer:'Coach',
  intro_black:'You play Black and move first. Start in a corner, on the 3rd or 4th line from the edge.',
  intro_white:k=>`You play White. The computer starts with Black; in return you get ${k} points of komi. Answer in a free corner.`,
  you_cap:k=>k===1?'You capture a stone.':`You capture ${k} stones.`,self_atari:'Careful: your own stone is now in atari.',
@@ -885,7 +930,16 @@ en:{
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{
+nl:{ chap:n=>n===1?'Hoofdstuk 1 · Basis':'Hoofdstuk 2 · Gevorderd',
+ daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
+ daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
+ share_ok:'In één keer opgelost',share_x:'Niet opgelost',
+ rank:'Rang',kyu:n=>`${n} kyu`,dan:n=>`${n} dan`,rank_line:(r,d)=>`Rang: ${r}${d?` (${d>0?'+':'−'}${Math.abs(d)} punten)`:''}`,lvl_auto:'Auto',
+ an_title:'Analyse',an_move:(m,N)=>`Zet ${m} van ${N}`,an_start:'Beginstelling. Tik op de curve of blader zet voor zet.',
+ analyzing:p=>`Analyseren … ${p} %`,an_chance:'Jouw winkans',an_better:c=>`${c} was beter.`,an_good:'Goede zet.',
+ an_summary:n=>n?`${n} ${n===1?'fout':'fouten'} gevonden. Tik op „Fout” om ${n===1?'hem':'ze'} te bekijken.`:'Geen grote fouten. Sterk gespeeld.',
+ an_prev:'Terug',an_next:'Verder',an_mistake:'Fout',an_close:'Klaar',an_pass:'Passen',
+
  brand:'Go-school',tab_learn:'Leren',tab_train:'Training',tab_play:'Spelen',learn_title:'Leren',train_title:'Training',
  of_lessons:n=>`van ${n} lessen`,done:'klaar',
  cta_html:'<strong>Liever meteen proberen?</strong>Speel 9×9 tegen de computer. De trainer legt elke zet uit.',cta_btn:'Partij starten',
@@ -907,7 +961,7 @@ nl:{
  result:'Uitslag',you_tag:' (jij)',
  line_b:(y,s,t,tot)=>`Zwart${y}: ${s} ${s===1?'steen':'stenen'} + ${t} gebied = ${tot}`,line_w:(y,s,t,k,tot)=>`Wit${y}: ${s} ${s===1?'steen':'stenen'} + ${t} gebied + ${k} komi = ${tot}`,
  score_nums:(b,w)=>`Zwart ${b} · Wit ${w}`,score_note:'Tik groepen aan die niet meer kunnen leven. De vierkantjes tonen wie het gebied bezit.',
- resume:'Verder spelen',confirm:'Bevestigen',review:'Partij bekijken',again:'Nieuwe partij',who_du:'Jouw zet',who_trainer:'Trainer',
+ resume:'Verder spelen',confirm:'Bevestigen',review:'Analyse',again:'Nieuwe partij',who_du:'Jouw zet',who_trainer:'Trainer',
  intro_black:'Je speelt Zwart en begint. Begin in een hoek, op de 3e of 4e lijn vanaf de rand.',
  intro_white:k=>`Je speelt Wit. De computer begint met Zwart; daarvoor krijg je ${k} punten komi. Antwoord in een vrije hoek.`,
  you_cap:k=>k===1?'Je slaat een steen.':`Je slaat ${k} stenen.`,self_atari:'Pas op: je eigen steen staat nu in atari.',
@@ -1006,7 +1060,24 @@ de:{
  plan:{title:'Dein Denkplan',sum:'Checkliste für jeden Zug',
   body:['Starke Spieler stellen sich vor jedem Zug dieselben Fragen. Geh sie in dieser Reihenfolge durch:'],
   list:['Steht eine meiner Gruppen im Atari? Dann retten, oder bewusst aufgeben, wenn sie nicht mehr zu retten ist.','Kann ich etwas schlagen oder den Gegner ins Atari setzen?','Hat der letzte Zug des Gegners etwas bedroht? Wo will er hin?','Sind meine Gruppen verbunden? Gibt es gefährliche Schnittpunkte?','Wo ist der größte freie Bereich? Am Anfang: Ecken, dann Seiten.','Nie in das eigene Auge setzen.'],
-  after:'Im Spielmodus kommentiert der Trainer jeden deiner Züge. Mit „Tipp“ zeigt er dir eine starke Idee, mit „Zurück“ kannst du sie ausprobieren.'}
+  after:'Im Spielmodus kommentiert der Trainer jeden deiner Züge. Mit „Tipp“ zeigt er dir eine starke Idee, mit „Zurück“ kannst du sie ausprobieren.'},
+ form:{title:'Gute Form',sum:'Leeres Dreieck und Tigermaul',
+  body:['Gute Steine erreichen mit wenig Aufwand viel. Drei Steine im Winkel, bei denen der vierte Punkt leer bleibt, heißen <b>leeres Dreieck</b>. Sie haben kaum mehr Freiheiten als zwei Steine und decken wenig Fläche ab. Das ist schlechte Form.','Gute Form ist zum Beispiel das <b>Tigermaul</b>: Drei Steine umschließen einen leeren Punkt von drei Seiten. Setzt der Gegner hinein, steht sein Stein sofort im Atari. So schützt du einen Schnittpunkt, ohne ihn selbst zu besetzen.'],
+  tasks:['Verlängere deine beiden Steine, ohne ein leeres Dreieck zu bilden.','Weiß will bei D4 zwischen deine Steine drücken. Schütze den Punkt mit einem Tigermaul.'],
+  m:{a:'Gute Form. Eine gerade Linie hat viele Freiheiten und arbeitet effizient.',b:'Das ist ein leeres Dreieck: drei Steine, aber kaum mehr Freiheiten als zwei. Verlängere lieber gerade.',c:'Bleib in Kontakt. Setze direkt neben deine Steine.',
+   d:'Tigermaul. Setzt Weiß jetzt auf D4, steht der Stein sofort im Atari. Und du blockierst Weiß von unten.',e:'Das verbindet auch, ist aber schwerfällig. Das Tigermaul schützt D4 und blockiert Weiß zugleich.',f:'D4 bleibt so ungeschützt. Setze so, dass drei deiner Steine D4 umschließen.'}},
+ leiter:{title:'Die Leiter',sum:'Fangen im Zickzack',
+  body:['Hat ein Stein nur zwei Freiheiten, kannst du ihn oft mit einer <b>Leiter</b> fangen. Du gibst immer wieder Atari, so dass er nach jedem Verlängern wieder nur zwei Freiheiten hat. Die Steine laufen im Zickzack über das Brett, bis der Rand sie stoppt.','Wichtig ist die Seite: Gib Atari so, dass der Gegner in Richtung deiner Steine laufen muss.','Steht auf dem Weg ein Stein des Gegners, ein <b>Leiterbrecher</b>, entkommt er. Prüfe deshalb vorher die Diagonale.'],
+  tasks:['Fange den weißen Stein mit ▲. Weiß wehrt sich. Gib so lange Atari, bis er geschlagen ist.'],
+  m:{a:'Gefangen. Die Leiter lief bis zum Rand.',b:w=>`Weiß entkommt${w?' bei '+w:''}. Gib Atari von der Seite, auf der Weiß danach nur zwei Freiheiten hat.`,c:w=>`Weiß verlängert auf ${w}. Weiter: wieder Atari.`,e:w=>`Weiß spielt ${w}. Die Gruppe steht aber noch im Atari. Schlage sie.`}},
+ seki:{title:'Seki',sum:'Leben ohne zwei Augen',
+  body:['Manchmal kann keine Seite die andere fangen. Zwei Gruppen teilen sich ihre letzten Freiheiten, und wer zuerst hineinsetzt, setzt sich selbst ins Atari. Das heißt <b>Seki</b>: Beide Gruppen leben, auch ohne zwei Augen.','Im Seki lässt man die gemeinsamen Punkte leer. Sie zählen für niemanden.'],
+  tasks:['Unten links teilen sich deine zwei Steine und die weiße Gruppe die Punkte B1 und B2. Setze einen Stein, ohne das Seki zu zerstören.'],
+  m:{a:'Richtig. Du lässt das Seki in Ruhe. Beide Gruppen leben, B1 und B2 zählen für niemanden.',b:'Jetzt hat deine Gruppe nur noch eine Freiheit. Weiß schlägt und lebt. Im Seki setzt niemand zuerst hinein.'}},
+ endspiel:{title:'Endspiel',sum:'Grenzen schließen',
+  body:['Gegen Ende sind die Gebiete fast fertig. Jetzt geht es um die letzten <b>Grenzen</b>. Eine Lücke in deiner Mauer kostet Punkte: Der Gegner setzt hinein und verkleinert dein Gebiet.','Die Reihenfolge: Zuerst Lücken schließen, die Punkte kosten. Neutrale Punkte zwischen den Mauern heißen <b>Dame</b>. Sie bringen niemandem etwas und kommen ganz zuletzt.'],
+  tasks:['Es gibt eine Lücke in deiner Mauer und einen neutralen Punkt. Spiele den wertvollsten Zug.'],
+  m:{a:'Genau. C2 schließt deine Grenze. Sonst setzt Weiß dort hinein und nimmt dir Punkte.',b:'D5 ist neutral. Der Punkt bringt niemandem etwas. Suche die Lücke in deiner Mauer.',c:'Das blockt auch, kostet dich aber einen Punkt im eigenen Gebiet. Schließe die Lücke direkt in der Mauer.',d:'Dieser Zug bringt nichts. Suche die Lücke in deiner schwarzen Mauer.'}}
 },
 en:{
  brett:{title:'The board',sum:'Intersections, turns, goal',
@@ -1056,7 +1127,24 @@ en:{
  plan:{title:'Your thinking plan',sum:'A checklist for every move',
   body:['Strong players ask themselves the same questions before every move. Go through them in this order:'],
   list:['Is one of my groups in atari? Then save it, or give it up on purpose if it can no longer be saved.','Can I capture something or put the opponent in atari?','Did the opponent’s last move threaten anything? Where do they want to go?','Are my groups connected? Are there dangerous cutting points?','Where is the largest open area? At the start: corners, then sides.','Never play inside your own eye.'],
-  after:'In play mode, the coach comments on each of your moves. “Hint” points you to a strong idea, and “Undo” lets you try it out.'}
+  after:'In play mode, the coach comments on each of your moves. “Hint” points you to a strong idea, and “Undo” lets you try it out.'},
+ form:{title:'Good shape',sum:'Empty triangle and tiger’s mouth',
+  body:['Good stones do a lot with little effort. Three stones in an L with the fourth point empty are called an <b>empty triangle</b>. They have barely more liberties than two stones and cover little area. That is bad shape.','One example of good shape is the <b>tiger’s mouth</b>: three stones surround an empty point on three sides. If the opponent plays inside, that stone is in atari at once. This way you protect a cutting point without occupying it.'],
+  tasks:['Extend your two stones without making an empty triangle.','White wants to push between your stones at D4. Protect the point with a tiger’s mouth.'],
+  m:{a:'Good shape. A straight line has many liberties and works efficiently.',b:'That is an empty triangle: three stones, but barely more liberties than two. Extend straight instead.',c:'Stay in contact. Play right next to your stones.',
+   d:'Tiger’s mouth. If White plays D4 now, that stone is in atari at once. And you block White from below.',e:'That connects too, but it is heavy. The tiger’s mouth protects D4 and blocks White at the same time.',f:'D4 is still unprotected. Play so that three of your stones surround D4.'}},
+ leiter:{title:'The ladder',sum:'Capturing in a zigzag',
+  body:['If a stone has only two liberties, you can often capture it with a <b>ladder</b>. You keep giving atari so that after each extension it has only two liberties again. The stones run across the board in a zigzag until the edge stops them.','The side matters: give atari so that the opponent has to run towards your stones.','If an opponent stone stands in the way, a <b>ladder breaker</b>, the stones escape. So check the diagonal first.'],
+  tasks:['Capture the white stone marked ▲. White fights back. Keep giving atari until it is captured.'],
+  m:{a:'Captured. The ladder ran all the way to the edge.',b:w=>`White escapes${w?' at '+w:''}. Give atari from the side where White is left with only two liberties.`,c:w=>`White extends to ${w}. Keep going: atari again.`,e:w=>`White plays ${w}. But the group is still in atari. Capture it.`}},
+ seki:{title:'Seki',sum:'Living without two eyes',
+  body:['Sometimes neither side can capture the other. Two groups share their last liberties, and whoever plays there first puts themselves in atari. This is called <b>seki</b>: both groups live, even without two eyes.','In seki the shared points stay empty. They count for nobody.'],
+  tasks:['Bottom left, your two stones and the white group share the points B1 and B2. Play a stone without breaking the seki.'],
+  m:{a:'Correct. You leave the seki alone. Both groups live, and B1 and B2 count for nobody.',b:'Now your group has only one liberty left. White captures and lives. In seki nobody plays inside first.'}},
+ endspiel:{title:'Endgame',sum:'Closing borders',
+  body:['Towards the end the territories are almost finished. Now it is about the last <b>borders</b>. A gap in your wall costs points: the opponent plays inside and shrinks your territory.','The order: first close gaps that cost points. Neutral points between the walls are called <b>dame</b>. They are worth nothing to anyone and come last.'],
+  tasks:['There is a gap in your wall and a neutral point. Play the most valuable move.'],
+  m:{a:'Exactly. C2 closes your border. Otherwise White plays there and takes points from you.',b:'D5 is neutral. It is worth nothing to anyone. Look for the gap in your wall.',c:'That blocks too, but costs you a point inside your own territory. Close the gap right in the wall.',d:'This move gains nothing. Look for the gap in your black wall.'}}
 },
 nl:{
  brett:{title:'Het bord',sum:'Snijpunten, beurten, doel',
@@ -1106,7 +1194,24 @@ nl:{
  plan:{title:'Je denkplan',sum:'Checklist voor elke zet',
   body:['Sterke spelers stellen zich voor elke zet dezelfde vragen. Loop ze in deze volgorde door:'],
   list:['Staat een van mijn groepen in atari? Dan redden, of bewust opgeven als hij niet meer te redden is.','Kan ik iets slaan of de tegenstander in atari zetten?','Heeft de laatste zet van de tegenstander iets bedreigd? Waar wil hij heen?','Zijn mijn groepen verbonden? Zijn er gevaarlijke snijpunten?','Waar is het grootste vrije gebied? In het begin: hoeken, dan zijkanten.','Zet nooit in je eigen oog.'],
-  after:'In de speelmodus geeft de trainer commentaar op elke zet. Met „Tip” wijst hij je een sterk idee aan, met „Terug” kun je het uitproberen.'}
+  after:'In de speelmodus geeft de trainer commentaar op elke zet. Met „Tip” wijst hij je een sterk idee aan, met „Terug” kun je het uitproberen.'},
+ form:{title:'Goede vorm',sum:'Lege driehoek en tijgerbek',
+  body:['Goede stenen bereiken veel met weinig moeite. Drie stenen in een hoek, waarbij het vierde punt leeg blijft, heten een <b>lege driehoek</b>. Ze hebben nauwelijks meer vrijheden dan twee stenen en bestrijken weinig gebied. Dat is slechte vorm.','Goede vorm is bijvoorbeeld de <b>tijgerbek</b>: drie stenen omringen een leeg punt van drie kanten. Zet de tegenstander erin, dan staat die steen meteen in atari. Zo bescherm je een snijpunt zonder het zelf te bezetten.'],
+  tasks:['Verleng je twee stenen zonder een lege driehoek te vormen.','Wit wil bij D4 tussen je stenen drukken. Bescherm het punt met een tijgerbek.'],
+  m:{a:'Goede vorm. Een rechte lijn heeft veel vrijheden en werkt efficiënt.',b:'Dat is een lege driehoek: drie stenen, maar nauwelijks meer vrijheden dan twee. Verleng liever recht.',c:'Blijf in contact. Zet direct naast je stenen.',
+   d:'Tijgerbek. Zet wit nu op D4, dan staat die steen meteen in atari. En je blokkeert wit van onderen.',e:'Dat verbindt ook, maar is zwaar. De tijgerbek beschermt D4 en blokkeert wit tegelijk.',f:'D4 is zo nog onbeschermd. Zet zo dat drie van je stenen D4 omringen.'}},
+ leiter:{title:'De ladder',sum:'Vangen in een zigzag',
+  body:['Heeft een steen maar twee vrijheden, dan kun je hem vaak vangen met een <b>ladder</b>. Je geeft steeds opnieuw atari, zodat hij na elke verlenging weer maar twee vrijheden heeft. De stenen lopen zigzaggend over het bord tot de rand ze stopt.','De kant is belangrijk: geef atari zo dat de tegenstander naar jouw stenen toe moet lopen.','Staat er een steen van de tegenstander in de weg, een <b>ladderbreker</b>, dan ontsnapt hij. Controleer daarom eerst de diagonaal.'],
+  tasks:['Vang de witte steen met ▲. Wit verweert zich. Geef atari tot hij geslagen is.'],
+  m:{a:'Gevangen. De ladder liep door tot de rand.',b:w=>`Wit ontsnapt${w?' bij '+w:''}. Geef atari vanaf de kant waar wit daarna maar twee vrijheden heeft.`,c:w=>`Wit verlengt naar ${w}. Door: weer atari.`,e:w=>`Wit speelt ${w}. Maar de groep staat nog in atari. Sla hem.`}},
+ seki:{title:'Seki',sum:'Leven zonder twee ogen',
+  body:['Soms kan geen van beide de ander vangen. Twee groepen delen hun laatste vrijheden, en wie er als eerste in zet, zet zichzelf in atari. Dat heet <b>seki</b>: beide groepen leven, ook zonder twee ogen.','In seki blijven de gedeelde punten leeg. Ze tellen voor niemand.'],
+  tasks:['Linksonder delen je twee stenen en de witte groep de punten B1 en B2. Zet een steen zonder de seki te breken.'],
+  m:{a:'Juist. Je laat de seki met rust. Beide groepen leven, B1 en B2 tellen voor niemand.',b:'Nu heeft je groep nog maar één vrijheid. Wit slaat en leeft. In seki zet niemand er als eerste in.'}},
+ endspiel:{title:'Eindspel',sum:'Grenzen sluiten',
+  body:['Tegen het einde zijn de gebieden bijna klaar. Nu gaat het om de laatste <b>grenzen</b>. Een gat in je muur kost punten: de tegenstander zet erin en verkleint je gebied.','De volgorde: eerst gaten sluiten die punten kosten. Neutrale punten tussen de muren heten <b>dame</b>. Ze leveren niemand iets op en komen als laatste.'],
+  tasks:['Er is een gat in je muur en een neutraal punt. Speel de waardevolste zet.'],
+  m:{a:'Precies. C2 sluit je grens. Anders zet wit daar en neemt je punten af.',b:'D5 is neutraal. Het levert niemand iets op. Zoek het gat in je muur.',c:'Dat blokkeert ook, maar kost je een punt in je eigen gebied. Sluit het gat direct in de muur.',d:'Deze zet levert niets op. Zoek het gat in je zwarte muur.'}}
 }};
 let LANG='de';
 function T(k,...a){const d=I18N[LANG]||I18N.de;let v=k in d?d[k]:I18N.de[k];return typeof v==='function'?v(...a):v}
@@ -1226,8 +1331,11 @@ const swap=rows=>rows.map(r=>r.replace(/X/g,'#').replace(/O/g,'X').replace(/#/g,
 const LIFE=['.......','.......','.......','.......','OOOOO..','XXXXO..','...XO..'];
 const KO=['.......','.......','...XO..','..XO.O.','...XO..','.......','.......'];
 const CUT=['.......','.......','...O...','..X.X..','...O...','.......','.......'];
+const FORM1=['.......','.......','..O....','..XX...','.......','.......','.......'],FORM2=['.......','.......','.......','..X.X..','.......','...O...','.......'];
+const LAD=['.........','.........','.........','.........','...XO....','....XX...','.........','.........','.........'];
+const SEKI=['.......','.......','.......','XXXX...','OOOX...','X.OX...','X.OX...'],ENDG=['..XO...','..XO...','..X.O..','..XO...','..XO...','...O...','..XO...'];
 const LESSONS=[
- {id:'brett',puzzles:[{rows:E7,marks:[[3,3]],check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)}]},
+ {id:'brett',chap:1,puzzles:[{rows:E7,marks:[[3,3]],check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)}]},
  {id:'freiheiten',puzzles:[{rows:['.......','.......','.......','...O...','.......','.......','.......'],libDots:2,check:(c,m)=>c.libsAt(3,3)===3?ok(m.a):bad(m.b)},
    {rows:['.......','.......','.......','.......','.......','.......','O......'],libDots:2,check:(c,m)=>c.libsAt(0,6)===1?ok(m.c):bad(m.d)}]},
  {id:'schlagen',puzzles:[{rows:['.......','.......','...X...','..XO...','...X...','.......','.......'],check:(c,m)=>c.captured?ok(m.a):bad(m.b)},
@@ -1244,22 +1352,37 @@ const LESSONS=[
       if((dx===2||dx===3)&&(dy===2||dy===3))return ok(m.ok(Math.min(dx,dy)+1));
       if(dx<=1||dy<=1)return bad(m.low);if(dx===4&&dy===4)return bad(m.mid);return bad(m.side)}}]},
  {id:'schneiden',puzzles:[{rows:CUT,check:(c,m)=>c.x===3&&c.y===3?ok(m.a):bad(m.b)},{rows:swap(CUT),check:(c,m)=>c.x===3&&c.y===3?ok(m.c):bad(m.d)}]},
- {id:'plan'}
+ {id:'plan'},
+ {id:'form',chap:2,puzzles:[{rows:FORM1,check:(c,m)=>!c.touch?bad(m.c):c.tri?bad(m.b):ok(m.a)},
+   {rows:FORM2,check:(c,m)=>c.x===3&&c.y===4?ok(m.d):c.x===3&&c.y===3?bad(m.e):bad(m.f)}]},
+ {id:'leiter',puzzles:[{rows:LAD,chase:[4,4]}]},
+ {id:'seki',puzzles:[{rows:SEKI,check:(c,m)=>c.x===1&&c.y>=5?bad(m.b):ok(m.a)}]},
+ {id:'endspiel',puzzles:[{rows:ENDG,check:(c,m)=>c.x===2&&c.y===5?ok(m.a):c.x===3&&c.y===2?bad(m.b):c.x===1&&c.y===5?bad(m.c):bad(m.d)}]}
 ];
 function parse(rows){const n=rows.length,b=new Array(n*n).fill(0);rows.forEach((r,y)=>[...r].forEach((ch,x)=>{b[y*n+x]=ch==='X'?1:ch==='O'?2:0}));return{n,b}}
 
 let LS=null;
 function openLesson(li){LS={li,pi:0,stage:'read'};loadPuzzle();show('lesson');window.scrollTo(0,0)}
 function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];
-  if(p){const{n,b}=parse(p.rows);Object.assign(LS,{n,board:b,ko:p.ko?p.ko[1]*n+p.ko[0]:-1,last:p.last?p.last[1]*n+p.last[0]:-1,solved:false,failed:false,msg:'',state:''})}
+  if(p){const{n,b}=parse(p.rows);Object.assign(LS,{n,board:b,ko:p.ko?p.ko[1]*n+p.ko[0]:-1,last:p.last?p.last[1]*n+p.last[0]:-1,solved:false,failed:false,chasing:false,msg:'',state:''})}
   renderLesson()}
 function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||LS.failed)return;
   const r=tryPlay(LS.board,i,1,LS.n,LS.ko);
   if(r.err){LS.msg=ERR[r.err];LS.state='bad';renderLesson();return}
-  buzz(r.captured.length>0);playStone('me',r.captured.length);const n=LS.n;LS.board=r.board;LS.last=i;
-  const ctx={x:i%n,y:(i/n)|0,captured:r.captured.length,
+  buzz(r.captured.length>0);playStone('me',r.captured.length);const n=LS.n,prev=LS.board;LS.board=r.board;LS.last=i;
+  const x=i%n,y=(i/n)|0,M_=LT(L).m;let tri=false;
+  for(const[dx,dy]of[[0,0],[-1,0],[0,-1],[-1,-1]]){const x0=x+dx,y0=y+dy;if(x0<0||y0<0||x0>n-2||y0>n-2)continue;
+    const q=[y0*n+x0,y0*n+x0+1,(y0+1)*n+x0,(y0+1)*n+x0+1].map(j=>r.board[j]);if(q.filter(v=>v===1).length===3&&q.includes(0))tri=true}
+  const ctx={x,y,captured:r.captured.length,tri,touch:[...nbrs(i,n)].some(j=>prev[j]===1),
     colorAt:(x,y)=>r.board[y*n+x],libsAt:(x,y)=>r.board[y*n+x]?groupAt(r.board,y*n+x,n).libs.size:0};
-  const res=p.check(ctx,LT(L).m);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
+  let res;
+  if(p.chase){const t=p.chase[1]*n+p.chase[0];
+    if(!r.board[t])res=ok(M_.a);
+    else{RD.nodes=0;const dead=!rdLive(r.board,t,n,1,24),w=rdReply(r.board,t,n,1);
+      if(w>=0){const rw=tryPlay(r.board,w,2,n,-1);LS.board=rw.board;LS.last=w;setTimeout(()=>playStone('ai',rw.captured.length),260)}
+      if(!dead)res=bad(M_.b(w>=0?coord(w,n):''));
+      else{LS.chasing=true;const ext=w>=0&&LS.board[t]&&groupAt(LS.board,t,n).stones.includes(w);LS.msg=(ext||w<0?M_.c:M_.e)(w>=0?coord(w,n):'');LS.state='';renderLesson();return}}}
+  else res=p.check(ctx,M_);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
   if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){store.done[L.id]=true;save()}}else LS.failed=true;
   renderLesson()}
 function fbHTML(state,msg){const tag=state==='ok'?`<b class="fb-tag ok">${T('tag_ok')}</b>`:state==='bad'?`<b class="fb-tag bad">${T('tag_bad')}</b>`:'';
@@ -1276,10 +1399,11 @@ function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzz
     $('#ls-body').innerHTML=body;
     $('#ls-start').textContent=p?(LS.pi>0||LS.last>=0?T('ls_back_task'):(cnt>1?T('ls_solve_n',cnt):T('ls_solve1'))):(LS.li<LESSONS.length-1?T('ls_finish_next'):T('ls_finish_play'));
     $('#ls-controls').hidden=true;$('#ls-next').hidden=true;return}
-  drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
+  const ct=p.chase?p.chase[1]*LS.n+p.chase[0]:-1;
+  drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,tri:ct>=0&&LS.board[ct]?groupAt(LS.board,ct,LS.n).stones:[],libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
   const fb=$('#ls-fb');fb.dataset.state=LS.state||'';fb.classList.remove('open');
   fb.innerHTML=`<span class="fb-text"><span class="fb-main">${LS.msg?fbHTML(LS.state,LS.msg):X.tasks[LS.pi]}</span></span>`;
-  $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed;
+  $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed&&!LS.chasing;
   $('#ls-next').textContent=LS.pi<cnt-1?T('next_task'):(LS.li<LESSONS.length-1?T('next_lesson'):T('play_now'))}
 function lessonAdvance(){const L=LESSONS[LS.li];
   if(L.puzzles&&LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1)openLesson(LS.li+1);else show('play')}
@@ -1297,7 +1421,7 @@ function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
   $('#prog-bar').style.width=(done/LESSONS.length*100)+'%';
   const nextIdx=LESSONS.findIndex(l=>!store.done[l.id]);
   $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="${T('done')}"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
-    return`<li><button class="lesson-row" data-li="${i}"${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
+    return(l.chap?`<li class="chap"><span class="eyebrow">${T('chap',l.chap)}</span></li>`:'')+`<li><button class="lesson-row" data-li="${i}"${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
   document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>openLesson(+b.dataset.li))}
 let resetArmed=false;
 $('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent=T('reset_confirm');setTimeout(()=>{resetArmed=false;t.textContent=T('reset')},3500);return}
@@ -1307,12 +1431,20 @@ $('#cta-play').onclick=()=>show('play');
 /* ---------- Spiel ---------- */
 const CN=new Proxy({},{get:(o,k)=>+k===1?T('black'):T('white')}),ADJ=new Proxy({},{get:(o,k)=>+k===1?T('adj_b'):T('adj_w')});
 function newGame(){const n=store.settings.size,user=store.settings.color===2?2:1;
-  return{n,user,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:store.settings.level,
+  return{n,user,board:new Array(n*n).fill(0),turn:1,caps:[0,0,0],ko:-1,last:-1,passes:0,moves:0,history:[],phase:'play',dead:[],result:null,hint:-1,level:lvlOf(store.settings.level),
     coach:[{who:'trainer',t:user===1?K('intro_black'):K('intro_white',F(KOMI))}]}}
 const U=()=>G.user||1,A=()=>3-(G.user||1);
-function startGame(){aiReq++;stopThinking();G=newGame();busy=false;save();renderPlay();if(G.turn===A())aiMove()}
+function startGame(){aiReq++;anReq++;stopThinking();G=newGame();busy=false;save();renderPlay();if(G.turn===A())aiMove()}
+// Rang: Wertung wie in Europa (2100 = 1. Dan, 100 Punkte je Stufe), Start bei 30 Kyu
+const ORAT={leicht:-400,mittel:300,stark:900};
+function rk(){return store.rank||(store.rank={r:-900,g:0})}
+function rankName(r,short){const k=Math.round((2100-r)/100);if(k>=1){const v=Math.min(30,k);return short?v+'k':T('kyu',v)}const d=Math.min(9,1-k);return short?d+'d':T('dan',d)}
+function rankAdj(d,cap){const R=rk();if(d>0&&R.r>=cap)return;R.r=Math.max(-900,Math.min(2900,R.r+d))}
+function autoLevel(){const r=rk().r;return r<-150?'leicht':r<600?'mittel':'stark'}
+const lvlOf=v=>v==='auto'?autoLevel():(v||'leicht');
 let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*store.game.n)?store.game:newGame();
 if(G.coach&&G.coach.some(c=>typeof c.t==='string'))G.coach=G.coach.filter(c=>typeof c.t!=='string');
+if(G.reviewing&&!G.an)G.reviewing=false;
 let busy=false;
 function coachAdd(who,t){G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
 function pushHist(){G.history.push({b:G.board.join(''),turn:G.turn,caps:G.caps.slice(),ko:G.ko,last:G.last,passes:G.passes,moves:G.moves})}
@@ -1410,12 +1542,14 @@ function newGameClick(){const lab=$('#btn-new span');
   newArmed=false;lab.textContent=T('new');startGame()}
 function confirmScore(){const sc=scoreArea(G.board,G.n,G.dead),m=sc.black-sc.white,um=U()===1?m:-m;G.phase='over';
   G.result={black:sc.black,white:sc.white,m,um};if(um>0)store.stats.win++;else store.stats.loss++;
+  {const R=rk(),E=1/(1+Math.pow(10,(ORAT[G.level]-R.r)/400)),Kf=Math.max(40,160-R.g*8),from=R.r;
+   R.r=Math.max(-900,Math.round(R.r+Kf*((um>0?1:0)-E)));R.g++;G.result.rank={from,to:R.r}}
   coachAdd('trainer',K('final',sc.black,F(sc.white),F(KOMI),um>0,CK(A()),F(Math.abs(um))));
   save();renderPlay()}
 $('#btn-hint').onclick=hint;$('#btn-undo').onclick=undo;$('#btn-pass').onclick=userPass;$('#btn-new').onclick=newGameClick;
 function resumeGame(){G.phase='play';G.dead=[];G.passes=0;G.turn=U();coachAdd('trainer',K('resume_msg'));save();renderPlay()}
 $('#score-actions').onclick=e=>{const a=e.target.closest('button');if(!a)return;const k=a.dataset.act;
-  if(k==='resume')resumeGame();else if(k==='confirm')confirmScore();else if(k==='review'){G.reviewing=true;save();renderPlay()}else if(k==='again')startGame()};
+  if(k==='resume')resumeGame();else if(k==='confirm')confirmScore();else if(k==='review')openAnalysis();else if(k==='again')startGame()};
 document.querySelectorAll('#seg-confirm button').forEach(b=>b.onclick=()=>{store.settings.confirm=b.dataset.v;G.pending=-1;save();renderPlay()});
 function tally(board,n,dead){const sc=scoreArea(board,n,dead);let bs=0,ws=0;const d=new Set(dead);
   for(let i=0;i<n*n;i++){if(d.has(i))continue;if(board[i]===1)bs++;else if(board[i]===2)ws++}
@@ -1425,7 +1559,7 @@ document.querySelectorAll('#seg-size button').forEach(b=>b.onclick=()=>{store.se
 document.querySelectorAll('#seg-color button').forEach(b=>b.onclick=()=>{store.settings.color=+b.dataset.v;
   if(G.moves===0&&G.user===store.settings.color){renderPlay();return}
   if(G.moves<=1||G.phase==='over')startGame();else{coachAdd('trainer',K('color_later',CK(store.settings.color)));save();renderPlay()}});
-document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=b.dataset.v;save();renderPlay()});
+document.querySelectorAll('#seg-level button').forEach(b=>b.onclick=()=>{store.settings.level=b.dataset.v;G.level=lvlOf(b.dataset.v);save();renderPlay()});
 $('#opt-libs').onchange=e=>{store.settings.libs=e.target.checked;save();renderPlay()};
 $('#opt-coach').onchange=e=>{store.settings.coach=e.target.checked;save();renderPlay()};
 $('#opt-sound').onchange=e=>{store.settings.sound=e.target.checked;save();if(e.target.checked){audio();setTimeout(()=>playStone('me',0),30)}};
@@ -1435,6 +1569,56 @@ function syncHaptic(){const on=hapticKind()!=='android'&&store.settings.haptic!=
   document.querySelectorAll('.hsw').forEach(i=>{i.disabled=!on})}
 syncHaptic();
 
+/* ---------- Partie-Analyse ---------- */
+let anReq=0;
+const posAt=k=>k<G.history.length?G.history[k]:{b:G.board.join(''),turn:G.turn,last:G.last,ko:G.ko};
+function openAnalysis(){const N=G.history.length;if(!N)return;
+  if(!G.an||G.an.N!==N)G.an={N,wr:new Array(N+1).fill(null),best:new Array(N+1).fill(-1),m:N,done:false};
+  G.an.wr[N]=G.result&&G.result.m>0?1:0;G.reviewing=true;save();renderPlay()}
+function runAnalysis(){const A_=G.an;if(!A_||A_.done)return;const id=++anReq;let k=0;
+  const step=()=>{if(id!==anReq||G.an!==A_)return;while(k<A_.N&&A_.wr[k]!=null)k++;
+    if(k>=A_.N){A_.done=true;save();if(G.reviewing)renderPlay();return}
+    const s=posAt(k),msg={id:-1,n:G.n,board:[...s.b].map(Number),ko:s.ko,color:s.turn,komi:KOMI,ms:G.n>9?280:180,last:s.last,maxSims:1e9,prior:[]};
+    const fin=r=>{if(id!==anReq||G.an!==A_)return;A_.wr[k]=s.turn===1?r.winrate:1-r.winrate;A_.best[k]=r.move;k++;if(G.reviewing)renderAnalysis();setTimeout(step,0)};
+    const w=getWorker();if(w){w.onmessage=e=>fin(e.data);w.postMessage(msg)}else setTimeout(()=>fin(localSearch({...msg,ms:90})),0)};
+  step()}
+const uw=k=>{const v=G.an.wr[k];return v==null?null:(U()===1?v:1-v)};
+function mistakes(){const A_=G.an,out=[];if(!A_)return out;
+  for(let k=1;k<=A_.N;k++){const pv=posAt(k-1);if(pv.turn!==U())continue;const a=uw(k-1),b=uw(k);if(a==null||b==null)continue;
+    const mv=posAt(k).last,best=A_.best[k-1];if(best===mv||best<0)continue;const d=a-b;if(d>=0.12)out.push({k,d,best})}
+  return out.sort((x,y)=>y.d-x.d).slice(0,5).sort((x,y)=>x.k-y.k)}
+const pc=v=>Math.round(v*100)+(LANG==='en'?'%':' %');
+function drawGraph(){const A_=G.an,el=$('#an-graph'),W=el.clientWidth||320,H=64,P=4,N=A_.N,X=k=>P+(W-2*P)*k/N,Y=v=>P+(H-2*P)*(1-v);
+  let d='',area='',started=false;for(let k=0;k<=N;k++){const v=uw(k);if(v==null)continue;d+=(started?'L':'M')+X(k).toFixed(1)+' '+Y(v).toFixed(1);started=true}
+  const done=A_.wr.filter(v=>v!=null).length;
+  let h=`<line x1="${P}" y1="${Y(.5)}" x2="${W-P}" y2="${Y(.5)}" style="stroke:var(--rule);stroke-width:1;stroke-dasharray:4 4"/>`;
+  if(d){const pts=d.match(/[ML][^ML]+/g),last=pts[pts.length-1].slice(1).split(' ');
+    h+=`<path d="${d}L${last[0]} ${H-P}L${X(0)} ${H-P}Z" style="fill:var(--key);opacity:.7"/><path d="${d}" style="fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round"/>`}
+  for(const e of mistakes())h+=`<circle cx="${X(e.k)}" cy="${Y(uw(e.k))}" r="4" style="fill:var(--accent)"/>`;
+  const v=uw(A_.m);h+=`<line x1="${X(A_.m)}" y1="${P}" x2="${X(A_.m)}" y2="${H-P}" style="stroke:var(--accent);stroke-width:1.5"/>`;
+  if(v!=null)h+=`<circle cx="${X(A_.m)}" cy="${Y(v)}" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:2"/>`;
+  el.setAttribute('viewBox',`0 0 ${W} ${H}`);el.innerHTML=h;return done}
+function renderAnalysis(){const A_=G.an,n=G.n,m=A_.m,s=posAt(m);
+  const mk=mistakes(),err=mk.find(e=>e.k===m);
+  {const pb=$('#play-board');pb._pb=null;pb._van=null}
+  drawBoard($('#play-board'),{n,board:[...s.b].map(Number),last:s.last,hint:err&&!+s.b[err.best]?err.best:-1,ghost:false,onPlay:()=>{}});
+  $('#turn').innerHTML=`<span class="turn">${T('an_title')} · ${T('an_move',m,A_.N)}</span>`;
+  const done=drawGraph();let txt='';
+  if(!A_.done)txt=`<small>${T('analyzing',Math.round(done/(A_.N+1)*100))}</small>`;
+  if(m===0)txt=T('an_start')+txt;
+  else{const pv=posAt(m-1),mine=pv.turn===U(),mv=s.last>=0?coord(s.last,n):T('an_pass'),a=uw(m-1),b=uw(m);
+    let line=`<b>${mine?T('you'):T('computer')}: ${mv}</b>`;if(a!=null&&b!=null)line+=` · ${T('an_chance')} <span style="white-space:nowrap">${pc(a)} → ${pc(b)}</span>`;
+    let sub='';if(err)sub=`<span class="acc">${T('an_better',coord(err.best,n))}</span>`;else if(mine&&a!=null&&b!=null&&a-b<0.05)sub=T('an_good');
+    else if(m===A_.N&&A_.done)sub=T('an_summary',mk.length);
+    txt=line+(sub?`<small>${sub}</small>`:'')+(A_.done?'':txt)}
+  $('#an-text').innerHTML=txt;
+  $('#an-prev').disabled=m<=0;$('#an-next').disabled=m>=A_.N;$('#an-err').disabled=!mk.length}
+function anGo(m){if(!G.an)return;G.an.m=Math.max(0,Math.min(G.an.N,m));renderAnalysis()}
+$('#an-prev').onclick=()=>anGo(G.an.m-1);$('#an-next').onclick=()=>anGo(G.an.m+1);
+$('#an-err').onclick=()=>{const mk=mistakes();if(!mk.length)return;const nx=mk.find(e=>e.k>G.an.m)||mk[0];anGo(nx.k)};
+$('#an-close').onclick=()=>{G.reviewing=false;save();renderPlay()};
+{const g=$('#an-graph');const seek=e=>{const rc=g.getBoundingClientRect();anGo(Math.round((e.clientX-rc.left-4)/(rc.width-8)*G.an.N))};
+  g.addEventListener('pointerdown',e=>{seek(e);g.setPointerCapture(e.pointerId)});g.addEventListener('pointermove',e=>{if(e.buttons)seek(e)})}
 const whoLabel=w=>w==='weiss'?CN[A()]:T(w==='du'?'who_du':'who_trainer');
 let coachOpen=false,coachPeek=false; // coachPeek: bei ausgeblendetem Trainer zeigt „Tipp“ die Karte bis zum nächsten Zug
 $('#coach-card').onclick=()=>{coachOpen=!coachOpen;renderPlay()};
@@ -1445,7 +1629,8 @@ $('#sheet-close').onclick=closeSheet;
 sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet()});
 function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scoreArea(G.board,n,G.dead):null;
-  drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,pending:G.phase==='play'&&G.pending>=0?G.pending:-1,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
+  const anOn=G.phase==='over'&&G.reviewing&&!!G.an;$('#an').hidden=!anOn;
+  if(!anOn)drawBoard($('#play-board'),{n,board:G.board,last:G.last,hint:G.hint,pending:G.phase==='play'&&G.pending>=0?G.pending:-1,atari:!scoring,libNums:store.settings.libs&&!scoring,dead:G.dead,own:sc?sc.own:null,
     ghost:!scoring&&G.turn===U()&&!busy,ghostColor:U(),onPlay:i=>{if(G.phase==='score')toggleDead(i);else if(G.phase==='play')userMove(i)}});
   let t;const lvl=T('lvl_'+G.level)||'';
   const pill=(c,name,sub,on,extra)=>`<span class="pl${on?' on':''}"><span class="${c===1?'dot':'dot w'}"></span>${name}${sub?`<span class="pl-s">${sub}</span>`:''}${extra||''}</span>`;
@@ -1454,7 +1639,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   else if(G.phase==='score')t=`<span class="turn">${T('counting')}</span>`;
   else{const mine=G.turn===U()&&!busy;
     t=pill(U(),T('you'),G.pending>=0?T('confirm_pill'):'',mine)+pill(A(),T('computer'),G.pending>=0?'':(G.passes&&mine?T('passed'):lvl),!mine,'<svg class="spark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5"/></svg>')}
-  $('#turn').innerHTML=t;
+  if(!anOn)$('#turn').innerHTML=t;
   const box=$('#scorebox'),showBox=scoring&&!(G.phase==='over'&&G.reviewing);box.hidden=!showBox;
   if(showBox){const TT=tally(G.board,n,G.dead),you=c=>c===U()?T('you_tag'):'';
     const lines=T('line_b',you(1),TT.bs,TT.bt,TT.sc.black)+'<br>'+T('line_w',you(2),TT.ws,TT.wt,fmt(KOMI),fmt(TT.sc.white));
@@ -1462,23 +1647,26 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
       $('#score-note').innerHTML=T('score_note');
       $('#score-actions').innerHTML=`<button class="btn" data-act="resume">${T('resume')}</button><button class="btn primary" data-act="confirm">${T('confirm')}</button>`}
     else{$('#score-nums').innerHTML=`<span class="eyebrow">${T('result')}</span><h2>${um>0?T('you_win_pts',fmt(um)):T('they_win_pts',CN[A()],fmt(-um))}</h2>`;
-      $('#score-note').innerHTML=`<span class="result-line">${lines}</span>`;
+      const rr=G.result.rank;
+      $('#score-note').innerHTML=`<span class="result-line">${lines}</span>`+(rr?`<span class="rank-line">${T('rank_line',rankName(rr.to),rr.to-rr.from)}</span>`:'');
       $('#score-actions').innerHTML=`<button class="btn" data-act="review">${T('review')}</button><button class="btn primary" data-act="again">${T('again')}</button>`}}
-  $('#controls').hidden=showBox;
+  $('#controls').hidden=showBox||anOn;
   const play=G.phase==='play'&&G.turn===U()&&!busy;
   {const off=hapticKind()==='android'||store.settings.haptic===false||!(play||G.phase==='score');setTimeout(()=>{const i=$('#play-host .hsw');if(i)i.disabled=off},0)}
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?T('more'):T('hint');$('#btn-new span').textContent=newArmed?T('sure'):T('new');$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=Rm(now.t);
   $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join('');
-  const cc=$('#coach-card');cc.hidden=showBox||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
+  const cc=$('#coach-card');cc.hidden=showBox||anOn||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);cc.setAttribute('aria-expanded',String(coachOpen));
   document.querySelectorAll('#seg-size button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===store.settings.size)));
   document.querySelectorAll('#seg-color button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===(store.settings.color===2?2:1))));
   document.querySelectorAll('#seg-confirm button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(store.settings.confirm||'13'))));
-  document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===G.level)));
+  document.querySelectorAll('#seg-level button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===(store.settings.level||'leicht'))));
   $('#opt-libs').checked=!!store.settings.libs;$('#opt-haptic').checked=store.settings.haptic!==false;$('#opt-sound').checked=store.settings.sound!==false;$('#opt-coach').checked=store.settings.coach!==false;
   const w=store.stats.win,l=store.stats.loss;
-  $('#record').textContent=(w||l)?T('record',w,l):''}
+  $('#record').textContent=((w||l)?T('record',w,l)+' · ':'')+T('rank')+': '+rankName(rk().r);
+  if(anOn){renderAnalysis();if(!G.an.done)runAnalysisOnce()}}
+let anRunning=-1;function runAnalysisOnce(){if(anRunning===anReq)return;runAnalysis();anRunning=anReq}
 
 /* ---------- Training ---------- */
 const GLYPH={ // kleine Brettausschnitte als Symbol: [schwarz],[weiß]
@@ -1501,25 +1689,59 @@ function fromSet(id){const L=TSET[id],st=tstat(id);let j=rnd(L.length);if(L.leng
   return{n,b,t:symIdx(t,n,k),ans:ans.map(a=>symIdx(a,n,k))}}
 
 let D=null;
+// Tägliche Aufgabe: Datum -> fester Zufallsstartwert, damit alle dieselbe Aufgabe bekommen
+const DAY0=Date.UTC(2026,0,1),DCATS=['schlagen','doppel','fangen','retten','leiter'];
+function dayNo(d){d=d||new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-DAY0)/864e5)+1}
+function seeded(a){return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function dailyPuzzle(no){const R0=Math.random,id=DCATS[no%DCATS.length],c=TC(id);let p=null;
+  try{for(let k=0;k<6&&!p;k++){Math.random=seeded(no*7919+k*104729+17);
+    if(c.set){const L=TSET[c.set],j=rnd(L.length),s=rnd(8),[bs,t,ans]=L[j],b=new Array(81).fill(0);
+      [...bs].forEach((ch,i)=>{b[symIdx(i,9,s)]=+ch});p={n:9,b,t:symIdx(t,9,s),ans:ans.map(a=>symIdx(a,9,s))}}
+    else p=c.gen()}}finally{Math.random=R0}
+  return{id,p}}
+const dst=()=>store.daily||(store.daily={lastOk:0,streak:0,best:0,res:{}});
+function dstreak(){const s=dst(),t=dayNo();return s.lastOk>=t-1?s.streak:0}
+function dailyRecord(ok){const s=dst(),no=D.daily;if(s.res[no])return;s.res[no]=ok?'ok':'x';
+  if(ok){s.streak=s.lastOk===no-1?s.streak+1:1;s.lastOk=no;s.best=Math.max(s.best,s.streak);rankAdj(8,600)}else{s.streak=0;rankAdj(-2)}
+  const ks=Object.keys(s.res).map(Number).sort((a,b)=>a-b);while(ks.length>60)delete s.res[ks.shift()]}
+function untilMidnight(){const d=new Date(),m=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1),s=Math.max(0,Math.floor((m-d)/1000));
+  const p=v=>String(v).padStart(2,'0');return`${p(s/3600|0)}:${p((s/60|0)%60)}:${p(s%60)}`}
+function shareText(){const no=dayNo(),r=dst().res[no];
+  return`Go-Schule · ${T('daily_title')} ${T('daily_no',no)}\n${r==='ok'?'● '+T('share_ok'):'○ '+T('share_x')} · ${T('streak',dstreak())}\nhttps://bcakebreakfast.github.io/go-schule/`}
+function shareDaily(btn){const txt=shareText();
+  if(navigator.share){navigator.share({text:txt}).catch(()=>{});return}
+  const done=()=>{if(btn){const o=btn.textContent;btn.textContent=T('copied');setTimeout(()=>{btn.textContent=o},1800)}};
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).then(done,()=>{});else{const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}t.remove();done()}}
+let dailyDay=0;
+function renderDaily(){const no=dayNo(),s=dst(),r=s.res[no],id=DCATS[no%DCATS.length],stk=dstreak();dailyDay=no;
+  const st=r?`<span class="${r==='ok'?'acc':''}">${r==='ok'?'●':'○'} ${T(r==='ok'?'daily_ok':'daily_x')}</span> · `:'';
+  $('#daily').innerHTML=`<span class="eyebrow daily-eb">${T('daily_title')} · ${T('daily_no',no)}</span><span class="tglyph">${glyph(id)}</span><span class="lt"><span class="t">${TC(id).title}${stk?` · ${T('streak',stk)}`:''}</span><span class="d">${r?st+`<span id="daily-cd">${T('daily_next',untilMidnight())}</span>`:T('daily_once')}</span></span>`+
+    (r?`<button class="btn" id="daily-share">${T('share')}</button>`:`<button class="btn primary" id="daily-go">${T('daily_solve')}</button>`);
+  const g=$('#daily-go');if(g)g.onclick=openDaily;const sh=$('#daily-share');if(sh)sh.onclick=e=>{e.stopPropagation();shareDaily(sh)}}
+setInterval(()=>{if($('#view-train').hidden)return;if(dayNo()!==dailyDay){renderDaily();return}const c=$('#daily-cd');if(c)c.textContent=T('daily_next',untilMidnight())},1000);
+function openDaily(){const no=dayNo(),{id,p}=dailyPuzzle(no);D={cat:id,daily:no};newDrill(p);if(dst().res[no])D.counted=true;show('drill')}
 function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);tot+=s.ok;best=Math.max(best,s.best)});
-  $('#ts-solved').textContent=tot;$('#ts-best').textContent=best;
-  const fresh=TCATS.every(c=>!tstat(c.id).tries);$('#ts-empty').hidden=!fresh;$('#ts-stats').hidden=fresh;
+  $('#ts-solved').textContent=tot;$('#ts-best').textContent=best;$('#ts-rank').textContent=rankName(rk().r,true);renderDaily();
+  const fresh=TCATS.every(c=>!tstat(c.id).tries)&&!rk().g;$('#ts-empty').hidden=!fresh;$('#ts-stats').hidden=fresh;
   $('#train-list').innerHTML=TCATS.map(c=>{const s=tstat(c.id);
     const chip=s.streak>1?`<span class="chip hot">${T('streak',s.streak)}</span>`:(s.ok?`<span class="chip">${T('solved_n',s.ok)}</span>`:`<span class="chip">${c.set?T('tasks_n',TSET[c.set].length):T('endless')}</span>`);
     return`<button class="train-row" data-id="${c.id}"><span class="tglyph">${glyph(c.id)}</span><span class="lt"><span class="t">${c.title}</span><span class="d">${c.sum}</span></span>${chip}</button>`}).join('');
   document.querySelectorAll('.train-row').forEach(b=>b.onclick=()=>openDrill(b.dataset.id))}
 $('#ts-start').onclick=()=>openDrill('schlagen');
 function openDrill(id){D={cat:id};newDrill();show('drill')}
-function newDrill(){const c=TC(D.cat);const p=c.set?fromSet(c.set):c.gen();
+function newDrill(pp){if(D.daily&&!pp){const q=dailyPuzzle(D.daily);pp=q.p}
+  const c=TC(D.cat);const p=pp||(c.set?fromSet(c.set):c.gen());
   if(!p){D.msg=T('nodrill');D.state='';D.sub='';renderDrill();return}
   Object.assign(D,{quiz:null,answered:-1},p,{start:p.b.slice(),ans:new Set(p.ans),phase:'play',fails:0,shown:false,first:true,last:-1,marks:[],counted:false,whyOpen:false,msg:p.quiz?p.quiz.q:c.goal,state:'',sub:p.quiz?p.quiz.note:''});
   renderDrill()}
 function resetDrill(){Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,marks:D.shown?D.marks:[],msg:TC(D.cat).goal,state:'',sub:'',whyOpen:false});renderDrill()}
 function drillSolved(msg){const s=tstat(D.cat);D.phase='solved';D.state='ok';
-  if(!D.counted){D.counted=true;s.tries++;if(!D.fails&&!D.shown){s.ok++;s.streak++;s.best=Math.max(s.best,s.streak)}}
+  if(!D.counted){D.counted=true;
+    if(D.daily)dailyRecord(!D.fails&&!D.shown);
+    else{s.tries++;if(!D.fails&&!D.shown){s.ok++;s.streak++;s.best=Math.max(s.best,s.streak);rankAdj(3,300)}}}
   D.msg=msg;D.sub=TC(D.cat).tip;save();renderDrill()}
 function drillFailed(msg){const s=tstat(D.cat);D.phase='failed';D.state='bad';D.fails++;
-  if(!D.counted){D.counted=true;s.tries++;s.streak=0}D.msg=msg;D.sub='';save();renderDrill()}
+  if(!D.counted){D.counted=true;if(D.daily)dailyRecord(false);else{s.tries++;s.streak=0;rankAdj(-1)}}D.msg=msg;D.sub='';save();renderDrill()}
 function drillAnswer(k){if(!D.quiz||D.phase!=='play')return;const o=D.quiz.opts[k];D.answered=k;
   if(o.ok)drillSolved(D.quiz.right);else drillFailed(D.quiz.wrong);D.sub=D.quiz.detail;renderDrill()}
 function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat;
@@ -1552,23 +1774,24 @@ function drillMove(i){if(!D||D.phase!=='play'||D.quiz)return;const n=D.n,c=D.cat
   else D.msg=T('d_continue',coord(w,n));
   D.state='';D.sub='';renderDrill()}
 function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
-  $('#dr-cat').textContent=T('train_title');
-  $('#dr-turn').textContent=c.title;
-  $('#dr-streak').textContent=T('drill_chip',s.streak,s.ok);$('#dr-streak').className='chip'+(s.streak>1?' hot':'');
+  $('#dr-cat').textContent=D.daily?T('daily_title'):T('train_title');
+  $('#dr-turn').textContent=D.daily?c.title+' · '+T('daily_no',D.daily):c.title;
+  if(D.daily){const k=dstreak();$('#dr-streak').textContent=T('streak',k);$('#dr-streak').className='chip'+(k>1?' hot':'')}
+  else{$('#dr-streak').textContent=T('drill_chip',s.streak,s.ok);$('#dr-streak').className='chip'+(s.streak>1?' hot':'')}
   if(D.b){const tri=(D.t>=0&&(c.set)&&D.b[D.t])?groupAt(D.b,D.t,D.n).stones:[];
     const done=D.quiz&&D.phase!=='play';
     drawBoard($('#dr-board'),{n:D.n,board:D.b,last:D.last,hint:-1,marks:D.marks,tri,ghost:D.phase==='play'&&!D.quiz,onPlay:drillMove,dead:done?D.quiz.dead:[],own:done?D.quiz.own:null})}
   const ch=$('#dr-choices'),ctr=$('#dr-controls'),nb=$('#dr-nextbar');
   const asking=!!(D.quiz&&D.phase==='play'),finished=D.phase==='solved'||(D.quiz&&D.phase!=='play');
-  ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;
+  ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;nb.textContent=D.daily?T('share'):T('next');$('#dr-next').disabled=!!D.daily;
   if(asking){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
   const fb=$('#dr-fb'),open=!!(D.quiz||D.whyOpen);fb.dataset.state=D.state||'';fb.classList.toggle('open',open);
   fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbHTML(D.state,D.msg||'')}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?`<button class="why" id="dr-why">${T('why')}</button>`:'');
   const why=$('#dr-why');if(why)why.onclick=()=>{D.whyOpen=true;renderDrill()};
   $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
-$('#dr-back').onclick=()=>show('train');
+$('#dr-back').onclick=()=>{if(D)D.daily=0;show('train')};
 $('#dr-next').onclick=()=>newDrill();
-$('#dr-nextbar').onclick=()=>newDrill();
+$('#dr-nextbar').onclick=e=>{if(D.daily)shareDaily(e.currentTarget);else newDrill()};
 $('#dr-retry').onclick=()=>resetDrill();
 $('#dr-show').onclick=()=>{if(!D.b)return;D.shown=true;D.marks=[...D.ans].map(i=>[i%D.n,(i/D.n)|0]);
   Object.assign(D,{b:D.start.slice(),phase:'play',first:true,last:-1,state:'',sub:'',
