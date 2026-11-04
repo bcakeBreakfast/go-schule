@@ -244,9 +244,12 @@ html.fit .coach-card{padding:var(--s1) var(--s2);gap:0}
 .choices .ctl{height:var(--s6);font-size:16px;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
 .dr-fb{background:var(--surface);border-radius:var(--r);padding:var(--s1) var(--s2);display:flex;gap:var(--s1);align-items:flex-start;min-height:var(--s8);flex:none}
 .dr-fb .ic{width:24px;height:24px}
-.dr-fb[data-state="ok"]{background:var(--good-soft);color:var(--good)}
-.dr-fb[data-state="bad"]{background:var(--warn-soft);color:var(--warn)}
-.dr-fb small{display:block;color:var(--ink);opacity:.8;font-size:16px;line-height:24px}
+/* Rückmeldung: neutrale Fläche, der Zustand steht als Kontrollleuchte mit Etikett am Satzanfang */
+.fb-tag{display:inline-flex;align-items:center;gap:var(--s1);margin-right:var(--s1);font-size:12px;line-height:16px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:1px}
+.fb-tag::before{content:"";width:var(--s1);height:var(--s1);border-radius:50%;background:currentColor}
+.fb-tag.ok{color:var(--good)}
+.fb-tag.bad{color:var(--warn)}
+.dr-fb small{display:block;color:var(--muted);font-size:16px;line-height:24px}
 
 /* Spielerleiste: wer am Zug ist, ist hervorgehoben */
 .players{display:flex;align-items:center;gap:var(--s1);min-width:0;flex:1;overflow:hidden}
@@ -934,6 +937,8 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
   const res=p.check(ctx);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
   if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){store.done[L.id]=true;save()}}else LS.failed=true;
   renderLesson()}
+function fbHTML(state,msg){const tag=state==='ok'?'<b class="fb-tag ok">Richtig</b>':state==='bad'?'<b class="fb-tag bad">Nicht ganz</b>':'';
+  return tag+(state?String(msg).replace(/^(Richtig|Genau|Nicht ganz)[.,!]?\s*/,''):msg)}
 function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi],task=LS.stage==='task'&&!!p;
   if(!$('#view-lesson').hidden)document.documentElement.classList.toggle('fit',task);
   $('#ls-eyebrow').textContent=`Lektion ${LS.li+1} von ${LESSONS.length}`;$('#ls-title').textContent=L.title;
@@ -948,7 +953,7 @@ function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzz
     $('#ls-controls').hidden=true;$('#ls-next').hidden=true;return}
   drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
   const fb=$('#ls-fb');fb.dataset.state=LS.state||'';fb.classList.remove('open');
-  fb.innerHTML=(LS.state?icon(LS.state==='ok'?'check':'alert'):'')+`<span class="fb-text"><span class="fb-main">${LS.msg||p.task}</span></span>`;
+  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${LS.msg?fbHTML(LS.state,LS.msg):p.task}</span></span>`;
   $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed;
   $('#ls-next').textContent=LS.pi<cnt-1?'Nächste Aufgabe':(LS.li<LESSONS.length-1?'Nächste Lektion':'Jetzt spielen')}
 function lessonAdvance(){const L=LESSONS[LS.li];
@@ -1257,7 +1262,7 @@ function renderDrill(){const c=TC(D.cat),s=tstat(D.cat);
   ch.hidden=!asking;nb.hidden=!finished;ctr.hidden=asking||finished;
   if(asking){ch.innerHTML=D.quiz.opts.map((o,k)=>`<button class="ctl" data-k="${k}">${o.txt}</button>`).join('');ch.querySelectorAll('button').forEach(b=>b.onclick=()=>drillAnswer(+b.dataset.k))}
   const fb=$('#dr-fb'),open=!!(D.quiz||D.whyOpen);fb.dataset.state=D.state||'';fb.classList.toggle('open',open);
-  fb.innerHTML=(D.state?icon(D.state==='ok'?'check':'alert'):'')+`<span class="fb-text"><span class="fb-main">${D.msg||''}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?'<button class="why" id="dr-why">Warum?</button>':'');
+  fb.innerHTML=`<span class="fb-text"><span class="fb-main">${fbHTML(D.state,D.msg||'')}</span>${D.sub&&open?`<small>${D.sub}</small>`:''}</span>`+(D.sub&&!open?'<button class="why" id="dr-why">Warum?</button>':'');
   const why=$('#dr-why');if(why)why.onclick=()=>{D.whyOpen=true;renderDrill()};
   $('#dr-show').disabled=!D.b||!!D.quiz;$('#dr-retry').disabled=!D.b||!!D.quiz}
 $('#dr-back').onclick=()=>show('train');
