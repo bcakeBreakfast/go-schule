@@ -288,6 +288,41 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 /* Geschlagene Steine blenden aus, Vorschau-Stein beim Bestätigen */
 .vanish{transform-box:fill-box;transform-origin:center;animation:vanish .3s ease-in forwards}
 @keyframes vanish{to{opacity:0;transform:scale(.6)}}
+.lesson-row.locked{cursor:default}
+.lesson-row.locked .t,.lesson-row.locked .num{color:var(--muted)}
+.lesson-row.locked .t{font-weight:500}
+.st.lock{color:var(--muted);display:grid;place-items:center;width:var(--s3);height:var(--s3)}
+.st.lock .ic{width:16px;height:16px}
+.lesson-row.nope{animation:nope .36s ease-in-out}
+@keyframes nope{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+/* Lektion geschafft */
+.cele{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:var(--s3);background:color-mix(in srgb,var(--bg) 78%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:celeIn .22s ease-out;cursor:pointer}
+.cele[hidden]{display:none}
+.cele.out{animation:celeOut .28s ease-in forwards}
+@keyframes celeIn{from{opacity:0}}
+@keyframes celeOut{to{opacity:0}}
+.cele-in{display:flex;flex-direction:column;align-items:center;gap:var(--s1);text-align:center;width:100%;max-width:320px}
+.cele-mark{position:relative;width:96px;height:96px;margin-bottom:var(--s3)}
+.cele-stone{position:absolute;inset:0;width:96px;height:96px;animation:celePop .62s cubic-bezier(.2,1.6,.4,1) both;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18))}
+@keyframes celePop{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.cele-check{stroke-dasharray:56;stroke-dashoffset:56;animation:celeDraw .36s .42s ease-out forwards}
+@keyframes celeDraw{to{stroke-dashoffset:0}}
+.cele-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--accent);opacity:0;animation:celeRing .9s .12s cubic-bezier(.1,.6,.3,1) both}
+.cele-ring.r2{animation-delay:.3s;border-width:1px}
+@keyframes celeRing{0%{transform:scale(.6);opacity:1}100%{transform:scale(2.6);opacity:0}}
+.cele-dot{position:absolute;left:50%;top:50%;width:var(--sz);height:var(--sz);margin:calc(var(--sz) / -2) 0 0 calc(var(--sz) / -2);border-radius:50%;opacity:0;animation:celeBurst .9s var(--d) cubic-bezier(.15,.8,.3,1) both}
+.cele-dot.b{background:radial-gradient(circle at 36% 30%,var(--stone-b1),var(--stone-b2))}
+.cele-dot.w{background:radial-gradient(circle at 36% 30%,var(--stone-w1),var(--stone-w2));box-shadow:inset 0 0 0 1px var(--stone-edge)}
+.cele-dot.a{background:var(--accent)}
+@keyframes celeBurst{0%{transform:translate(0,0) scale(.3);opacity:0}15%{opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+.cele-txt{display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%;animation:celeUp .4s .38s ease-out both}
+@keyframes celeUp{from{opacity:0;transform:translateY(var(--s2))}}
+.cele-txt .eyebrow{color:var(--accent)}
+.cele-txt h2{margin:0;font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.01em}
+.cele-bar{width:100%;height:4px;border-radius:2px;background:var(--key);overflow:hidden;margin-top:var(--s2)}
+.cele-bar span{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .7s .65s cubic-bezier(.3,.9,.3,1)}
+.cele-meta{display:flex;justify-content:space-between;width:100%;font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: reduce){.cele,.cele *{animation-duration:.01s!important;animation-delay:0s!important;transition:none!important}.cele-dot,.cele-ring{display:none}.cele-check{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.vanish{display:none}}
 .title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2)}
 .sheet[data-scope="app"] .play-only{display:none}
@@ -312,6 +347,7 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
   <symbol id="i-retry" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
   <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="11" width="13" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.1"/></symbol>
 </svg>
@@ -421,6 +457,18 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
       </button>
     </section>
   </main>
+</div>
+
+<div class="cele" id="cele" hidden role="status" aria-live="polite">
+  <div class="cele-in">
+    <div class="cele-mark" id="cele-mark"></div>
+    <div class="cele-txt">
+      <span class="eyebrow" id="cele-eb"></span>
+      <h2 id="cele-t"></h2>
+      <div class="cele-bar"><span id="cele-bar"></span></div>
+      <div class="cele-meta"><span id="cele-sub"></span><span id="cele-prog"></span></div>
+    </div>
+  </div>
 </div>
 
 <div class="sheet-backdrop" id="sheet" hidden>
@@ -772,7 +820,7 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{ chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
+de:{ cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
  daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
  daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
  share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
@@ -851,7 +899,7 @@ de:{ chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{ chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
+en:{ cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
  daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
  daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
  share_ok:'Solved on the first try',share_x:'Not solved',
@@ -930,7 +978,7 @@ en:{ chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{ chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
+nl:{ cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
  daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
  daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
  share_ok:'In één keer opgelost',share_x:'Niet opgelost',
@@ -1432,7 +1480,26 @@ const LESSONS=[
 function parse(rows){const n=rows.length,b=new Array(n*n).fill(0);rows.forEach((r,y)=>[...r].forEach((ch,x)=>{b[y*n+x]=ch==='X'?1:ch==='O'?2:0}));return{n,b}}
 
 let LS=null;
-function openLesson(li){LS={li,pi:0,stage:'read'};loadPuzzle();show('lesson');window.scrollTo(0,0)}
+const unlocked=i=>i===0||!!store.done[LESSONS[i-1].id]||!!store.done[LESSONS[i].id];
+// Feier: Stein springt auf, Check zeichnet sich, Ringe und kleine Steine fliegen heraus
+let celeT=0;
+function chime(){if(store.settings.sound===false)return;const ac=audio();if(!ac||ac.state!=='running')return;const t0=ac.currentTime+0.02;
+  [[784,0],[1175,0.11],[1568,0.22]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t0+d);g.gain.exponentialRampToValueAtTime(0.16,t0+d+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+d+0.5);o.connect(g).connect(ac.destination);o.start(t0+d);o.stop(t0+d+0.55)})}
+function celebrate(li,first){const L=LESSONS[li],N=LESSONS.length,d=LESSONS.filter(l=>store.done[l.id]).length;
+  let dots='';for(let k=0;k<14;k++){const a=k/14*Math.PI*2+(Math.random()-0.5)*0.4,r=76+Math.random()*44,sz=[8,12,16][k%3];
+    dots+=`<i class="cele-dot ${k%7===3?'a':k%2?'w':'b'}" style="--dx:${(Math.cos(a)*r).toFixed(0)}px;--dy:${(Math.sin(a)*r).toFixed(0)}px;--sz:${sz}px;--d:${(0.18+Math.random()*0.12).toFixed(2)}s"></i>`}
+  $('#cele-mark').innerHTML=`<span class="cele-ring"></span><span class="cele-ring r2"></span>${dots}<svg class="cele-stone" viewBox="0 0 96 96" aria-hidden="true"><defs><radialGradient id="cele-g" cx="36%" cy="30%" r="72%"><stop offset="0" style="stop-color:var(--stone-b1)"/><stop offset="1" style="stop-color:var(--stone-b2)"/></radialGradient></defs><circle cx="48" cy="48" r="44" fill="url(#cele-g)"/><path class="cele-check" d="M31 49l12 12 23-25" style="fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-linejoin:round"/></svg>`;
+  $('#cele-eb').textContent=T('cele_eb',li+1);$('#cele-t').textContent=LT(L).title;
+  $('#cele-sub').textContent=d>=N?T('cele_all'):(first&&li<N-1?T('cele_unlock',li+2):T('cele_again'));
+  $('#cele-prog').textContent=T('cele_prog',d,N);
+  const bar=$('#cele-bar');bar.style.transition='none';bar.style.width=((first?d-1:d)/N*100)+'%';
+  const el=$('#cele');el.classList.remove('out');el.hidden=false;void bar.offsetWidth;bar.style.transition='';bar.style.width=(d/N*100)+'%';
+  buzz(true);chime();clearTimeout(celeT);celeT=setTimeout(hideCele,2800)}
+function hideCele(){const el=$('#cele');if(el.hidden||el.classList.contains('out'))return;clearTimeout(celeT);el.classList.add('out');setTimeout(()=>{el.hidden=true;el.classList.remove('out')},270)}
+$('#cele').addEventListener('click',hideCele);
+document.addEventListener('keydown',e=>{if(!$('#cele').hidden&&(e.key==='Escape'||e.key==='Enter'))hideCele()});
+function openLesson(li){if(!unlocked(li))return;LS={li,pi:0,stage:'read'};loadPuzzle();show('lesson');window.scrollTo(0,0)}
 const stillBoard=id=>{const e=$(id);if(e){e._pb=null;e._van=null}};
 function loadPuzzle(){const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi];stillBoard('#ls-board');
   if(p){const{n,b}=parse(p.rows);Object.assign(LS,{n,board:b,ko:p.ko?p.ko[1]*n+p.ko[0]:-1,last:p.last?p.last[1]*n+p.last[0]:-1,solved:false,failed:false,chasing:false,msg:'',state:''})}
@@ -1455,7 +1522,7 @@ function lessonPlay(i){const L=LESSONS[LS.li],p=L.puzzles[LS.pi];if(LS.solved||L
       if(!dead)res=bad(M_.b(w>=0?coord(w,n):''));
       else{LS.chasing=true;const ext=w>=0&&LS.board[t]&&groupAt(LS.board,t,n).stones.includes(w);LS.msg=(ext||w<0?M_.c:M_.e)(w>=0?coord(w,n):'');LS.state='';renderLesson();return}}}
   else res=p.check(ctx,M_);LS.msg=res.msg;LS.state=res.ok?'ok':'bad';
-  if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){store.done[L.id]=true;save()}}else LS.failed=true;
+  if(res.ok){LS.solved=true;if(LS.pi===L.puzzles.length-1){const first=!store.done[L.id],li=LS.li;store.done[L.id]=true;save();setTimeout(()=>celebrate(li,first),420)}}else LS.failed=true;
   renderLesson()}
 function fbHTML(state,msg){const tag=state==='ok'?`<b class="fb-tag ok">${T('tag_ok')}</b>`:state==='bad'?`<b class="fb-tag bad">${T('tag_bad')}</b>`:'';
   return tag+(state?String(msg).replace(/^(Richtig|Genau|Nicht ganz|Correct|Exactly|Not quite|Goed|Precies|Niet helemaal)[.,!]?\s*/,''):msg)}
@@ -1475,16 +1542,16 @@ function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzz
   drawBoard($('#ls-board'),{n:LS.n,board:LS.board,last:LS.last,marks:LS.solved?[]:p.marks,tri:ct>=0&&LS.board[ct]?groupAt(LS.board,ct,LS.n).stones:[],libDots:p.libDots||0,hint:-1,ghost:!(LS.solved||LS.failed),onPlay:lessonPlay});
   const fb=$('#ls-fb');fb.dataset.state=LS.state||'';fb.classList.remove('open');
   fb.innerHTML=`<span class="fb-text"><span class="fb-main">${LS.msg?fbHTML(LS.state,LS.msg):X.tasks[LS.pi]}</span></span>`;
-  $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed&&!LS.chasing;
+  $('#ls-controls').hidden=LS.solved;$('#ls-next').hidden=!LS.solved;$('#ls-retry').disabled=!LS.failed&&!LS.chasing;$('#ls-skip').disabled=!(LS.pi<cnt-1);
   $('#ls-next').textContent=LS.pi<cnt-1?T('next_task'):(LS.li<LESSONS.length-1?T('next_lesson'):T('play_now'))}
 function lessonAdvance(){const L=LESSONS[LS.li];
-  if(L.puzzles&&LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1)openLesson(LS.li+1);else show('play')}
+  if(L.puzzles&&LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}else if(LS.li<LESSONS.length-1&&unlocked(LS.li+1))openLesson(LS.li+1);else if(LS.li<LESSONS.length-1)show('learn');else show('play')}
 $('#ls-start').onclick=()=>{const L=LESSONS[LS.li];
-  if(!L.puzzles){store.done[L.id]=true;save();lessonAdvance();return}
+  if(!L.puzzles){const first=!store.done[L.id],li=LS.li;store.done[L.id]=true;save();celebrate(li,first);lessonAdvance();return}
   LS.stage='task';renderLesson();window.scrollTo(0,0)};
 $('#ls-explain').onclick=()=>{LS.stage='read';renderLesson();window.scrollTo(0,0)};
 $('#ls-retry').onclick=loadPuzzle;
-$('#ls-skip').onclick=lessonAdvance;
+$('#ls-skip').onclick=()=>{const L=LESSONS[LS.li];if(L.puzzles&&LS.pi<L.puzzles.length-1){LS.pi++;loadPuzzle()}};
 $('#ls-next').onclick=lessonAdvance;
 $('#ls-back').onclick=()=>{if(LS&&LS.stage==='task'){LS.stage='read';renderLesson();window.scrollTo(0,0)}else show('learn')};
 
@@ -1492,9 +1559,13 @@ function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
   $('#prog-num').innerHTML=`${done}<small>${T('of_lessons',LESSONS.length)}</small>`;
   $('#prog-bar').style.width=(done/LESSONS.length*100)+'%';
   const nextIdx=LESSONS.findIndex(l=>!store.done[l.id]);
-  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const st=store.done[l.id]?`<span class="st done" aria-label="${T('done')}"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
-    return(l.chap?`<li class="chap"><span class="eyebrow">${T('chap',l.chap)}</span></li>`:'')+`<li><button class="lesson-row" data-li="${i}"${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
-  document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>openLesson(+b.dataset.li))}
+  $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const lk=!unlocked(i);
+    const st=lk?`<span class="st lock"><svg class="ic"><use href="#i-lock"/></svg></span>`:store.done[l.id]?`<span class="st done" aria-label="${T('done')}"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
+    return(l.chap?`<li class="chap"><span class="eyebrow">${T('chap',l.chap)}</span></li>`:'')+`<li><button class="lesson-row${lk?' locked':''}" data-li="${i}"${lk?` aria-disabled="true" aria-label="${LT(l).title}. ${T('locked')}"`:''}${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
+  document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>{const i=+b.dataset.li;
+    if(unlocked(i)){openLesson(i);return}
+    buzz();b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');
+    const d=b.querySelector('.d');if(d&&!b._lk){b._lk=d.textContent;d.textContent=T('locked');setTimeout(()=>{d.textContent=b._lk;b._lk=null},2200)}})}
 let resetArmed=false;
 $('#reset-progress').onclick=e=>{const t=e.currentTarget;if(!resetArmed){resetArmed=true;t.textContent=T('reset_confirm');setTimeout(()=>{resetArmed=false;t.textContent=T('reset')},3500);return}
   store.done={};resetArmed=false;t.textContent=T('reset');save();renderLearn()};
