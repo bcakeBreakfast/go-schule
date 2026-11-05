@@ -12,7 +12,7 @@
 <title>Go-Schule</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#EDEDEA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#151514" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0A0F1E" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Go-Schule">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +25,7 @@
 :root{
   --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:40px; --s6:48px; --s7:56px; --s8:64px;
   --r:8px; --r2:16px;
-  --bg:#EDEDEA; --surface:#F7F7F5; --raised:#FFFFFF; --key:#E1E1DD; --key-down:#D3D3CE;
+  --bg:#EFEFEC; --surface:#FFFFFF; --raised:#FFFFFF; --key:#E6E6E1; --key-down:#D8D8D2; --line:#E1E1DC;
   --ink:#1D1D1C; --muted:#5F5F5A; --rule:#D5D5D0;
   --accent:#BD4315; --accent-ink:#FFFFFF; --accent-soft:#FBECE4; --danger:#B3001B;
   --board:#D8B57A; --grid:#4A3A20; --coord:#6E5734;
@@ -38,23 +38,23 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#151514; --surface:#1E1E1D; --raised:#262625; --key:#2C2C2A; --key-down:#363633;
-    --ink:#ECECE8; --muted:#9C9C96; --rule:#30302E;
+    --bg:#0A0F1E; --surface:#121A2E; --raised:#18223B; --key:#1D2742; --key-down:#283453; --line:#24304F;
+    --ink:#EEF1F8; --muted:#A3ABC4; --rule:#24304F;
     --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216; --danger:#FF6961;
     --board:#B8975F; --grid:#33260F; --coord:#3D2E15;
     --good:#7DC492; --good-soft:#1D2E22; --warn:#F08070; --warn-soft:#3A1F1B;
-    --scrim:rgba(0,0,0,.55);
+    --scrim:rgba(2,6,18,.6);
     color-scheme:dark;
   }
 }
 :root[data-theme="light"]{color-scheme:light}
 :root[data-theme="dark"]{
-  --bg:#151514; --surface:#1E1E1D; --raised:#262625; --key:#2C2C2A; --key-down:#363633;
-  --ink:#ECECE8; --muted:#9C9C96; --rule:#30302E;
+  --bg:#0A0F1E; --surface:#121A2E; --raised:#18223B; --key:#1D2742; --key-down:#283453; --line:#24304F;
+  --ink:#EEF1F8; --muted:#A3ABC4; --rule:#24304F;
   --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216; --danger:#FF6961;
   --board:#B8975F; --grid:#33260F; --coord:#3D2E15;
   --good:#7DC492; --good-soft:#1D2E22; --warn:#F08070; --warn-soft:#3A1F1B;
-  --scrim:rgba(0,0,0,.55);
+  --scrim:rgba(2,6,18,.6);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -367,6 +367,71 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
 .sheet[data-scope="app"] .play-only{display:none}
 .seg-sm{grid-auto-columns:auto}
 .seg-sm button{height:var(--s4);padding:0 var(--s1);min-width:var(--s5)}
+
+/* ===== Klarer, satter Stil: große Titel, Karten mit feinem Rand, kräftige Icons ===== */
+h1{font-size:calc(var(--u)*34);line-height:calc(var(--u)*40);letter-spacing:-.025em;font-weight:800}
+.title-row{align-items:center}
+.title-row .eyebrow{display:none}
+.ic{stroke-width:2}
+.tabbar .ic,.controls .ctl .ic{stroke-width:1.9}
+.cta,.daily,.stat,.coach-card,.dr-fb,.controls,.scorebox,.an-graph,.hero,.tcard{border:1px solid var(--line);border-radius:var(--r2)}
+.btn,.ctl,.seg button,.iconbtn,.lesson-row,.tcard,.hero,.fchip,.tabbar button{transition:transform .12s ease,background .15s,color .15s}
+.btn:active,.iconbtn:active,.lesson-row:not(.locked):active,.tcard:active,.hero:active,.fchip:active,.seg button:active{transform:scale(.97)}
+.btn{border-radius:12px;font-weight:600}
+.seg button{border-radius:12px}
+.stat span{text-transform:none;letter-spacing:0;font-size:calc(var(--u)*14);line-height:calc(var(--u)*16)}
+.pl-s{text-transform:none;letter-spacing:0;font-size:calc(var(--u)*14)}
+.app{gap:var(--s4)}
+.view{gap:var(--s3)}
+/* Tab-Leiste: aktiver Tab als Pille */
+.tabbar{background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
+.tabbar-in{gap:var(--s1)}
+.tabbar button{border-radius:14px;margin:0 var(--s1)}
+.tabbar button[aria-selected="true"]{color:var(--ink);background:var(--key);box-shadow:inset 0 0 0 1px var(--line)}
+.tabbar button[aria-selected="true"] .ic{color:var(--accent)}
+/* Abschnittstitel */
+.sec-h{font-size:calc(var(--u)*24);line-height:calc(var(--u)*32);margin:0 0 calc(var(--s2) * -1)}
+.chap{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);padding:var(--s4) 0 var(--s1);border-bottom:1px solid var(--rule)}
+.chap:first-child{padding-top:0}
+.sec-t{font-family:var(--f-display);font-weight:800;font-size:calc(var(--u)*24);line-height:calc(var(--u)*32);letter-spacing:-.015em}
+.sec-n{color:var(--muted);font-size:calc(var(--u)*14);line-height:calc(var(--u)*16);font-weight:500}
+/* Weiter-Karte */
+.hero{appearance:none;display:grid;grid-template-columns:88px 1fr auto;align-items:center;gap:var(--s2);padding:var(--s2);background:var(--surface);color:inherit;text-align:left;cursor:pointer;width:100%}
+.hero .mini{width:88px;height:88px;border-radius:12px;overflow:hidden;display:block;background:var(--board)}
+.hero .mini svg{display:block;width:100%;height:100%}
+.hero .lt{gap:2px}
+.hero .eb{color:var(--accent);font-size:calc(var(--u)*14);line-height:calc(var(--u)*16);font-weight:700}
+.hero .t{font-family:var(--f-display);font-size:calc(var(--u)*20);line-height:calc(var(--u)*24);font-weight:800;letter-spacing:-.01em}
+.hero .hbar{height:6px;border-radius:3px;background:var(--key);overflow:hidden;margin-top:var(--s1)}
+.hero .hbar span{display:block;height:100%;background:var(--accent);border-radius:3px}
+.hero .hp{color:var(--muted);font-size:calc(var(--u)*14);line-height:calc(var(--u)*16);margin-top:4px;font-variant-numeric:tabular-nums}
+.hero>.ic{width:20px;height:20px;color:var(--muted)}
+/* Kapitel-Filter */
+.filters{display:flex;gap:var(--s1);overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--s2) * -1) calc(var(--s2) * -1);padding:0 var(--s2) 2px;scroll-snap-type:x proximity;scroll-padding:0 var(--s2)}
+.filters::-webkit-scrollbar{display:none}
+.fchip{appearance:none;flex:none;height:44px;padding:0 var(--s2);border-radius:22px;border:1.5px solid var(--line);background:none;color:var(--ink);font-weight:600;font-size:calc(var(--u)*15);line-height:calc(var(--u)*16);cursor:pointer;scroll-snap-align:start;white-space:nowrap}
+.fchip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.lessons{border-top:0}
+/* Trainings-Karussell */
+.carousel{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;margin:0 calc(var(--s2) * -1);padding:0 var(--s2) 4px;scroll-padding:0 var(--s2)}
+.carousel::-webkit-scrollbar{display:none}
+.tcard{appearance:none;flex:none;width:152px;display:flex;flex-direction:column;align-items:flex-start;gap:var(--s1);padding:12px;background:var(--surface);color:inherit;text-align:left;cursor:pointer;scroll-snap-align:start}
+.tcard .tglyph{width:100%;height:96px;border-radius:12px;margin-bottom:4px}
+.tcard .tglyph svg{width:64px;height:64px}
+.tcard .t{font-weight:800;font-size:calc(var(--u)*16);line-height:calc(var(--u)*20)}
+.tcard .d{color:var(--muted);font-size:calc(var(--u)*14);line-height:calc(var(--u)*18);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(var(--u)*36)}
+.tcard .chip{margin-top:auto;padding:4px 10px}
+/* Brett-Seiten: Brett und Rückmeldung als Gruppe mittig, Aktionen unten */
+.stage{display:flex;flex-direction:column;gap:var(--s2)}
+html.fit .stage{flex:1 1 0;min-height:0;container-type:size;justify-content:center}
+html.fit .stage .board-wrap{flex:none;container-type:normal;display:grid;place-items:center}
+html.fit .stage .board-wrap .board{width:min(100cqw,calc(100cqh - var(--fbh,64px) - var(--s2)))}
+/* Trainer: Verlauf öffnet sich als Blatt über dem Brett, das Brett bleibt groß */
+.coach-card{position:relative}
+.coach-card.open .coach-old{position:absolute;left:-1px;right:-1px;bottom:calc(100% + var(--s1));z-index:6;background:var(--raised);border:1px solid var(--line);border-radius:var(--r2);padding:var(--s2);gap:var(--s2);max-height:min(56vh,480px);overflow-y:auto;box-shadow:0 16px 40px rgba(0,0,0,.22);border-top:1px solid var(--line)}
+.coach-card.open .coach-old span{color:var(--ink)}
+.coach-card.open .coach-old span+span{color:var(--muted)}
+.coach-card.open .coach-now{display:-webkit-box}
 </style>
 
 <script>try{var t=JSON.parse(localStorage.getItem('go-schule-v1')).settings.theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -396,10 +461,12 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
   <main>
     <section id="view-learn" class="view">
       <div class="title-row"><div class="stack"><span class="eyebrow" data-i18n="brand">Go-Schule</span><h1 data-i18n="learn_title">Lernen</h1></div><button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button></div>
-      <div class="progress">
+      <button class="hero" id="hero"></button>
+      <div class="progress" hidden>
         <div class="progress-num" id="prog-num"></div>
         <div class="bar"><span id="prog-bar"></span></div>
       </div>
+      <div class="filters" id="lfilters"></div>
       <ol class="lessons" id="lesson-list"></ol>
       <div class="cta">
         <p data-i18n-html="cta_html"></p>
@@ -419,8 +486,10 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <div class="prose" id="ls-body"></div>
         <button class="btn primary block" id="ls-start">Aufgabe lösen</button>
       </div>
+      <div class="stage" id="ls-stage">
       <label class="board-wrap haptic-host" id="ls-host"><div class="board" id="ls-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="dr-fb" id="ls-fb" aria-live="polite"></div>
+      </div>
       <div class="controls three" id="ls-controls">
         <button class="ctl" id="ls-explain"><svg class="ic"><use href="#i-book"/></svg><span data-i18n="ls_explain">Erklärung</span></button>
         <button class="ctl" id="ls-retry"><svg class="ic"><use href="#i-retry"/></svg><span data-i18n="retry">Nochmal</span></button>
@@ -442,7 +511,8 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <div class="stat"><b id="ts-best">0</b><span data-i18n="best_streak">Längste Serie</span></div>
         <div class="stat"><b id="ts-rank">30k</b><span data-i18n="rank">Rang</span></div>
       </div>
-      <div class="lessons" id="train-list"></div>
+      <h2 class="sec-h" data-i18n="cats">Aufgaben</h2>
+      <div class="carousel" id="train-list"></div>
     </section>
 
     <section id="view-drill" class="view" hidden>
@@ -452,8 +522,10 @@ html.fit #view-lesson{flex:1 1 0;min-height:0;gap:var(--s2)}
         <span class="chip" id="dr-streak"></span>
         <button class="iconbtn settings-btn" data-i18n-aria="settings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg></button>
       </div>
+      <div class="stage" id="dr-stage">
       <label class="board-wrap haptic-host" id="dr-host"><div class="board" id="dr-board"></div><input type="checkbox" switch class="hsw" tabindex="-1" aria-hidden="true"></label>
       <div class="dr-fb" id="dr-fb" aria-live="polite"></div>
+      </div>
       <div class="choices" id="dr-choices" hidden></div>
       <div class="controls three" id="dr-controls">
         <button class="ctl" id="dr-show"><svg class="ic"><use href="#i-eye"/></svg><span data-i18n="show_solution">Lösung</span></button>
@@ -870,7 +942,7 @@ const TSET={"leiter":[["00000000002000000001120000000110000000000000000000000000
 
 /* ---------- Sprachen ---------- */
 const I18N={
-de:{ daily_short:'Täglich', daily_more:c=>`Weiter mit ${c}`, s_theme:'Erscheinungsbild',th_auto:'Auto',th_light:'Hell',th_dark:'Dunkel', a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
+de:{ cats:'Aufgaben',hero_eb:n=>`Weiter mit Lektion ${n}`,hero_done:'Alle Lektionen geschafft',hero_done_sub:'Zeit für eine Partie gegen den Computer.',f_all:'Alle', daily_short:'Täglich', daily_more:c=>`Weiter mit ${c}`, s_theme:'Erscheinungsbild',th_auto:'Auto',th_light:'Hell',th_dark:'Dunkel', a11y_board:n=>`Go-Brett ${n} mal ${n}`,a11y_e:'leer',a11y_b:'schwarzer Stein',a11y_w:'weißer Stein',a11y_last:'letzter Zug',a11y_dead:'tot',a11y_mark:'markiert',a11y_hint:'Tipp',a11y_target:'Ziel',reset_q:'Fortschritt zurücksetzen?',reset_msg:'Alle Lektionen werden wieder gesperrt. Training, Rang und Partien bleiben erhalten.',reset_yes:'Zurücksetzen',cancel:'Abbrechen', cele_eb:n=>`Lektion ${n} geschafft`,cele_unlock:n=>`Lektion ${n} ist freigeschaltet.`,cele_again:'Wiederholt und gefestigt.',cele_all:'Alle Lektionen geschafft. Zeit für eine Partie.',cele_prog:(d,N)=>`${d} von ${N}`,locked:'Gesperrt. Schließe zuerst die Lektion davor ab.', chap:n=>'Kapitel '+n+' · '+['','Grundlagen','Fortgeschritten','Kämpfen','Strategie'][n],
  daily_title:'Tägliche Aufgabe',daily_no:n=>`Nr. ${n}`,daily_solve:'Lösen',daily_once:'Nur der erste Versuch zählt.',
  daily_next:t=>`Neue Aufgabe in ${t}`,daily_ok:'Gelöst',daily_x:'Nicht gelöst',share:'Teilen',copied:'Kopiert',
  share_ok:'Gelöst im ersten Versuch',share_x:'Nicht gelöst',
@@ -949,7 +1021,7 @@ de:{ daily_short:'Täglich', daily_more:c=>`Weiter mit ${c}`, s_theme:'Erscheinu
   zaehlen:['Zählen','Punkte am Spielende ausrechnen','','Gezählt werden deine Steine plus die leeren Punkte, die nur du umschließt. Geschlagene Steine zählen nicht extra: Sie fehlen dem Gegner, und ihr Platz wird dein Gebiet.'],
   punkte:['Große Punkte','Der wertvollste Zug der Eröffnung','Spiele den größten Zug auf dem Brett.','Ecken zuerst: Dort brauchst du die wenigsten Steine für sicheres Gebiet.']}
 },
-en:{ daily_short:'Daily', daily_more:c=>`More ${c}`, s_theme:'Appearance',th_auto:'Auto',th_light:'Light',th_dark:'Dark', a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
+en:{ cats:'Exercises',hero_eb:n=>`Continue with lesson ${n}`,hero_done:'All lessons complete',hero_done_sub:'Time for a game against the computer.',f_all:'All', daily_short:'Daily', daily_more:c=>`More ${c}`, s_theme:'Appearance',th_auto:'Auto',th_light:'Light',th_dark:'Dark', a11y_board:n=>`Go board ${n} by ${n}`,a11y_e:'empty',a11y_b:'black stone',a11y_w:'white stone',a11y_last:'last move',a11y_dead:'dead',a11y_mark:'marked',a11y_hint:'hint',a11y_target:'target',reset_q:'Reset progress?',reset_msg:'All lessons will be locked again. Training, rank and games are kept.',reset_yes:'Reset',cancel:'Cancel', cele_eb:n=>`Lesson ${n} complete`,cele_unlock:n=>`Lesson ${n} is unlocked.`,cele_again:'Repeated and reinforced.',cele_all:'All lessons complete. Time for a game.',cele_prog:(d,N)=>`${d} of ${N}`,locked:'Locked. Finish the lesson before it first.', chap:n=>'Chapter '+n+' · '+['','Basics','Advanced','Fighting','Strategy'][n],
  daily_title:'Daily puzzle',daily_no:n=>`No. ${n}`,daily_solve:'Solve',daily_once:'Only your first try counts.',
  daily_next:t=>`Next puzzle in ${t}`,daily_ok:'Solved',daily_x:'Not solved',share:'Share',copied:'Copied',
  share_ok:'Solved on the first try',share_x:'Not solved',
@@ -1028,7 +1100,7 @@ en:{ daily_short:'Daily', daily_more:c=>`More ${c}`, s_theme:'Appearance',th_aut
   zaehlen:['Counting','Work out the score at the end','','You count your stones plus the empty points only you surround. Captured stones do not count extra: they are missing from your opponent, and their space becomes your territory.'],
   punkte:['Big points','The most valuable opening move','Play the biggest move on the board.','Corners first: that is where you need the fewest stones for secure territory.']}
 },
-nl:{ daily_short:'Dagelijks', daily_more:c=>`Verder met ${c}`, s_theme:'Weergave',th_auto:'Auto',th_light:'Licht',th_dark:'Donker', a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
+nl:{ cats:'Opgaven',hero_eb:n=>`Verder met les ${n}`,hero_done:'Alle lessen gehaald',hero_done_sub:'Tijd voor een partij tegen de computer.',f_all:'Alle', daily_short:'Dagelijks', daily_more:c=>`Verder met ${c}`, s_theme:'Weergave',th_auto:'Auto',th_light:'Licht',th_dark:'Donker', a11y_board:n=>`Go-bord ${n} bij ${n}`,a11y_e:'leeg',a11y_b:'zwarte steen',a11y_w:'witte steen',a11y_last:'laatste zet',a11y_dead:'dood',a11y_mark:'gemarkeerd',a11y_hint:'tip',a11y_target:'doel',reset_q:'Voortgang resetten?',reset_msg:'Alle lessen worden weer vergrendeld. Training, rang en partijen blijven bewaard.',reset_yes:'Resetten',cancel:'Annuleren', cele_eb:n=>`Les ${n} gehaald`,cele_unlock:n=>`Les ${n} is vrijgegeven.`,cele_again:'Herhaald en ingeprent.',cele_all:'Alle lessen gehaald. Tijd voor een partij.',cele_prog:(d,N)=>`${d} van ${N}`,locked:'Vergrendeld. Rond eerst de les ervoor af.', chap:n=>'Hoofdstuk '+n+' · '+['','Basis','Gevorderd','Vechten','Strategie'][n],
  daily_title:'Dagelijkse opgave',daily_no:n=>`Nr. ${n}`,daily_solve:'Oplossen',daily_once:'Alleen je eerste poging telt.',
  daily_next:t=>`Nieuwe opgave over ${t}`,daily_ok:'Opgelost',daily_x:'Niet opgelost',share:'Delen',copied:'Gekopieerd',
  share_ok:'In één keer opgelost',share_x:'Niet opgelost',
@@ -1593,12 +1665,14 @@ function fbMore(el,open,toggle){const m=el.querySelector('.fb-main');if(!m)retur
     el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-expanded',String(!!open));
     el.onclick=e=>{if(e.target.closest('button'))return;toggle()};el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}}}
   else{el.removeAttribute('role');el.removeAttribute('tabindex');el.removeAttribute('aria-expanded');el.onclick=null;el.onkeydown=null}}
+const fbRO=typeof ResizeObserver!=='undefined'?new ResizeObserver(es=>{for(const e of es){const st=e.target.parentElement;if(st)st.style.setProperty('--fbh',Math.ceil(e.target.offsetHeight)+'px')}}):null;
+if(fbRO)['#ls-fb','#dr-fb'].forEach(id=>fbRO.observe($(id)));
 function renderLesson(){if(!LS)return;const L=LESSONS[LS.li],p=L.puzzles&&L.puzzles[LS.pi],task=LS.stage==='task'&&!!p;
   if(!$('#view-lesson').hidden)document.documentElement.classList.toggle('fit',task);
   const X=LT(L);$('#ls-eyebrow').textContent=T('lesson_of',LS.li+1,LESSONS.length);$('#ls-title').textContent=X.title;
   const cnt=p?L.puzzles.length:0;
   $('#ls-steps').innerHTML=task&&cnt>1?L.puzzles.map((_,k)=>`<i class="${k<LS.pi||(k===LS.pi&&LS.solved)?'on':''}"></i>`).join(''):'';
-  $('#ls-read').hidden=task;$('#ls-host').hidden=!task;$('#ls-fb').hidden=!task;
+  $('#ls-read').hidden=task;$('#ls-host').hidden=!task;$('#ls-fb').hidden=!task;$('#ls-stage').hidden=!task;
   if(!task){let body=X.body.map(t=>`<p>${t}</p>`).join('');
     if(X.list)body+='<ol>'+X.list.map(t=>`<li>${t}</li>`).join('')+'</ol>';
     if(X.after)body+=`<p>${X.after}</p>`;
@@ -1624,13 +1698,28 @@ $('#ls-skip').onclick=()=>{const L=LESSONS[LS.li];if(L.puzzles&&LS.pi<L.puzzles.
 $('#ls-next').onclick=lessonAdvance;
 $('#ls-back').onclick=()=>{if(LS&&LS.stage==='task'){LS.stage='read';renderLesson();window.scrollTo(0,0)}else show('learn')};
 
+function miniBoard(rows){const n=rows.length,S=88,p=S/(n+1),P=k=>p+k*p;let h=`<svg viewBox="0 0 ${S} ${S}" aria-hidden="true"><rect width="${S}" height="${S}" style="fill:var(--board)"/>`;
+  for(let k=0;k<n;k++)h+=`<line x1="${P(0)}" y1="${P(k)}" x2="${P(n-1)}" y2="${P(k)}" style="stroke:var(--grid);stroke-width:.8"/><line x1="${P(k)}" y1="${P(0)}" x2="${P(k)}" y2="${P(n-1)}" style="stroke:var(--grid);stroke-width:.8"/>`;
+  rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(c==='X')h+=`<circle cx="${P(x)}" cy="${P(y)}" r="${p*.46}" style="fill:var(--stone-b2)"/>`;else if(c==='O')h+=`<circle cx="${P(x)}" cy="${P(y)}" r="${p*.44}" style="fill:var(--stone-w1);stroke:var(--stone-edge);stroke-width:.6"/>`}));
+  return h+'</svg>'}
+const chapOf=i=>{let c=1;for(let k=0;k<=i;k++)if(LESSONS[k].chap)c=LESSONS[k].chap;return c};
+const chapName=n=>{const t=T('chap',n).split(' · ');return{name:t[1]||t[0],kap:t[0]}};
 function renderLearn(){const done=LESSONS.filter(l=>store.done[l.id]).length;
+  {const nx=LESSONS.findIndex(l=>!store.done[l.id]),N=LESSONS.length,hero=$('#hero');
+   if(nx<0){hero.innerHTML=`<span class="mini">${miniBoard(['.......','..XO...','.XXOO..','..XO...','.......','.......','.......'])}</span><span class="lt"><span class="eb">${T('cele_prog',N,N)}</span><span class="t">${T('hero_done')}</span><span class="d">${T('hero_done_sub')}</span></span><svg class="ic"><use href="#i-next"/></svg>`;hero.onclick=()=>show('play')}
+   else{const L=LESSONS[nx],pz=L.puzzles&&L.puzzles[0];
+    hero.innerHTML=`<span class="mini">${pz?miniBoard(pz.rows.length>7?pz.rows.slice(0,7).map(r=>r.slice(0,7)):pz.rows):miniBoard(['.......','.......','..X.O..','.......','..O.X..','.......','.......'])}</span><span class="lt"><span class="eb">${T('hero_eb',nx+1)}</span><span class="t">${LT(L).title}</span><span class="d">${LT(L).sum}</span><span class="hbar"><span style="width:${done/N*100}%"></span></span><span class="hp">${T('cele_prog',done,N)}</span></span><svg class="ic"><use href="#i-next"/></svg>`;
+    hero.onclick=()=>openLesson(nx)}}
+  {const lf=store.lf||0,chs=[...new Set(LESSONS.filter(l=>l.chap).map(l=>l.chap))];
+   $('#lfilters').innerHTML=`<button class="fchip" data-c="0" aria-pressed="${!lf}">${T('f_all')}</button>`+chs.map(c=>`<button class="fchip" data-c="${c}" aria-pressed="${lf===c}">${chapName(c).name}</button>`).join('');
+   document.querySelectorAll('#lfilters .fchip').forEach(b=>b.onclick=()=>{store.lf=+b.dataset.c;save();renderLearn()})}
   $('#prog-num').innerHTML=`${done}<small>${T('of_lessons',LESSONS.length)}</small>`;
   $('#prog-bar').style.width=(done/LESSONS.length*100)+'%';
   const nextIdx=LESSONS.findIndex(l=>!store.done[l.id]);
   $('#lesson-list').innerHTML=LESSONS.map((l,i)=>{const lk=!unlocked(i);
     const st=lk?`<span class="st lock"><svg class="ic"><use href="#i-lock"/></svg></span>`:store.done[l.id]?`<span class="st done" aria-label="${T('done')}"><svg class="ic" style="width:16px;height:16px"><use href="#i-check"/></svg></span>`:'<span></span>';
-    return(l.chap?`<li class="chap"><span class="eyebrow">${T('chap',l.chap)}</span></li>`:'')+`<li><button class="lesson-row${lk?' locked':''}" data-li="${i}"${lk?` aria-disabled="true" aria-label="${LT(l).title}. ${T('locked')}"`:''}${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
+    if(store.lf&&chapOf(i)!==store.lf)return'';
+    return(l.chap?`<li class="chap"><span class="sec-t">${chapName(l.chap).name}</span><span class="sec-n">${chapName(l.chap).kap}</span></li>`:'')+`<li><button class="lesson-row${lk?' locked':''}" data-li="${i}"${lk?` aria-disabled="true" aria-label="${LT(l).title}. ${T('locked')}"`:''}${i===nextIdx?' aria-current="step"':''}><span class="num${i===nextIdx?' next':''}">${i+1}</span><span class="lt"><span class="t">${LT(l).title}</span><span class="d">${LT(l).sum}</span></span>${st}</button></li>`}).join('');
   document.querySelectorAll('.lesson-row').forEach(b=>b.onclick=()=>{const i=+b.dataset.li;
     if(unlocked(i)){openLesson(i);return}
     buzz();b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');
@@ -1657,8 +1746,9 @@ const lvlOf=v=>v==='auto'?autoLevel():(v||'leicht');
 let G=(store.game&&store.game.board&&store.game.board.length===store.game.n*store.game.n)?store.game:newGame();
 if(G.coach&&G.coach.some(c=>typeof c.t==='string'))G.coach=G.coach.filter(c=>typeof c.t!=='string');
 if(G.reviewing&&!G.an)G.reviewing=false;
+if(G.coach)G.coach=G.coach.filter((c,i,a)=>!i||JSON.stringify(c)!==JSON.stringify(a[i-1]));
 let busy=false;
-function coachAdd(who,t){G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
+function coachAdd(who,t){const p=G.coach[0];if(p&&p.who===who&&JSON.stringify(p.t)===JSON.stringify(t))return;G.coach.unshift({who,t});G.coach=G.coach.slice(0,6)}
 function pushHist(){G.history.push({b:G.board.join(''),turn:G.turn,caps:G.caps.slice(),ko:G.ko,last:G.last,passes:G.passes,moves:G.moves})}
 function restore(s){G.pending=-1;G.board=[...s.b].map(Number);G.turn=s.turn;G.caps=s.caps.slice();G.ko=s.ko;G.last=s.last;G.passes=s.passes;G.moves=s.moves}
 function applyMove(r,i,c){G.pending=-1;G.board=r.board;G.caps[c]+=r.captured.length;G.ko=r.ko;G.last=i;G.passes=0;G.moves++;G.turn=3-c}
@@ -1783,7 +1873,7 @@ syncHaptic();
 // Erscheinungsbild: Auto folgt dem System, Hell/Dunkel fest
 function applyTheme(){const t=store.settings.theme||'auto',r=document.documentElement;
   if(t==='auto')delete r.dataset.theme;else r.dataset.theme=t;
-  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=t==='auto'?m.dataset.c:(t==='dark'?'#151514':'#EDEDEA')});
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=t==='auto'?m.dataset.c:(t==='dark'?'#0A0F1E':'#EFEFEC')});
   document.querySelectorAll('#seg-theme button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===t)))}
 document.querySelectorAll('#seg-theme button').forEach(b=>b.onclick=()=>{store.settings.theme=b.dataset.v;save();applyTheme()});
 applyTheme();
@@ -1887,7 +1977,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?T('more'):T('hint');$('#btn-new span').textContent=newArmed?T('sure'):T('new');$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
   const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=Rm(now.t);
-  $('#coach-old').innerHTML=G.coach.slice(1,coachOpen?4:1).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join('');
+  $('#coach-old').innerHTML=coachOpen?G.coach.slice(0,5).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join(''):'';
   const cc=$('#coach-card');cc.hidden=showBox||anOn||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);
   // Aufklappen nur anbieten, wenn es mehr zu sehen gibt: ältere Meldungen oder abgeschnittener Text
   {const nw=$('#coach-now'),more=G.coach.length>1||coachOpen||(!cc.hidden&&clamped(nw,2));
@@ -1963,8 +2053,8 @@ function renderTrain(){let tot=0,best=0;TCATS.forEach(c=>{const s=tstat(c.id);to
   const fresh=TCATS.every(c=>!tstat(c.id).tries)&&!rk().g;$('#ts-empty').hidden=!fresh;$('#ts-stats').hidden=fresh;
   $('#train-list').innerHTML=TCATS.map(c=>{const s=tstat(c.id);
     const chip=s.streak>1?`<span class="chip hot">${T('streak',s.streak)}</span>`:(s.ok?`<span class="chip">${T('solved_n',s.ok)}</span>`:`<span class="chip">${c.set?T('tasks_n',TSET[c.set].length):T('endless')}</span>`);
-    return`<button class="train-row" data-id="${c.id}"><span class="tglyph">${glyph(c.id)}</span><span class="lt"><span class="t">${c.title}</span><span class="d">${c.sum}</span></span>${chip}</button>`}).join('');
-  document.querySelectorAll('.train-row').forEach(b=>b.onclick=()=>openDrill(b.dataset.id))}
+    return`<button class="tcard" data-id="${c.id}"><span class="tglyph">${glyph(c.id)}</span><span class="t">${c.title}</span><span class="d">${c.sum}</span>${chip}</button>`}).join('');
+  document.querySelectorAll('.tcard').forEach(b=>b.onclick=()=>openDrill(b.dataset.id))}
 $('#ts-start').onclick=()=>openDrill('schlagen');
 function openDrill(id){D={cat:id};newDrill();show('drill')}
 function newDrill(pp){if(D.daily&&!pp){const q=dailyPuzzle(D.daily);pp=q.p}
