@@ -41,7 +41,7 @@
     --bg:#0A0F1E; --surface:#121A2E; --raised:#18223B; --key:#1D2742; --key-down:#283453; --line:#24304F;
     --ink:#EEF1F8; --muted:#A3ABC4; --rule:#24304F;
     --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216; --danger:#FF6961;
-    --board:#B8975F; --grid:#33260F; --coord:#3D2E15;
+    --board:#C9A063; --grid:#3A2A12; --coord:#4A3818;
     --good:#7DC492; --good-soft:#1D2E22; --warn:#F08070; --warn-soft:#3A1F1B;
     --scrim:rgba(2,6,18,.6);
     color-scheme:dark;
@@ -52,7 +52,7 @@
   --bg:#0A0F1E; --surface:#121A2E; --raised:#18223B; --key:#1D2742; --key-down:#283453; --line:#24304F;
   --ink:#EEF1F8; --muted:#A3ABC4; --rule:#24304F;
   --accent:#F26B2E; --accent-ink:#1A0E08; --accent-soft:#3B2216; --danger:#FF6961;
-  --board:#B8975F; --grid:#33260F; --coord:#3D2E15;
+  --board:#C9A063; --grid:#3A2A12; --coord:#4A3818;
   --good:#7DC492; --good-soft:#1D2E22; --warn:#F08070; --warn-soft:#3A1F1B;
   --scrim:rgba(2,6,18,.6);
   color-scheme:dark;
@@ -432,6 +432,17 @@ html.fit .stage .board-wrap .board{width:min(100cqw,calc(100cqh - var(--fbh,64px
 .coach-card.open .coach-old span{color:var(--ink)}
 .coach-card.open .coach-old span+span{color:var(--muted)}
 .coach-card.open .coach-now{display:-webkit-box}
+
+/* Spielansicht kompakter: Brett bekommt den Platz */
+#coach-who{display:none}
+.coach-head{position:absolute;top:var(--s1);right:var(--s2)}
+.coach-now{padding-right:var(--s3)}
+.cw{font-size:calc(var(--u)*12);line-height:calc(var(--u)*16);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:var(--s1);vertical-align:1px}
+.cw.trainer{color:var(--accent)}
+html.fit #view-play{gap:var(--s1)}
+html.fit #view-play .statusbar{margin-bottom:var(--s1)}
+html.fit #view-play .controls .ctl{height:var(--s6);gap:2px}
+html.fit #view-play .coach-card{min-height:0}
 </style>
 
 <script>try{var t=JSON.parse(localStorage.getItem('go-schule-v1')).settings.theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -1976,7 +1987,7 @@ function renderPlay(){const n=G.n,scoring=G.phase!=='play';const sc=scoring?scor
   {const off=hapticKind()==='android'||store.settings.haptic===false||!(play||G.phase==='score');setTimeout(()=>{const i=$('#play-host .hsw');if(i)i.disabled=off},0)}
   $('#btn-hint').disabled=!play;$('#btn-hint').lastChild.textContent=G.hintLevel?T('more'):T('hint');$('#btn-new span').textContent=newArmed?T('sure'):T('new');$('#btn-pass').disabled=!play;$('#btn-undo').disabled=busy||G.phase==='over'||!G.history.length;
   $('#btn-new').classList.toggle('primary',G.phase==='over');
-  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;$('#coach-now').textContent=Rm(now.t);
+  const now=G.coach[0]||{who:'trainer',t:''};  $('#coach-who').textContent=whoLabel(now.who);$('#coach-who').className='badge '+now.who;{const esc=v=>String(v).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);$('#coach-now').innerHTML=`<b class="cw ${now.who}">${esc(whoLabel(now.who))}</b>${esc(Rm(now.t))}`}
   $('#coach-old').innerHTML=coachOpen?G.coach.slice(0,5).map(c=>`<span><b>${whoLabel(c.who)}</b>${Rm(c.t)}</span>`).join(''):'';
   const cc=$('#coach-card');cc.hidden=showBox||anOn||(store.settings.coach===false&&!coachPeek);cc.classList.toggle('open',coachOpen);
   // Aufklappen nur anbieten, wenn es mehr zu sehen gibt: ältere Meldungen oder abgeschnittener Text
